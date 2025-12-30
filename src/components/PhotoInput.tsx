@@ -1,9 +1,10 @@
 import { createEffect, createSignal, Switch, Match, Show, For } from "solid-js";
 import { FormComponentBase } from "../FormType";
 import Toastify from 'toastify-js'
-import { locale } from "../stores/LocaleStore";
+import { useLocale } from "../stores/StoreContext";
 
 const PhotoInput: FormComponentBase = props => {
+  const [locale] = useLocale();
   const [label, setLabel] = createSignal('');
   const [fileSource, setFileSource] = createSignal('');
   let reader = new FileReader();
