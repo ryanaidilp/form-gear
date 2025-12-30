@@ -36,7 +36,58 @@ import { initReferenceMap } from "./GlobalFunction";
 export const gearVersion = '1.1.1';
 export let templateVersion = '0.0.0';
 export let validationVersion = '0.0.0';
-export function FormGear(referenceFetch, templateFetch, presetFetch, responseFetch, validationFetch, mediaFetch, remarkFetch, config, uploadHandler, GpsHandler, offlineSearch, onlineSearch, mobileExit, setResponseMobile, setSubmitMobile, openMap) {
+
+/**
+ * Legacy FormGear constructor
+ *
+ * @deprecated Use `createFormGear` from 'form-gear' instead.
+ * This constructor uses 16 positional parameters which is hard to maintain.
+ *
+ * @example Migration to new API:
+ * ```typescript
+ * // Before (legacy)
+ * new FormGear(ref, template, preset, response, validation, media, remark,
+ *              config, upload, gps, offline, online, exit, save, submit, map);
+ *
+ * // After (modern)
+ * import { createFormGear, ClientMode, FormMode } from 'form-gear';
+ *
+ * createFormGear({
+ *   data: { reference: ref, template, preset, response, validation, media, remark },
+ *   config: { clientMode: ClientMode.CAWI, formMode: FormMode.OPEN, ... },
+ *   mobileHandlers: { uploadHandler: upload, gpsHandler: gps, ... },
+ *   callbacks: { onSave: save, onSubmit: submit },
+ * });
+ * ```
+ */
+export function FormGear(
+  referenceFetch: unknown,
+  templateFetch: unknown,
+  presetFetch: unknown,
+  responseFetch: unknown,
+  validationFetch: unknown,
+  mediaFetch: unknown,
+  remarkFetch: unknown,
+  config: {
+    clientMode: number;
+    formMode: number;
+    initialMode?: number;
+    lookupMode?: number;
+    username?: string;
+    token?: string;
+    baseUrl?: string;
+    lookupKey?: string;
+    lookupValue?: string;
+  },
+  uploadHandler: (setter: (value: unknown) => void) => void,
+  GpsHandler: (setter: (value: unknown, remark?: string) => void, needPhoto?: boolean) => void,
+  offlineSearch: (id: string, version: string, conditions: unknown[], setter: (data: unknown) => void) => void,
+  onlineSearch: (url: string) => Promise<unknown>,
+  mobileExit: (callback: () => void) => void,
+  setResponseMobile: (response: unknown, media: unknown, remark: unknown, principal: unknown, reference: unknown) => void,
+  setSubmitMobile: (response: unknown, media: unknown, remark: unknown, principal: unknown, reference: unknown) => void,
+  openMap: (coordinates: unknown) => void
+): void {
   
   
   console.log("   _____               _____            ");
