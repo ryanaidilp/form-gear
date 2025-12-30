@@ -11,7 +11,8 @@
     "url": "git+https://github.com/AdityaSetyadi/form-gear.git"
   },
   "files": [
-    "dist"
+    "dist",
+    "src"
   ],
   "main": "./dist/form-gear.umd.js",
   "module": "./dist/form-gear.es.js",
@@ -20,8 +21,12 @@
       "import": "./dist/form-gear.es.js",
       "require": "./dist/form-gear.umd.js"
     },
+    "./style.css": "./dist/style.css",
     "./dist/style.css": "./dist/style.css"
   },
+  "sideEffects": [
+    "**/*.css"
+  ],
   "keywords": [
     "form-gear",
     "form-builder",
