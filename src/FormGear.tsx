@@ -22,6 +22,9 @@ import { setSidebar } from './stores/SidebarStore';
 
 import { createSignal } from "solid-js";
 
+import { StoreProvider } from './stores/StoreContext';
+import { createFormStores } from './stores/createStores';
+
 import semverCompare from "semver-compare";
 import { toastInfo } from "./FormInput";
 
@@ -122,13 +125,23 @@ export function FormGear(
   try{
     setTemplate({details: templateFetch});
     setValidation({details: validationFetch});
-    
+
     (Object.keys(presetFetch).length > 0) ? setPreset({details: presetFetch}) : setPreset({details: JSON.parse(JSON.stringify(presetJSON))});
     (Object.keys(responseFetch).length > 0) ? setResponse({details: responseFetch}) : setResponse({details: JSON.parse(JSON.stringify(responseJSON))});
     (Object.keys(mediaFetch).length > 0) ? setMedia({details: mediaFetch}) : setMedia({details: JSON.parse(JSON.stringify(mediaJSON))});
     (Object.keys(remarkFetch).length > 0) ? setRemark({details: remarkFetch}) : setRemark({details: JSON.parse(JSON.stringify(remarkJSON))});
     (Object.keys(responseFetch).length > 0 && response.details.counter !== undefined) && setCounter(JSON.parse(JSON.stringify(response.details.counter[0])))
-    
+
+    // Create isolated stores for this FormGear instance
+    const stores = createFormStores({
+      template: templateFetch,
+      validation: validationFetch,
+      preset: Object.keys(presetFetch).length > 0 ? presetFetch : presetJSON,
+      response: Object.keys(responseFetch).length > 0 ? responseFetch : responseJSON,
+      media: Object.keys(mediaFetch).length > 0 ? mediaFetch : mediaJSON,
+      remark: Object.keys(remarkFetch).length > 0 ? remarkFetch : remarkJSON,
+    });
+
     const tmpVarComp = []
     const tmpEnableComp = [];
     const flagArr = [];
@@ -176,12 +189,14 @@ export function FormGear(
 
       setCounter('render', counterRender += 1)
       render(() => (
-        <FormProvider>
-          <FormLoaderProvider>
-            <Form config={config} timeStart={timeStart} runAll={runAll} tmpEnableComp={tmpEnableComp} tmpVarComp={tmpVarComp} template={template} preset={preset} response={response} validation={validation} remark={remark} uploadHandler={uploadHandler} GpsHandler={GpsHandler} offlineSearch={offlineSearch} onlineSearch={onlineSearch} mobileExit={mobileExit} setResponseMobile={setResponseMobile} setSubmitMobile={setSubmitMobile} openMap={openMap}/>
-            <Loader />
-          </FormLoaderProvider>
-        </FormProvider>
+        <StoreProvider stores={stores}>
+          <FormProvider>
+            <FormLoaderProvider>
+              <Form config={config} timeStart={timeStart} runAll={runAll} tmpEnableComp={tmpEnableComp} tmpVarComp={tmpVarComp} template={template} preset={preset} response={response} validation={validation} remark={remark} uploadHandler={uploadHandler} GpsHandler={GpsHandler} offlineSearch={offlineSearch} onlineSearch={onlineSearch} mobileExit={mobileExit} setResponseMobile={setResponseMobile} setSubmitMobile={setSubmitMobile} openMap={openMap}/>
+              <Loader />
+            </FormLoaderProvider>
+          </FormProvider>
+        </StoreProvider>
       ), document.getElementById("FormGear-root") as HTMLElement);
     }else{
       console.log('Build reference 🚀')
@@ -576,14 +591,16 @@ export function FormGear(
 
           setCounter('render', counterRender += 1)
           render(() => (
-            <FormProvider>
-              <FormLoaderProvider>
-                <Form config={config} timeStart={timeStart} runAll={runAll} tmpEnableComp={tmpEnableComp} tmpVarComp={tmpVarComp} template={template} preset={preset} response={response} validation={validation} remark={remark} uploadHandler={uploadHandler} GpsHandler={GpsHandler} offlineSearch={offlineSearch} onlineSearch={onlineSearch} mobileExit={mobileExit} setResponseMobile={setResponseMobile} setSubmitMobile={setSubmitMobile} openMap={openMap}/>
-                <Loader />
-              </FormLoaderProvider>
-            </FormProvider>
+            <StoreProvider stores={stores}>
+              <FormProvider>
+                <FormLoaderProvider>
+                  <Form config={config} timeStart={timeStart} runAll={runAll} tmpEnableComp={tmpEnableComp} tmpVarComp={tmpVarComp} template={template} preset={preset} response={response} validation={validation} remark={remark} uploadHandler={uploadHandler} GpsHandler={GpsHandler} offlineSearch={offlineSearch} onlineSearch={onlineSearch} mobileExit={mobileExit} setResponseMobile={setResponseMobile} setSubmitMobile={setSubmitMobile} openMap={openMap}/>
+                  <Loader />
+                </FormLoaderProvider>
+              </FormProvider>
+            </StoreProvider>
           ), document.getElementById("FormGear-root") as HTMLElement);
-        } 
+        }
       },500)
     }
 
