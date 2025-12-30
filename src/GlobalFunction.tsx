@@ -1,5 +1,5 @@
 import { reference, referenceMap, setReference, setReferenceEnableFalse, setReferenceMap } from './stores/ReferenceStore';
-import { batch, createSignal } from 'solid-js';
+import { batch } from 'solid-js';
 import { locale } from './stores/LocaleStore';
 import { note, setNote } from './stores/NoteStore';
 import { preset } from './stores/PresetStore';
@@ -16,12 +16,52 @@ import { input } from './stores/InputStore';
 import { ControlType, OPTION_INPUT_CONTROL } from './FormType';
 import { ClientMode } from './constants';
 import dayjs from 'dayjs';
+import {
+    evaluateExpression,
+    evaluateEnableCondition,
+    evaluateValidation,
+    evaluateVariableExpression,
+    createGetRowIndex,
+    type ExpressionContext,
+} from './utils/expression';
 
 export const default_eval_enable = true
 export const default_eval_validation = true
 var getConfig;
 export const globalConfig = (config: any) => {
     getConfig = config
+}
+
+/**
+ * Creates an expression context for evaluating expressions.
+ * This replaces the need for eval() by providing a sandboxed context.
+ */
+export const createExpressionContext = (
+    dataKey: string,
+    prop?: any,
+    answer?: unknown
+): ExpressionContext => {
+    const getRowIndex = createGetRowIndex(dataKey);
+
+    const getProp = (config: string): unknown => {
+        if (!prop) return undefined;
+        switch (config) {
+            case 'clientMode':
+                return prop.clientMode;
+            case 'baseUrl':
+                return prop.baseUrl;
+            default:
+                return prop[config];
+        }
+    };
+
+    return {
+        getValue,
+        getRowIndex,
+        getProp,
+        dataKey,
+        answer,
+    };
 }
 
 export const getValue = (dataKey: string) => {
@@ -51,14 +91,10 @@ export const getValue = (dataKey: string) => {
 }
 
 export const createComponent = (dataKey: string, nestedPosition: number, componentPosition: number, sidebarPosition: number, components: any, parentIndex: number[], parentName: string) => {
-    const eval_enable = (eval_text, dataKey) => {
-        try {
-            return eval(eval_text)
-        } catch (e) {
-            console.log(e)
-            toastInfo(locale.details.language[0].errorEnableExpression + dataKey, 3000, "", "bg-pink-600/80");
-            return default_eval_enable
-        }
+    const safeEvalEnable = (enableCondition: string, componentDataKey: string): boolean => {
+        const context = createExpressionContext(componentDataKey);
+        const result = evaluateEnableCondition(enableCondition, context, default_eval_enable);
+        return result;
     }
 
     let newComp = JSON.parse(JSON.stringify(components));
@@ -156,7 +192,7 @@ export const createComponent = (dataKey: string, nestedPosition: number, compone
     } else {
         newComp.enableCondition = undefined
     }
-    newComp.enable = (newComp.enableCondition === undefined || newComp.enableCondition === '') ? true : eval_enable(newComp.enableCondition, newComp.dataKey);
+    newComp.enable = (newComp.enableCondition === undefined || newComp.enableCondition === '') ? true : safeEvalEnable(newComp.enableCondition, newComp.dataKey);
 
     newComp.hasRemark = false;
     if (newComp.enableRemark === undefined || (newComp.enableRemark !== undefined && newComp.enableRemark)) {
@@ -224,26 +260,13 @@ export const insertSidebarArray = (dataKey: string, answer: any, beforeAnswer: a
 
     components.forEach(newComp => {
         let initial = 0;
-        let value = []
+        let value: any = []
         value = (newComp.answer) ? newComp.answer : value;
 
         if (Number(newComp.type) === 4) {
-            const getRowIndex = (positionOffset: number) => {
-                let editedDataKey = newComp.dataKey.split('@');
-                let splitDataKey = editedDataKey[0].split('#');
-                let splLength = splitDataKey.length;
-                let reducer = positionOffset + 1;
-                return ((splLength - reducer) < 1) ? Number(splitDataKey[1]) : Number(splitDataKey[splLength - reducer]);
-            }
-            const [rowIndex, setRowIndex] = createSignal(getRowIndex(0));
             initial = 1
-            try {
-                let value_local = eval(newComp.expression)
-                value = value_local
-            } catch (e) {
-                value = undefined
-                toastInfo(locale.details.language[0].errorExpression + newComp.dataKey, 3000, "", "bg-pink-600/80");
-            }
+            const context = createExpressionContext(newComp.dataKey);
+            value = evaluateVariableExpression(newComp.expression, context);
         } else {
             let answerIndex = response.details.answers.findIndex(obj => obj.dataKey === newComp.dataKey);
             value = (answerIndex !== -1 && response.details.answers[answerIndex] !== undefined) ? response.details.answers[answerIndex].answer : value;
@@ -455,26 +478,13 @@ export const insertSidebarNumber = (dataKey: string, answer: any, beforeAnswer: 
         })
         components.forEach(newComp => {
             let initial = 0;
-            let value = []
+            let value: any = []
             value = (newComp.answer) ? newComp.answer : value;
 
             if (Number(newComp.type) === 4) {
-                const getRowIndex = (positionOffset: number) => {
-                    let editedDataKey = newComp.dataKey.split('@');
-                    let splitDataKey = editedDataKey[0].split('#');
-                    let splLength = splitDataKey.length;
-                    let reducer = positionOffset + 1;
-                    return ((splLength - reducer) < 1) ? Number(splitDataKey[1]) : Number(splitDataKey[splLength - reducer]);
-                }
-                const [rowIndex, setRowIndex] = createSignal(getRowIndex(0));
                 initial = 1
-                try {
-                    let value_local = eval(newComp.expression)
-                    value = value_local
-                } catch (e) {
-                    value = undefined
-                    toastInfo(locale.details.language[0].errorExpression + newComp.dataKey, 3000, "", "bg-pink-600/80");
-                }
+                const context = createExpressionContext(newComp.dataKey);
+                value = evaluateVariableExpression(newComp.expression, context);
             } else {
                 let answerIndex = response.details.answers.findIndex(obj => obj.dataKey === newComp.dataKey);
                 value = (answerIndex !== -1 && response.details.answers[answerIndex] !== undefined) ? response.details.answers[answerIndex].answer : value;
@@ -582,89 +592,33 @@ export const deleteSidebarNumber = (dataKey: string, answer: any, beforeAnswer: 
 }
 
 export const runVariableComponent = (dataKey: string, activeComponentPosition: number, initial: number) => {
-    const getRowIndex = (positionOffset: number) => {
-        let editedDataKey = dataKey.split('@');
-        let splitDataKey = editedDataKey[0].split('#');
-        let splLength = splitDataKey.length;
-        let reducer = positionOffset + 1;
-        return ((splLength - reducer) < 1) ? Number(splitDataKey[1]) : Number(splitDataKey[splLength - reducer]);
-    }
-    const [rowIndex, setRowIndex] = createSignal(getRowIndex(0));
     const refPosition = referenceIndexLookup(dataKey)
     if (refPosition !== -1) {
         let updatedRef = JSON.parse(JSON.stringify(reference.details[refPosition]));
-        try {
-            let answerVariable = eval(updatedRef.expression);
-            let init = (initial == 1) ? 1 : (answerVariable == undefined || (answerVariable != undefined && answerVariable.length == 0)) ? 1 : 0
-            saveAnswer(dataKey, 'answer', answerVariable, activeComponentPosition, null, init);
-        } catch (e) {
-            console.log(e, dataKey)
-            toastInfo(locale.details.language[0].errorExpression + dataKey, 3000, "", "bg-pink-600/80");
-            saveAnswer(dataKey, 'answer', undefined, activeComponentPosition, null, 1);
-        }
+        const context = createExpressionContext(dataKey);
+        const answerVariable = evaluateVariableExpression(updatedRef.expression, context);
+        let init = (initial == 1) ? 1 : (answerVariable == undefined || (answerVariable != undefined && (answerVariable as any).length == 0)) ? 1 : 0
+        saveAnswer(dataKey, 'answer', answerVariable, activeComponentPosition, null, init);
     }
 }
 
 export const runEnabling = (dataKey: string, activeComponentPosition: number, prop: any | null, enableCondition: string) => {
-    const getProp = (config: string) => {
-        switch (config) {
-            case 'clientMode': {
-                return prop.clientMode;
-            }
-            case 'baseUrl': {
-                return prop.baseUrl;
-            }
-        }
-    }
-
-    const eval_enable = (eval_text, dataKey) => {
-        try {
-            return eval(eval_text)
-        } catch (e) {
-            console.log(e, dataKey, eval_text)
-            toastInfo(locale.details.language[0].errorEnableExpression + dataKey, 3000, "", "bg-pink-600/80");
-            return default_eval_enable
-        }
-    }
-
-    const getRowIndex = (positionOffset: number) => {
-        let editedDataKey = dataKey.split('@');
-        let splitDataKey = editedDataKey[0].split('#');
-        let splLength = splitDataKey.length;
-        let reducer = positionOffset + 1;
-        return ((splLength - reducer) < 1) ? Number(splitDataKey[1]) : Number(splitDataKey[splLength - reducer]);
-    }
-    const [rowIndex, setRowIndex] = createSignal(getRowIndex(0));
-
-    let enable = eval_enable(enableCondition, dataKey);
+    const context = createExpressionContext(dataKey, prop);
+    const enable = evaluateEnableCondition(enableCondition, context, default_eval_enable);
     saveAnswer(dataKey, 'enable', enable, activeComponentPosition, null, 0);
 }
 
 export const runValidation = (dataKey: string, updatedRef: any, activeComponentPosition: number, clientMode?: ClientMode) => {
-    const getRowIndex = (positionOffset: number) => {
-        let editedDataKey = dataKey.split('@');
-        let splitDataKey = editedDataKey[0].split('#');
-        let splLength = splitDataKey.length;
-        let reducer = positionOffset + 1;
-        return ((splLength - reducer) < 1) ? Number(splitDataKey[1]) : Number(splitDataKey[splLength - reducer]);
-    }
-    const [rowIndex, setRowIndex] = createSignal(getRowIndex(0));
+    const context = createExpressionContext(dataKey, null, updatedRef.answer);
     updatedRef.validationMessage = []
     updatedRef.validationState = 0;
     if (!updatedRef.hasRemark) {
         updatedRef.validations?.forEach((el, i) => {
-            let result = default_eval_validation;
-            try {
-                result = eval(el.test)
-            } catch (e) {
-                console.log(e, updatedRef.dataKey, el.test)
-                toastInfo(locale.details.language[0].errorValidationExpression + updatedRef.dataKey, 3000, "", "bg-pink-600/80");
-            }
+            const result = evaluateValidation(el.test, context, default_eval_validation);
             if (result) {
                 updatedRef.validationMessage.push(el.message);
                 updatedRef.validationState = (updatedRef.validationState < el.type) ? el.type : updatedRef.validationState;
             }
-            // }
         })
 
         if (updatedRef.urlValidation && (updatedRef.type == 24 || updatedRef.type == 25 || updatedRef.type == 28 || updatedRef.type == 30 || updatedRef.type == 31)) {
@@ -825,14 +779,9 @@ export const setEnableFalse = () => {
 }
 
 export const saveAnswer = (dataKey: string, attributeParam: any, answer: any, activeComponentPosition: number, prop: any | null, initial: number) => {
-    const eval_enable = (eval_text, dataKey) => {
-        try {
-            return eval(eval_text)
-        } catch (e) {
-            console.log(e)
-            toastInfo(locale.details.language[0].errorEnableExpression + dataKey, 3000, "", "bg-pink-600/80");
-            return default_eval_enable
-        }
+    const safeEvalEnable = (enableCondition: string, componentDataKey: string): boolean => {
+        const context = createExpressionContext(componentDataKey, prop);
+        return evaluateEnableCondition(enableCondition, context, default_eval_enable);
     }
 
     let refPosition = referenceIndexLookup(dataKey)
@@ -901,7 +850,7 @@ export const saveAnswer = (dataKey: string, attributeParam: any, answer: any, ac
                 hasSideCompEnable.forEach(sidebarEnable => {
                     let sidePosition = sidebar.details.findIndex(objSide => objSide.dataKey === sidebarEnable.dataKey);
                     let enableSideBefore = sidebar.details[sidePosition]['enable'];
-                    let enableSide = eval_enable(sidebarEnable.enableCondition, sidebarEnable.dataKey);
+                    let enableSide = safeEvalEnable(sidebarEnable.enableCondition, sidebarEnable.dataKey);
                     addHistory('update_sidebar', null, null, null, JSON.parse(JSON.stringify(sidebar.details)))
                     setSidebar('details', sidePosition, 'enable', enableSide);
                     let updatedRef = JSON.parse(JSON.stringify(reference.details));
@@ -922,28 +871,21 @@ export const saveAnswer = (dataKey: string, attributeParam: any, answer: any, ac
                                     if (updatedRef[refPos].enableCondition === undefined || updatedRef[refPos].enableCondition === '') {
                                         newEnab = true;
                                     } else {
-                                        newEnab = eval_enable(updatedRef[refPos].enableCondition, updatedRef[refPos].dataKey)
+                                        newEnab = safeEvalEnable(updatedRef[refPos].enableCondition, updatedRef[refPos].dataKey)
                                     }
                                     setReference('details', refPos, 'enable', newEnab);
                                 }
                             }
                         });
                         if (tmpVarComp.length > 0) {
-                            const getRowIndex = (positionOffset: number) => {
-                                let editedDataKey = sidebarEnable.split('@');
-                                let splitDataKey = editedDataKey[0].split('#');
-                                let splLength = splitDataKey.length;
-                                let reducer = positionOffset + 1;
-                                return ((splLength - reducer) < 1) ? Number(splitDataKey[1]) : Number(splitDataKey[splLength - reducer]);
-                            }
-                            const [rowIndex, setRowIndex] = createSignal(getRowIndex(0));
                             tmpVarComp.forEach((t, i) => {
                                 try {
-                                    let evVal = eval(t.expression);
+                                    const context = createExpressionContext(t.dataKey, prop);
+                                    let evVal = evaluateVariableExpression(t.expression, context);
                                     saveAnswer(t.dataKey, 'answer', evVal, tmpIndex[i], null, 0);
                                 } catch (e) {
                                     toastInfo(locale.details.language[0].errorExpression + t.dataKey, 3000, "", "bg-pink-600/80");
-                                    saveAnswer(e.dataKey, 'answer', undefined, tmpIndex[i], null, 1);
+                                    saveAnswer(t.dataKey, 'answer', undefined, tmpIndex[i], null, 1);
                                 }
                             })
                         }

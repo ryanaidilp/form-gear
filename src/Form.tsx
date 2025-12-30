@@ -27,6 +27,12 @@ import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
 import { ClientMode } from "./constants";
 import { media, setMedia } from "./stores/MediaStore";
+import {
+    evaluateEnableCondition,
+    evaluateVariableExpression,
+    createGetRowIndex,
+    type ExpressionContext,
+} from './utils/expression';
 
 
 const Form: Component<{
@@ -145,16 +151,14 @@ const Form: Component<{
         return (cekInsideIndex == -1) ? 0 : index;
       });
 
-      const getRowIndex = (positionOffset: number) => {
-        let editedDataKey = element.dataKey.split('@');
-        let splitDataKey = editedDataKey[0].split('#');
-        let splLength = splitDataKey.length;
-        let reducer = positionOffset + 1;
-        return ((splLength - reducer) < 1) ? Number(splitDataKey[1]) : Number(splitDataKey[splLength - reducer]);
-      }
-      const [rowIndex, setRowIndex] = createSignal(getRowIndex(0));
-
-      let answer = eval(element.expression);
+      const getRowIndexFn = createGetRowIndex(element.dataKey);
+      const context: ExpressionContext = {
+        getValue,
+        getRowIndex: getRowIndexFn,
+        getProp,
+        dataKey: element.dataKey,
+      };
+      let answer = evaluateVariableExpression(element.expression, context);
       if (answer !== undefined)
         saveAnswer(element.dataKey, 'answer', answer, sidePosition, { 'clientMode': getProp('clientMode'), 'baseUrl': getProp('baseUrl') }, 0);
     })
@@ -200,15 +204,15 @@ const Form: Component<{
         return (cekInsideIndex == -1) ? 0 : index;
       });
 
-      const getRowIndex = (positionOffset: number) => {
-        let editedDataKey = element.dataKey.split('@');
-        let splitDataKey = editedDataKey[0].split('#');
-        let splLength = splitDataKey.length;
-        let reducer = positionOffset + 1;
-        return ((splLength - reducer) < 1) ? Number(splitDataKey[1]) : Number(splitDataKey[splLength - reducer]);
-      }
-      const [rowIndex, setRowIndex] = createSignal(getRowIndex(0));
-      let evEnable = eval(element.enableCondition);
+      const getRowIndexFn = createGetRowIndex(element.dataKey);
+      const context: ExpressionContext = {
+        getValue,
+        getRowIndex: getRowIndexFn,
+        getProp,
+        dataKey: element.dataKey,
+      };
+      const default_eval_enable = true;
+      let evEnable = evaluateEnableCondition(element.enableCondition, context, default_eval_enable);
       let enable = (evEnable === undefined) ? false : evEnable;
       saveAnswer(element.dataKey, 'enable', enable, sidePosition, { 'clientMode': getProp('clientMode'), 'baseUrl': getProp('baseUrl') }, 0);
     })
