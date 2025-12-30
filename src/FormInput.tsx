@@ -4,38 +4,45 @@ import { useForm } from "./FormProvider";
 import { CONTROL_MAP, CONTROL_MAP_PAPI, FormComponentBase } from "./FormType";
 
 import { useLoaderDispatch } from "./loader/FormLoaderProvider";
-import { locale } from './stores/LocaleStore';
-import { note, setNote } from './stores/NoteStore';
-import { principal, setPrincipal } from './stores/PrincipalStore';
-import { reference, referenceEnableFalse, setReference } from './stores/ReferenceStore';
-import { remark, setRemark } from './stores/RemarkStore';
-import { media } from './stores/MediaStore';
-import { response, setResponse } from './stores/ResponseStore';
-import { sidebar } from './stores/SidebarStore';
-import { summary } from './stores/SummaryStore';
-import { template } from './stores/TemplateStore';
-import { counter } from './stores/CounterStore';
+import {
+  useLocale,
+  useNote,
+  usePrincipal,
+  useReference,
+  useRemark,
+  useMedia,
+  useResponse,
+  useSidebar,
+  useSummary,
+  useTemplate,
+  useCounter,
+  useReferenceEnableFalse,
+  useReferenceHistory,
+  useSidebarHistory,
+} from './stores/StoreContext';
 
 import dayjs from 'dayjs';
 import Toastify from 'toastify-js';
 
 import { getValue, reloadDataFromHistory, saveAnswer } from './GlobalFunction';
 
-import { setReferenceHistory, setSidebarHistory } from './stores/ReferenceStore';
 import { ClientMode } from './constants';
+import { locale as globalLocale } from './stores/LocaleStore';
+import { reference as globalReference } from './stores/ReferenceStore';
 
+// Exported utility functions use global stores for backward compatibility
 export const getEnable = (dataKey: string) => {
-  const componentIndex = reference.details.findIndex(obj => obj.dataKey === dataKey);
+  const componentIndex = globalReference.details.findIndex(obj => obj.dataKey === dataKey);
   let enable = true;
   if (componentIndex !== -1) {
-    enable = reference.details[componentIndex].enable;
+    enable = globalReference.details[componentIndex].enable;
   }
 
   return enable;
 }
 export const toastInfo = (text: string, duration: number, position: string, bgColor: string) => {
   Toastify({
-    text: (text == '') ? locale.details.language[0].componentDeleted : text,
+    text: (text == '') ? globalLocale.details.language[0].componentDeleted : text,
     duration: (duration >= 0) ? duration : 500,
     gravity: "top",
     position: (position == '') ? "right" : position,
@@ -51,6 +58,22 @@ export const toastInfo = (text: string, duration: number, position: string, bgCo
 const FormInput: FormComponentBase = props => {
   const [form, { setActiveComponent }] = useForm();
   const { setLoader, removeLoader } = useLoaderDispatch();
+
+  // Store hooks
+  const [locale] = useLocale();
+  const [note, setNote] = useNote();
+  const [principal, setPrincipal] = usePrincipal();
+  const [reference, setReference] = useReference();
+  const [remark, setRemark] = useRemark();
+  const [media] = useMedia();
+  const [response, setResponse] = useResponse();
+  const [sidebar] = useSidebar();
+  const [summary] = useSummary();
+  const [template] = useTemplate();
+  const [counter] = useCounter();
+  const referenceEnableFalse = useReferenceEnableFalse();
+  const [, setReferenceHistory] = useReferenceHistory();
+  const [, setSidebarHistory] = useSidebarHistory();
 
   const [flagRemark, setFlagRemark] = createSignal(''); //dataKey Remark
   const [comments, setComments] = createSignal([]); //temp Comments
