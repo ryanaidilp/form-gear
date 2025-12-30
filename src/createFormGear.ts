@@ -38,16 +38,17 @@ import {
   FormGearInstance,
   FormGearConfig,
   DEFAULT_CONFIG,
-  ClientMode,
-  FormMode,
-  InitialMode,
-  LookupMode,
 } from './types';
 
 // Import the legacy FormGear
+// eslint-disable-next-line @typescript-eslint/no-deprecated
 import { FormGear as LegacyFormGear, gearVersion } from './FormGear';
 
-// Import stores for instance methods
+// Store factory is available for future isolated store usage
+// When components are migrated to context-based stores, use:
+// import { createFormStores } from './stores/createStores';
+
+// Import legacy stores for backward compatibility (used by LegacyFormGear)
 import { response } from './stores/ResponseStore';
 import { media } from './stores/MediaStore';
 import { remark } from './stores/RemarkStore';
