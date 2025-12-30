@@ -4,29 +4,34 @@ import { gearVersion, templateVersion, validationVersion } from "./FormGear";
 import { useForm } from "./FormProvider";
 
 import { useLoaderDispatch } from "./loader/FormLoaderProvider";
-import { locale, setLocale } from './stores/LocaleStore';
-import { note, setNote } from './stores/NoteStore';
+import {
+  useLocale,
+  useNote,
+  usePrincipal,
+  useReference,
+  useRemark,
+  useResponse,
+  useSidebar,
+  useSummary,
+  useTemplate,
+  useCounter,
+  useMedia,
+  useReferenceEnableFalse,
+  useReferenceHistoryEnable,
+} from './stores/StoreContext';
 import { Preset } from './stores/PresetStore';
-import { principal, setPrincipal } from './stores/PrincipalStore';
-import { reference, referenceEnableFalse, setReference } from './stores/ReferenceStore';
-import { remark, Remark, setRemark } from './stores/RemarkStore';
-import { response, Response, setResponse } from './stores/ResponseStore';
-import { sidebar } from './stores/SidebarStore';
-import { setSummary, summary } from './stores/SummaryStore';
-import { Questionnaire, template } from './stores/TemplateStore';
+import { Remark } from './stores/RemarkStore';
+import { Response } from './stores/ResponseStore';
+import { Questionnaire } from './stores/TemplateStore';
 import { Validation } from './stores/ValidationStore';
-import { counter } from './stores/CounterStore';
 
 import { toastInfo } from "./FormInput";
 import { globalConfig, referenceIndexLookup, refocusLastSelector, runValidation, saveAnswer, setEnableFalse } from "./GlobalFunction";
-
-import { setReferenceHistoryEnable } from './stores/ReferenceStore';
 
 import dayjs from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
 import { ClientMode } from "./constants";
-import { media, setMedia } from "./stores/MediaStore";
 import {
     evaluateEnableCondition,
     evaluateVariableExpression,
@@ -55,6 +60,21 @@ const Form: Component<{
   setSubmitMobile: any
   openMap: any
 }> = props => {
+  // Store hooks
+  const [locale, setLocale] = useLocale();
+  const [note, setNote] = useNote();
+  const [principal, setPrincipal] = usePrincipal();
+  const [reference, setReference] = useReference();
+  const [remark, setRemark] = useRemark();
+  const [response, setResponse] = useResponse();
+  const [sidebar] = useSidebar();
+  const [summary, setSummary] = useSummary();
+  const [template] = useTemplate();
+  const [counter] = useCounter();
+  const [media, setMedia] = useMedia();
+  const referenceEnableFalse = useReferenceEnableFalse();
+  const [, setReferenceHistoryEnable] = useReferenceHistoryEnable();
+
   const getValue = (dataKey: string) => {
     const componentIndex = reference.details.findIndex(obj => obj.dataKey === dataKey);
     let answer = '';
