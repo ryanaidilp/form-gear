@@ -137,3 +137,50 @@ export type {
   // Platform bridge
   PlatformBridge,
 } from "./types";
+
+// =============================================================================
+// Native Bridge (Platform Communication)
+// =============================================================================
+
+export {
+  // Factory functions
+  createBridge,
+  getBridge,
+  resetBridge,
+  detectPlatform,
+
+  // Platform-specific bridges
+  createAndroidBridge,
+  createIOSBridge,
+  createFlutterInAppWebViewBridge,
+  createFlutterChannelBridge,
+  createWebBridge,
+
+  // Detection helpers
+  isAndroidAvailable,
+  isIOSAvailable,
+  isFlutterAvailable,
+  isFlutterInAppWebViewAvailable,
+  isFlutterChannelAvailable,
+  isWebAvailable,
+
+  // Utility functions
+  isNativeApp,
+  isMobile,
+  getPlatformName,
+} from "./bridge";
+
+export type {
+  // Bridge types
+  NativeBridge,
+  Platform,
+  BridgeConfig,
+  PlatformDetection,
+  GpsPhotoResult,
+  Coordinates,
+  UploadResult,
+  ScanResult,
+  FormGearOutput,
+  IOSMessage,
+  FlutterMessage,
+} from "./bridge";
