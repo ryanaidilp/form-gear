@@ -246,7 +246,7 @@ const CsvInput: FormComponentBase = props => {
 
                 {/* <Show when={fileSource() != ''}> */}
                 <Show when={props.value}>
-                    <div className="font-light text-sm space-x-2 py-2.5 px-2 col-span-12 space-y-4">
+                    <div class="font-light text-sm space-x-2 py-2.5 px-2 col-span-12 space-y-4">
                         <div class="preview-class">
                             <div class="container mx-auto">
                                 <div class="scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-gray-50 dark:scrollbar-thumb-gray-700 dark:scrollbar-track-gray-500 

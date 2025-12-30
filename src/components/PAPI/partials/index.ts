@@ -1,4 +1,4 @@
-import { Component, JSXElement } from "solid-js";
+import { Component, JSXElement, ParentComponent } from "solid-js";
 import { ComponentType, Option } from "../../../FormType";
 import InputContainer from "./InputContainer";
 import OptionSection from "./OptionSection";
@@ -8,12 +8,12 @@ export {
     OptionSection
 }
 
-export interface InputContainerBase extends Component<{
+export type InputContainerBase = ParentComponent<{
     component: ComponentType
     optionSection?: () => JSXElement
     classValidation?: any
     validationMessage?: any
-}> { }
+}>
 
 export interface OptionSectionBase extends Component<{
     component: ComponentType

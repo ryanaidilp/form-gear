@@ -207,7 +207,7 @@ const GpsInput: FormComponentBase = props => {
         </div>
         
         <Show when={location() != ''}>
-          <div className="font-light text-sm space-x-2 py-2.5 px-2 col-span-12 space-y-4 -mt-2">
+          <div class="font-light text-sm space-x-2 py-2.5 px-2 col-span-12 space-y-4 -mt-2">
             <div class="preview-class">
               <div class="container mx-auto space-y-3">
                 <iframe class="border-2 rounded-md mb-2" src={location()} style={"width:100%;height:100%;pointer-events: none;"}></iframe>

@@ -1,4 +1,5 @@
 import { ValidationType } from './enums';
+import { Option } from './controls';
 
 // =============================================================================
 // LOCALE / LANGUAGE
@@ -348,10 +349,10 @@ export interface ReferenceDetail {
   hint: string;
   description: string;
   type: number;
-  answer?: unknown;
+  answer?: Option[] | string | number | boolean | null;
   index: number[];
   level: number;
-  options?: unknown[];
+  options?: Option[];
   components?: TemplateComponent;
   rows?: number;
   cols?: number;

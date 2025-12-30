@@ -122,7 +122,7 @@ const NowInput: FormComponentBase = props => {
         </div>
         
         <Show when={props.value !== ''}>
-          <div className="font-light text-sm space-x-2 py-2.5 px-2 col-span-12 space-y-4 -mt-2">
+          <div class="font-light text-sm space-x-2 py-2.5 px-2 col-span-12 space-y-4 -mt-2">
             <span class="bg-blue-100 text-blue-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded dark:bg-blue-200 dark:text-blue-800">{props.value}</span>
           </div>
         </Show>

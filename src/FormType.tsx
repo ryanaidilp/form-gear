@@ -90,25 +90,47 @@ export type SizeInput = {
   max?: number
 }
 
+export type FilterDependency = {
+  sourceAnswer: string,
+  params: string
+}
+
+export type SubResourceDependency = {
+  sourceAnswer: string,
+  params: string
+}
+
+export type ParentCondition = {
+  key: string,
+  value: string
+}
+
 export type sourceAPI = {
   id?: string,
   version?: string,
   tableName?: string,
   baseUrl: string,
-  headers?: {},
+  headers?: Record<string, string>,
   data: string,
   value: string,
   label: string,
-  filterDependencies?: [],
-  subResourceDependencies?: [],
-  parentCondition?: []
+  filterDependencies?: FilterDependency[],
+  subResourceDependencies?: SubResourceDependency[],
+  parentCondition?: ParentCondition[]
+}
+
+export type sourceSelect = {
+  id: string,
+  version: string,
+  value: string,
+  desc: string,
+  parentCondition: ParentCondition[]
 }
 
 export type returnAPI = {
   success?: boolean,
-  data?: [],
+  data?: Record<string, unknown>[],
   message?: string,
-
 }
 
 export type ComponentType = {
@@ -137,6 +159,7 @@ export type ComponentType = {
   render?: boolean              //25 (true false)
   renderType?: number           //25 (0 untuk single value yang label aja, 1 untuk single value yg textbox dan readonly, 2 untuk array {"label":"labelname","value":valuenya})
   sourceAPI?: sourceAPI[] //27
+  sourceSelect?: sourceSelect[] //22,23 for offline mode
   enable?: boolean              //semua
   enableCondition?: string      //semua
   componentEnable?: string[]    //semua

@@ -179,7 +179,7 @@ const PhotoInput: FormComponentBase = props => {
         </div>
 
         <Show when={fileSource() != ''}>
-          <div className="font-light text-sm space-x-2 py-2.5 px-2 col-span-12 space-y-4">
+          <div class="font-light text-sm space-x-2 py-2.5 px-2 col-span-12 space-y-4">
               <div class="preview-class">
                 <div class="container mx-auto">
                     <img class="rounded-md" src={fileSource()} style={"width:100%;height:100%"}  id={"img-preview" + props.component.dataKey} />
