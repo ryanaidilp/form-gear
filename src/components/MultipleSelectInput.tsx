@@ -1,13 +1,13 @@
 import { createSignal, createEffect, createResource, Show, For, Switch, Match } from "solid-js"
 import { FormComponentBase, Option, returnAPI } from "../FormType"
-import { reference } from '../stores/ReferenceStore'
+import { useReference, useLocale } from '../stores/StoreContext'
 import { Select, createOptions } from "@thisbeyond/solid-select"
 import "@thisbeyond/solid-select/style.css"
 import Toastify from 'toastify-js'
-import { locale, setLocale } from '../stores/LocaleStore'
 
 const MultipleSelectInput: FormComponentBase = props => {
-
+    const [reference] = useReference();
+    const [locale] = useLocale();
     const [options, setOptions] = createSignal<Option[]>([]);
 
     const config = props.config

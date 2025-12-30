@@ -1,9 +1,9 @@
 import { FormComponentBase } from "../FormType"
 import { For, createMemo, Switch, Match, Show, createSignal } from 'solid-js'
-import { reference, setReference } from '../stores/ReferenceStore';
+import { useReference } from '../stores/StoreContext';
 
 const NestedInput: FormComponentBase = props => {
-
+    const [reference] = useReference();
     const config = props.config	
     const [btnLabel] = createSignal((config.formMode > 1 ) ? 'VIEW' : 'ENTRY')
 

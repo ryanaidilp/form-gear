@@ -1,15 +1,16 @@
 import { createEffect, createSignal, createResource, Show, Switch, Match, For } from "solid-js"
 import { FormComponentBase, returnAPI } from "../FormType"
 import { Select, createOptions } from "@thisbeyond/solid-select"
-import { reference, setReference } from '../stores/ReferenceStore'
+import { useReference, useLocale, useSidebar } from '../stores/StoreContext'
 import "@thisbeyond/solid-select/style.css"
 import Toastify from 'toastify-js'
-import { locale, setLocale } from '../stores/LocaleStore'
-import { sidebar, setSidebar } from '../stores/SidebarStore';
 import { saveAnswer } from "../GlobalFunction";
 
 
 const SelectInput: FormComponentBase = props => {
+    const [reference] = useReference();
+    const [locale] = useLocale();
+    const [sidebar] = useSidebar();
     const [label, setLabel] = createSignal('');
     const [isLoading, setLoading] = createSignal(false);
     const [options, setOptions] = createSignal([]);

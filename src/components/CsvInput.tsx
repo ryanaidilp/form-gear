@@ -2,9 +2,10 @@ import { createEffect, createSignal, Switch, Match, Show, For } from "solid-js"
 import { FormComponentBase } from "../FormType"
 import Toastify from 'toastify-js'
 import Papa from 'papaparse'
-import { locale, setLocale } from '../stores/LocaleStore'
+import { useLocale } from '../stores/StoreContext'
 
 const CsvInput: FormComponentBase = props => {
+    const [locale] = useLocale();
     const [thead, setTHead] = createSignal([]);
     const [tbody, setTbody] = createSignal([]);
     const [label, setLabel] = createSignal('');

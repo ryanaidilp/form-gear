@@ -1,9 +1,10 @@
 import { createEffect, createSignal, Switch, Match, Show, For } from "solid-js"
 import { FormComponentBase } from "../FormType"
 import Toastify from 'toastify-js'
-import { locale, setLocale} from '../stores/LocaleStore'
+import { useLocale } from '../stores/StoreContext'
 
 const GpsInput: FormComponentBase = props => {
+  const [locale] = useLocale();
   const [label, setLabel] = createSignal('');
   const [location, setLocation] = createSignal('');
   const [latLong, setLatlong] = createSignal({

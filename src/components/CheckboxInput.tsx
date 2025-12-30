@@ -1,8 +1,9 @@
 import { For, Switch, Match, createMemo, createSignal, Show } from "solid-js"
 import { FormComponentBase, Option } from "../FormType"
-import { reference, setReference } from '../stores/ReferenceStore'
+import { useReference } from '../stores/StoreContext'
 
 const CheckboxInput: FormComponentBase = props => {
+    const [reference] = useReference();
     const config = props.config
     const [disableInput] = createSignal((config.formMode > 1 ) ? true : props.component.disableInput)
     let handleOnChange = (value: any, label: any, open: any) => {

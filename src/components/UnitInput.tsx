@@ -1,12 +1,13 @@
 import { createSignal, createResource, createEffect, Show, For, Switch, Match } from "solid-js"
 import { FormComponentBase, returnAPI } from "../FormType"
 import { Select, createOptions } from "@thisbeyond/solid-select"
-import { reference } from '../stores/ReferenceStore'
+import { useReference, useLocale } from '../stores/StoreContext'
 import Toastify from 'toastify-js'
-import { locale } from '../stores/LocaleStore'
 import { FiChevronDown } from 'solid-icons/fi'
 
 const UnitInput: FormComponentBase = props => {
+    const [reference] = useReference();
+    const [locale] = useLocale();
     const config = props.config
     const [disableInput, setDisableInput] = createSignal((config.formMode > 1) ? true : props.component.disableInput)
     const [label, setLabel] = createSignal('');

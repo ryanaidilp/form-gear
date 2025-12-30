@@ -1,13 +1,14 @@
 import { FormComponentBase, returnAPI } from "../FormType"
 import { For, Switch, createResource, Match, Show, createMemo, createSignal, createEffect } from 'solid-js'
-import { reference, setReference } from '../stores/ReferenceStore'
+import { useReference, useLocale } from '../stores/StoreContext'
 import { Select, createOptions } from "@thisbeyond/solid-select"
 import "@thisbeyond/solid-select/style.css"
 import Toastify from 'toastify-js'
-import { locale, setLocale } from '../stores/LocaleStore'
 import LogoImg from "../assets/loading.png"
 
 const ListSelectInputRepeat: FormComponentBase = props => {
+	const [reference] = useReference();
+	const [locale] = useLocale();
 	const [flag, setFlag] = createSignal(0); //untuk flag open textinput
 	const [edited, setEdited] = createSignal(0); //untuk flag id yg akan diedit / hapus
 	const [localAnswer, setLocalAnswer] = createSignal(JSON.parse(JSON.stringify(props.value)));

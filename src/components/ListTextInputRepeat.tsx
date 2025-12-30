@@ -1,11 +1,12 @@
 import { FormComponentBase } from "../FormType"
 import { For, Switch, Match, Show, createMemo, createSignal } from 'solid-js'
 import Toastify from 'toastify-js'
-import { locale, setLocale } from '../stores/LocaleStore'
+import { useLocale } from '../stores/StoreContext'
 import LogoImg from "../assets/loading.png"
 
 
 const ListTextInputRepeat: FormComponentBase = props => {
+	const [locale] = useLocale();
 	const [flag, setFlag] = createSignal(0); //untuk flag open textinput
 	const [edited, setEdited] = createSignal(0); //untuk flag id yg akan diedit
 	const [localAnswer, setLocalAnswer] = createSignal(JSON.parse(JSON.stringify(props.value)))
