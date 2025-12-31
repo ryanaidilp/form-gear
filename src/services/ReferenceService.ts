@@ -337,7 +337,13 @@ export class ReferenceService {
    */
   getVariableDependents(dataKey: string): Set<string> {
     const [maps] = this.stores.compVarMap;
-    const dependents = maps()[dataKey];
+    const allMaps = maps();
+    const dependents = allMaps[dataKey];
+    console.log('[ReferenceService] getVariableDependents:', {
+      dataKey,
+      dependents,
+      allVarMapKeys: Object.keys(allMaps),
+    });
     return new Set(dependents ?? []);
   }
 
@@ -408,5 +414,106 @@ export class ReferenceService {
     for (const [property, value] of Object.entries(updates)) {
       setReference('details', index, property as keyof ReferenceDetail, value);
     }
+  }
+
+  /**
+   * Register newly created components in dependency maps.
+   * Called when nested components are dynamically created.
+   *
+   * @param components - The newly created components to register
+   */
+  registerDynamicComponents(components: ReferenceDetail[]): void {
+    console.log('[ReferenceService] registerDynamicComponents called with', components.length, 'components');
+
+    const [enableMap, setEnableMap] = this.stores.compEnableMap;
+    const [validMap, setValidMap] = this.stores.compValidMap;
+    const [varMap, setVarMap] = this.stores.compVarMap;
+    const [sourceOptionMap, setSourceOptionMap] = this.stores.compSourceOptionMap;
+    const [sourceQuestionMap, setSourceQuestionMap] = this.stores.compSourceQuestionMap;
+
+    // Clone current maps
+    const newEnableMap = { ...enableMap() };
+    const newValidMap = { ...validMap() };
+    const newVarMap = { ...varMap() };
+    const newSourceOptionMap = { ...sourceOptionMap() };
+    const newSourceQuestionMap = { ...sourceQuestionMap() };
+
+    for (const component of components) {
+      // Register enable dependencies
+      if (component.componentEnable) {
+        for (const enableKey of component.componentEnable) {
+          const baseKey = this.getBaseDataKey(enableKey);
+          if (!newEnableMap[baseKey]) {
+            newEnableMap[baseKey] = [];
+          }
+          if (!newEnableMap[baseKey].includes(component.dataKey)) {
+            newEnableMap[baseKey].push(component.dataKey);
+          }
+        }
+      }
+
+      // Register validation dependencies
+      if (component.componentValidation) {
+        for (const validKey of component.componentValidation) {
+          const baseKey = this.getBaseDataKey(validKey);
+          if (!newValidMap[baseKey]) {
+            newValidMap[baseKey] = [];
+          }
+          if (!newValidMap[baseKey].includes(component.dataKey)) {
+            newValidMap[baseKey].push(component.dataKey);
+          }
+        }
+      }
+
+      // Register variable dependencies
+      if (component.componentVar && component.type === ComponentType.VARIABLE) {
+        console.log('[ReferenceService] Registering variable component:', {
+          dataKey: component.dataKey,
+          componentVar: component.componentVar,
+          type: component.type,
+        });
+        for (const varKey of component.componentVar) {
+          console.log('[ReferenceService] Adding varMap entry:', varKey, '->', component.dataKey);
+          if (!newVarMap[varKey]) {
+            newVarMap[varKey] = [];
+          }
+          if (!newVarMap[varKey].includes(component.dataKey)) {
+            newVarMap[varKey].push(component.dataKey);
+          }
+        }
+      }
+
+      // Register sourceOption dependencies
+      if (component.sourceOption) {
+        const baseKey = this.getBaseDataKey(component.sourceOption);
+        if (!newSourceOptionMap[baseKey]) {
+          newSourceOptionMap[baseKey] = [];
+        }
+        if (!newSourceOptionMap[baseKey].includes(component.dataKey)) {
+          newSourceOptionMap[baseKey].push(component.dataKey);
+        }
+      }
+
+      // Register sourceQuestion dependencies (for nested components)
+      if (component.sourceQuestion && component.type === ComponentType.NESTED) {
+        console.log('[ReferenceService] Registering nested dependency:', {
+          sourceQuestion: component.sourceQuestion,
+          dataKey: component.dataKey,
+        });
+        if (!newSourceQuestionMap[component.sourceQuestion]) {
+          newSourceQuestionMap[component.sourceQuestion] = [];
+        }
+        if (!newSourceQuestionMap[component.sourceQuestion].includes(component.dataKey)) {
+          newSourceQuestionMap[component.sourceQuestion].push(component.dataKey);
+        }
+      }
+    }
+
+    // Update all maps
+    setEnableMap(newEnableMap);
+    setValidMap(newValidMap);
+    setVarMap(newVarMap);
+    setSourceOptionMap(newSourceOptionMap);
+    setSourceQuestionMap(newSourceQuestionMap);
   }
 }

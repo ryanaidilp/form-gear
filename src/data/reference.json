@@ -1086,10 +1086,10 @@
                         "dataKey": "frec_total",
                         "label": "Total frecuency",
                         "type": 4,
-                        "expression": "Number(getValue('frec_coffee@$ROW$'))+Number(getValue('frek_teh@$ROW$'))",
+                        "expression": "Number(getValue('frec_coffee@$ROW$'))+Number(getValue('frec_tea@$ROW$'))",
                         "componentVar": [
-                            "frek_kopi@$ROW$",
-                            "frek_teh@$ROW$"
+                            "frec_coffee@$ROW$",
+                            "frec_tea@$ROW$"
                         ],
                         "render": true,
                         "renderType": 1,
@@ -1327,10 +1327,10 @@
                 2
             ],
             "level": 2,
-            "expression": "Number(getValue('frec_coffee@$ROW$'))+Number(getValue('frek_teh@$ROW$'))",
+            "expression": "Number(getValue('frec_coffee@$ROW$'))+Number(getValue('frec_tea@$ROW$'))",
             "componentVar": [
-                "frek_kopi@$ROW$",
-                "frek_teh@$ROW$"
+                "frec_coffee@$ROW$",
+                "frec_tea@$ROW$"
             ],
             "render": true,
             "renderType": 1,
@@ -2171,10 +2171,10 @@
                                     "label": "Total frecuency",
                                     "dataKey": "frec_total",
                                     "type": 4,
-                                    "expression": "Number(getValue('frec_coffee@$ROW$'))+Number(getValue('frek_teh@$ROW$'))",
+                                    "expression": "Number(getValue('frec_coffee@$ROW$'))+Number(getValue('frec_tea@$ROW$'))",
                                     "componentVar": [
-                                        "frek_kopi@$ROW$",
-                                        "frek_teh@$ROW$"
+                                        "frec_coffee@$ROW$",
+                                        "frec_tea@$ROW$"
                                     ],
                                     "render": true,
                                     "renderType": 1

@@ -217,14 +217,20 @@ export class AnswerService {
     beforeAnswer: unknown,
     activePosition: number
   ): void {
+    console.log('[AnswerService] runCascadingUpdates called:', { dataKey, value, beforeAnswer, activePosition });
+
     const component = this.referenceService.getComponent(dataKey);
-    if (!component) return;
+    if (!component) {
+      console.log('[AnswerService] No component found for dataKey:', dataKey);
+      return;
+    }
 
     // 1. Update enable states for dependents
     this.enableService.evaluateDependents(dataKey);
 
     // Only continue if component is enabled
     if (!component.enable) {
+      console.log('[AnswerService] Component is disabled, stopping cascade');
       return;
     }
 
@@ -238,6 +244,7 @@ export class AnswerService {
     this.updateVariableDependents(dataKey);
 
     // 5. Handle nested component updates
+    console.log('[AnswerService] About to call handleNestedUpdates');
     this.handleNestedUpdates(dataKey, value, beforeAnswer, activePosition);
 
     // 6. Update disabled sections cache
@@ -310,12 +317,21 @@ export class AnswerService {
     // Find nested components that use this dataKey as source
     const nestedDependents = this.referenceService.getNestedDependents(dataKey);
 
+    console.log('[AnswerService] handleNestedUpdates:', {
+      dataKey,
+      value,
+      beforeAnswer,
+      nestedDependents: Array.from(nestedDependents),
+    });
+
     for (const nestedKey of nestedDependents) {
       const nested = this.referenceService.getComponent(nestedKey);
+      console.log('[AnswerService] Processing nested:', { nestedKey, nested, type: nested?.type });
       if (!nested || nested.type !== ComponentType.NESTED) continue;
 
       // Handle based on value type
       if (typeof value === 'number' || typeof value === 'string') {
+        console.log('[AnswerService] Handling number-based nested');
         this.handleNumberBasedNested(
           nestedKey,
           Number(value),
@@ -323,6 +339,7 @@ export class AnswerService {
           activePosition
         );
       } else if (Array.isArray(value)) {
+        console.log('[AnswerService] Handling array-based nested');
         this.handleArrayBasedNested(
           nestedKey,
           value as Option[],
@@ -372,33 +389,37 @@ export class AnswerService {
     const cleanCurrent = this.cleanNestedOptions(current);
     const cleanPrevious = this.cleanNestedOptions(previous);
 
-    if (cleanCurrent.length > cleanPrevious.length) {
-      // Items added
-      for (const item of cleanCurrent) {
+    console.log('[AnswerService] handleArrayBasedNested:', {
+      nestedKey,
+      cleanCurrent,
+      cleanPrevious,
+      currentLength: cleanCurrent.length,
+      previousLength: cleanPrevious.length,
+    });
+
+    // Check for items that exist in current but not in previous (need to add)
+    for (const item of cleanCurrent) {
+      const existsInPrevious = cleanPrevious.some((p) => p.value === item.value);
+      if (!existsInPrevious) {
         const [sidebar] = this.stores.sidebar;
-        const exists = sidebar.details.some(
+        const existsInSidebar = sidebar.details.some(
           (s) => s.dataKey === `${nestedKey}#${item.value}`
         );
-        if (!exists) {
+        console.log('[AnswerService] Checking item to add:', { item, existsInPrevious, existsInSidebar });
+        if (!existsInSidebar) {
+          console.log('[AnswerService] Calling insertFromArray for:', item);
           this.nestedService.insertFromArray(nestedKey, item, activePosition);
         }
       }
-    } else if (cleanCurrent.length < cleanPrevious.length) {
-      // Items removed
-      for (const item of cleanPrevious) {
-        const stillExists = cleanCurrent.some((c) => c.value === item.value);
-        if (!stillExists) {
-          this.nestedService.deleteFromArray(nestedKey, item, activePosition);
-        }
+    }
+
+    // Check for items that exist in previous but not in current (need to remove)
+    for (const item of cleanPrevious) {
+      const existsInCurrent = cleanCurrent.some((c) => c.value === item.value);
+      if (!existsInCurrent) {
+        console.log('[AnswerService] Removing item:', item);
+        this.nestedService.deleteFromArray(nestedKey, item, activePosition);
       }
-    } else {
-      // Same length - check for changes
-      this.nestedService.changeFromArray(
-        nestedKey,
-        cleanCurrent,
-        cleanPrevious,
-        activePosition
-      );
     }
   }
 
@@ -460,9 +481,8 @@ export class AnswerService {
   private getDefaultValue(type: ComponentType): unknown {
     if (
       type === ComponentType.CHECKBOX ||
-      type === ComponentType.CHECKBOX_HORIZONTAL ||
-      type === ComponentType.MULTI_PHOTO ||
-      type === ComponentType.GPS_MULTI_PHOTO
+      type === ComponentType.MULTIPLE_SELECT ||
+      type === ComponentType.CSV
     ) {
       return [];
     }
