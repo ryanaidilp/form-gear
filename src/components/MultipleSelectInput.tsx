@@ -341,7 +341,7 @@ const MultipleSelectInput: FormComponentBase = props => {
                             initialValue={props.value}
                         />
                     </div>
-                    <Show when={props.validationMessage.length > 0}>
+                    <Show when={props.validationMessage?.length > 0}>
                         <For each={props.validationMessage}>
                             {(item: any) => (
                                 <div

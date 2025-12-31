@@ -112,57 +112,47 @@ const CheckboxInput: FormComponentBase = props => {
                                 {(item, index) => (
                                     <Switch>
                                         <Match when={(item.open) && (tick(item.value)) }>
-                                            <div class="font-light text-sm space-x-2 py-2.5 px-4 grid grid-cols-12">
-                                                <div class="col-span-1">
-                                                    <label class="cursor-pointer text-sm" for={"chexbox" + index()}>
-                                                    <input class="appearance-none h-4 w-4 border 
-                                                            border-gray-300 rounded-sm bg-white 
-                                                            checked:bg-blue-600 checked:border-blue-600 
-                                                            focus:outline-none transition duration-200 align-top 
-                                                            bg-no-repeat bg-center bg-contain float-left mr-2 cursor-pointer" 
-                                                            type="checkbox" 
-                                                            onChange={e => handleOnChange(e.currentTarget.value, item.label, item.open)} value={item.value} 
-                                                            checked={ (item.value) ? tick(item.value) : false} id={"checkbox-"+props.component.dataKey+"-"+index()}/>
-                                                    </label>
-                                                </div>
-                                                <div class="col-span-11">
-                                                    <input type="text" value={ optionLabel(item.value)  }  
-                                                        class="w-full
-                                                            font-light
-                                                            px-4
-                                                            py-2.5
-                                                            text-sm
-                                                            text-gray-700
-                                                            bg-white bg-clip-padding
-                                                            border border-solid border-gray-300
-                                                            rounded
-                                                            transition
-                                                            ease-in-out
-                                                            m-0
-                                                            focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
-                                                        onChange={e => handleOnChange(item.value, e.currentTarget.value, item.open)}
-                                                        />
-                                                </div>
+                                            <div class="font-light text-sm py-2.5 px-4 flex items-start gap-3">
+                                                <input class="appearance-none h-4 w-4 min-w-4 min-h-4 border
+                                                        border-gray-300 rounded bg-white mt-2.5
+                                                        checked:bg-blue-600 checked:border-blue-600
+                                                        focus:outline-none transition duration-200
+                                                        bg-no-repeat bg-center bg-contain cursor-pointer"
+                                                        type="checkbox"
+                                                        onChange={e => handleOnChange(e.currentTarget.value, item.label, item.open)} value={item.value}
+                                                        checked={ (item.value) ? tick(item.value) : false} id={"checkbox-"+props.component.dataKey+"-"+index()}/>
+                                                <input type="text" value={ optionLabel(item.value)  }
+                                                    class="flex-1
+                                                        font-light
+                                                        px-4
+                                                        py-2.5
+                                                        text-sm
+                                                        text-gray-700
+                                                        bg-white bg-clip-padding
+                                                        border border-solid border-gray-300
+                                                        rounded
+                                                        transition
+                                                        ease-in-out
+                                                        m-0
+                                                        focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
+                                                    onChange={e => handleOnChange(item.value, e.currentTarget.value, item.open)}
+                                                    />
                                             </div>
                                         </Match>
                                         <Match when={!(item.open) || !(tick(item.value)) }>
-                                            <div class="font-light text-sm space-x-2 py-2.5 px-4 grid grid-cols-12" onClick={e => handleLabelClick(index())}>
-                                                <div class="col-span-1">
-                                                    <label class="cursor-pointer text-sm">
-                                                        <input class=" appearance-none h-4 w-4 border 
-                                                                border-gray-300 rounded-sm bg-white 
-                                                                checked:bg-blue-600 checked:border-blue-600 
-                                                                focus:outline-none transition duration-200 mt-1 align-top 
-                                                                bg-no-repeat bg-center bg-contain float-left mr-2 cursor-pointer
-                                                                checked:disabled:bg-gray-500 checked:dark:disabled:bg-gray-300 
-                                                                disabled:bg-gray-200 dark:disabled:bg-gray-700 dark:disabled:text-gray-400" 
-                                                                type="checkbox" 
-                                                                disabled = { disableInput() }
-                                                                onChange={e => handleOnChange(e.currentTarget.value, item.label, item.open)} value={item.value} 
-                                                                checked={ (item.value) ? tick(item.value) : false} id={"checkbox-"+props.component.dataKey+"-"+index()}/>
-                                                    </label>
-                                                </div>
-                                                <div class="col-span-11" innerHTML={item.label}></div>
+                                            <div class="font-light text-sm py-2.5 px-4 flex items-start gap-3 cursor-pointer" onClick={() => handleLabelClick(index())}>
+                                                <input class="appearance-none h-4 w-4 min-w-4 min-h-4 border
+                                                        border-gray-300 rounded bg-white mt-0.5
+                                                        checked:bg-blue-600 checked:border-blue-600
+                                                        focus:outline-none transition duration-200
+                                                        bg-no-repeat bg-center bg-contain cursor-pointer
+                                                        checked:disabled:bg-gray-500 checked:dark:disabled:bg-gray-300
+                                                        disabled:bg-gray-200 dark:disabled:bg-gray-700 dark:disabled:text-gray-400"
+                                                        type="checkbox"
+                                                        disabled = { disableInput() }
+                                                        onChange={e => handleOnChange(e.currentTarget.value, item.label, item.open)} value={item.value}
+                                                        checked={ (item.value) ? tick(item.value) : false} id={"checkbox-"+props.component.dataKey+"-"+index()}/>
+                                                <span class="flex-1" innerHTML={item.label}></span>
                                             </div>
                                         </Match>
                                     </Switch>
@@ -170,7 +160,7 @@ const CheckboxInput: FormComponentBase = props => {
                             </For>
                         </div>
                     </div>
-					<Show when={props.validationMessage.length > 0}>
+					<Show when={props.validationMessage?.length > 0}>
 						<For each={props.validationMessage}>
 						{(item:any) => (
 							<div 

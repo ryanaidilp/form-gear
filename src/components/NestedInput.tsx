@@ -1,6 +1,7 @@
 import { FormComponentBase } from "../FormType"
 import { For, createMemo, Switch, Match, Show, createSignal } from 'solid-js'
 import { useReference } from '../stores/StoreContext';
+import { ComponentType } from '../constants';
 
 const NestedInput: FormComponentBase = props => {
     const [reference] = useReference();
@@ -15,19 +16,25 @@ const NestedInput: FormComponentBase = props => {
 		let answer = [];
 		if(props.component.sourceQuestion !== ''){
 			const componentAnswerIndex = reference.details.findIndex(obj => obj.dataKey === props.component.sourceQuestion);
-			if(reference.details[componentAnswerIndex]){
+			if(componentAnswerIndex !== -1 && reference.details[componentAnswerIndex]){
 				if(typeof reference.details[componentAnswerIndex].answer === 'object'){
-					answer = reference.details[componentAnswerIndex].answer == '' ? [] : reference.details[componentAnswerIndex].answer;
-					if(reference.details[componentAnswerIndex].type == 21 || reference.details[componentAnswerIndex].type == 22){
+					const rawAnswer = reference.details[componentAnswerIndex].answer;
+					answer = (rawAnswer == null || rawAnswer === '') ? [] : rawAnswer;
+					if(reference.details[componentAnswerIndex].type === ComponentType.LIST_TEXT_REPEAT || reference.details[componentAnswerIndex].type === ComponentType.LIST_SELECT_REPEAT){
 						let tmpAnswer = JSON.parse(JSON.stringify(answer));
 						tmpAnswer.splice(0,1);
 						answer = tmpAnswer;
 					}
+					// Ensure each item has a label
+					answer = answer.map((item: any) => ({
+						...item,
+						label: item.label ?? item.value ?? ''
+					}));
 				} else {
-					answer = reference.details[componentAnswerIndex].answer == '' ? 0 : reference.details[componentAnswerIndex].answer;
+					const numAnswer = reference.details[componentAnswerIndex].answer == '' ? 0 : reference.details[componentAnswerIndex].answer;
 					let dummyArrayAnswer = [];
-					for(let i=1; i <= Number(answer); i++){
-						dummyArrayAnswer.push({value:i,label:i});
+					for(let i=1; i <= Number(numAnswer); i++){
+						dummyArrayAnswer.push({value:i,label:String(i)});
 					}
 					answer = dummyArrayAnswer;
 				}
@@ -58,7 +65,7 @@ const NestedInput: FormComponentBase = props => {
 							<div class="grid grid-cols-12 " onClick={e => handleOnClick(item.value)}>
 								<div class="col-span-10 mr-2 ">
 									<Switch>											
-										<Match when={(reference.details[componentAnswerIndex()].type === 28  || (reference.details[componentAnswerIndex()].type === 4 && reference.details[componentAnswerIndex()].renderType === 1) || reference.details[componentAnswerIndex()].type === 25)}>
+										<Match when={(reference.details[componentAnswerIndex()].type === ComponentType.NUMBER  || (reference.details[componentAnswerIndex()].type === ComponentType.VARIABLE && reference.details[componentAnswerIndex()].renderType === 1) || reference.details[componentAnswerIndex()].type === ComponentType.TEXT)}>
 											<input type="text" value={props.component.label + '  ____ # ' + item.label }
 												class="w-full
 													font-light

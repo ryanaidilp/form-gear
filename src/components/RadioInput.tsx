@@ -123,7 +123,7 @@ const RadioInput: FormComponentBase = props => {
 							</For>
 						</div>
 					</div>
-					<Show when={props.validationMessage.length > 0}>
+					<Show when={props.validationMessage?.length > 0}>
 						<For each={props.validationMessage}>
 						{(item:any) => (
 							<div 

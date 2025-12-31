@@ -73,7 +73,7 @@ const RangeSliderInput: FormComponentBase = props => {
             </div>
             <div class="col-span-1 text-center">{props.value || 0}</div>
           </div>
-          <Show when={props.validationMessage.length > 0}>
+          <Show when={props.validationMessage?.length > 0}>
             <For each={props.validationMessage}>
               {(item:any) => (
                 <div 

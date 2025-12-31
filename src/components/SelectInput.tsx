@@ -472,7 +472,7 @@ const SelectInput: FormComponentBase = props => {
                                 onChange={(e) => handleOnChange(e ? e.value : '', e ? e.label : '')}
                                 initialValue={{ value: props.value ? props.value != '' ? props.value[0].value : '' : '', label: selectedOption }} />
                         </div>
-                        <Show when={props.validationMessage.length > 0}>
+                        <Show when={props.validationMessage?.length > 0}>
                             <For each={props.validationMessage}>
                                 {(item: any) => (
                                     <div

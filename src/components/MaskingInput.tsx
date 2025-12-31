@@ -82,7 +82,7 @@ const MaskingInput: FormComponentBase = props => {
               onclick={formatMask} oninput={formatMask} onpaste={formatMask} 
           />
 
-          <Show when={props.validationMessage.length > 0}>
+          <Show when={props.validationMessage?.length > 0}>
             <For each={props.validationMessage}>
               {(item: any) => (
                 <div 

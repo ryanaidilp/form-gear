@@ -47,7 +47,7 @@ const ToggleInput: FormComponentBase = props => {
                     </Show>
                 </div>
             </div>
-            <Show when={props.validationMessage.length > 0}>
+            <Show when={props.validationMessage?.length > 0}>
                 <For each={props.validationMessage}>
                 {(item:any) => (
                     <div 
@@ -81,14 +81,18 @@ const ToggleInput: FormComponentBase = props => {
             </Show>
         </div>
         <div class="font-light text-sm space-x-2 py-2.5 px-2 flex justify-end">
-            <button onClick={(e) =>  props.onValueChange(!val())}
+            <button onClick={(e) => {
+                    const newVal = !val();
+                    setVal(newVal);
+                    props.onValueChange(newVal);
+                }}
                 classList={{'bg-blue-600': val() === true, 'bg-gray-200': val()=== false, }}
                 type="button"
                 id={ 'toggle-' +  props.component.dataKey + '_id' }
                 disabled = { disableInput() }
                 class="relative inline-flex flex-shrink-0
-                    h-7 w-12 border-2 border-transparent rounded-full
-                    cursor-pointer shadow-sm transition-colors duration-200 ease-in-out
+                    h-7 w-12 border border-gray-300 rounded-full
+                    cursor-pointer shadow transition-colors duration-200 ease-in-out
                     focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500
                 "
                 >

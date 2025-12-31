@@ -134,7 +134,7 @@ const NowInput: FormComponentBase = props => {
 
         </div>
         <div class="col-span-12 pb-4">
-          <Show when={props.validationMessage.length > 0}>
+          <Show when={props.validationMessage?.length > 0}>
             <For each={props.validationMessage}>
             {(item:any) => (
               <div 

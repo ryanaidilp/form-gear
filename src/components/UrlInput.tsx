@@ -58,7 +58,7 @@ const UrlInput: FormComponentBase = props => {
                   props.onValueChange(e.currentTarget.value);
                 } }
           />
-          <Show when={props.validationMessage.length > 0}>
+          <Show when={props.validationMessage?.length > 0}>
             <For each={props.validationMessage}>
               {(item:any) => (
                 <div 

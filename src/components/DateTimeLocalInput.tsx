@@ -81,7 +81,7 @@ const DateTimeLocalInput: FormComponentBase = props => {
                 min = {minDate+'T00:00'}    
                 max = {maxDate+'T23:59'}
           />
-          <Show when={props.validationMessage.length > 0}>
+          <Show when={props.validationMessage?.length > 0}>
             <For each={props.validationMessage}>
               {(item:any) => (
                 <div 

@@ -21,12 +21,12 @@ const SingleCheckInput: FormComponentBase = props => {
 
     return (
         <div class="grid grid-cols-12 border-b border-gray-300/[.50] dark:border-gray-200/[.10] p-2">
-            <div class="font-light text-sm space-x-2 py-2.5 px-2  form-check">
-                <input class=" appearance-none h-4 w-4 border
-                    border-gray-300 rounded-sm bg-white
+            <div class="font-light text-sm space-x-2 py-2.5 px-2 form-check col-span-1 flex items-start">
+                <input class="appearance-none h-5 w-5 min-w-5 min-h-5 border-2
+                    border-gray-300 rounded bg-white
                     checked:bg-blue-600 checked:border-blue-600
-                    focus:outline-none transition duration-200 mt-1 align-top
-                    bg-no-repeat bg-center bg-contain float-left mr-2 cursor-pointer"
+                    focus:outline-none transition duration-200
+                    bg-no-repeat bg-center bg-contain cursor-pointer"
                     type="checkbox"
                     id={ 'singlecheck-' +  props.component.dataKey + '_id' }
                     disabled = { disableInput() }
@@ -36,7 +36,7 @@ const SingleCheckInput: FormComponentBase = props => {
                         props.onValueChange(e.target.checked);
                     }} />
             </div>
-            <div class="font-light text-sm space-y-2 py-2.5 px-2 col-span-10">
+            <div class="font-light text-sm space-y-2 py-2.5 px-2 col-span-11">
                 <div
                     classList={{
                         ' border-b border-orange-500 pb-3 ' : props.classValidation === 1,
@@ -62,7 +62,7 @@ const SingleCheckInput: FormComponentBase = props => {
                         </Show>
                     </div>
                 </div>
-                <Show when={props.validationMessage.length > 0}>
+                <Show when={props.validationMessage?.length > 0}>
                     <For each={props.validationMessage}>
                     {(item:any) => (
                         <div 
