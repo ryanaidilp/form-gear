@@ -1,6 +1,6 @@
 import { Component, createEffect, createSignal, For, Match, Show, Switch } from "solid-js";
 import FormComponent from './FormComponent';
-import { gearVersion, templateVersion, validationVersion } from "./FormGear";
+import { gearVersion, templateVersion, validationVersion } from "./createFormGear";
 import { useForm } from "./FormProvider";
 
 import { useLoaderDispatch } from "./loader/FormLoaderProvider";

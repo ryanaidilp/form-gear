@@ -1,5 +1,5 @@
 import { createMemo, createSignal, For, Match, Show, Switch } from 'solid-js';
-import { gearVersion, templateVersion, validationVersion } from "./FormGear";
+import { gearVersion, templateVersion, validationVersion } from "./createFormGear";
 import { useForm } from "./FormProvider";
 import { CONTROL_MAP, CONTROL_MAP_PAPI, FormComponentBase } from "./FormType";
 

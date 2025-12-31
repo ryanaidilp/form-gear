@@ -54,7 +54,10 @@ import referenceJSON from './data/default/reference.json';
 import remarkJSON from './data/default/remark.json';
 import responseJSON from './data/default/response.json';
 
-export const gearVersion = '2.0.0';
+declare const __FORM_GEAR_VERSION__: string;
+export const gearVersion = __FORM_GEAR_VERSION__;
+export let templateVersion = '0.0.0';
+export let validationVersion = '0.0.0';
 
 /**
  * Builds the reference and sidebar from template data
