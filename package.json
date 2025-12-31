@@ -1,6 +1,6 @@
 {
   "name": "form-gear",
-  "version": "1.1.1",
+  "version": "2.0.0",
   "description": "FormGear is a framework engine for dynamic form creation and complex form processing and validation for data collection.",
   "info": "It is easy to use and efficiently handle nested inquiries to capture everything down to the last detail. Unlike other similar framework, validation is handled in a FALSE condition in which each field is validated against a test equation. This leads to a more efficient and effective way to validate each component.",
   "homepage": "https://solid-form-gear.vercel.app/",
@@ -11,18 +11,19 @@
     "url": "git+https://github.com/AdityaSetyadi/form-gear.git"
   },
   "files": [
-    "dist",
-    "src"
+    "dist"
   ],
   "main": "./dist/form-gear.umd.js",
   "module": "./dist/form-gear.es.js",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/form-gear.es.js",
       "require": "./dist/form-gear.umd.js"
     },
-    "./style.css": "./dist/style.css",
-    "./dist/style.css": "./dist/style.css"
+    "./style.css": "./dist/form-gear.css",
+    "./dist/style.css": "./dist/form-gear.css"
   },
   "sideEffects": [
     "**/*.css"
@@ -59,7 +60,8 @@
   ],
   "scripts": {
     "dev": "vite --host",
-    "build": "vite build",
+    "build": "vite build && npm run build:types",
+    "build:types": "tsc -p tsconfig.types.json && cp src/index.d.ts.template dist/index.d.ts",
     "serve": "vite preview"
   },
   "devDependencies": {
@@ -70,6 +72,7 @@
     "tailwindcss": "^3.0.24",
     "typescript": "^5.9.3",
     "vite": "^7.3.0",
+    "vite-plugin-dts": "^4.5.4",
     "vite-plugin-solid": "^2.2.6"
   },
   "dependencies": {

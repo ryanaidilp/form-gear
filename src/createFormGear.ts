@@ -255,25 +255,3 @@ export function createFormGear(options: FormGearOptions): FormGearInstance {
   return instance;
 }
 
-/**
- * @deprecated Use `createFormGear` instead. This is the legacy API.
- *
- * The legacy FormGear constructor with 16 positional parameters.
- * Maintained for backward compatibility.
- *
- * Migration guide:
- * ```typescript
- * // Before (legacy)
- * new FormGear(ref, template, preset, response, validation, media, remark,
- *              config, upload, gps, offline, online, exit, save, submit, map);
- *
- * // After (modern)
- * createFormGear({
- *   data: { reference: ref, template, preset, response, validation, media, remark },
- *   config: { clientMode: ClientMode.CAWI, ... },
- *   mobileHandlers: { uploadHandler: upload, gpsHandler: gps, ... },
- *   callbacks: { onSave: save, onSubmit: submit },
- * });
- * ```
- */
-export { FormGear as LegacyFormGear } from './FormGear';

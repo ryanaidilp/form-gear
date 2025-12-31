@@ -3,7 +3,11 @@ import path from 'path';
 import solidPlugin from "vite-plugin-solid";
 
 export default defineConfig({
-  plugins: [solidPlugin()],
+  plugins: [
+    solidPlugin(),
+    // Note: Type declarations are manually maintained in src/types/index.ts
+    // and exported via package.json "types" field
+  ],
   build: {
     lib: {
       entry: path.resolve(__dirname, 'src/index.tsx'),

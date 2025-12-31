@@ -3,6 +3,19 @@
  *
  * A powerful form rendering library built with SolidJS for creating
  * dynamic questionnaires and data collection forms.
+ */
+
+// =============================================================================
+// Modern API
+// =============================================================================
+
+import type { FormGearOptions, FormGearInstance } from './types';
+
+/**
+ * Creates a new FormGear instance with the modern options-based API.
+ *
+ * @param options - Configuration options for the form
+ * @returns FormGear instance with programmatic methods
  *
  * @example
  * ```typescript
@@ -21,17 +34,19 @@
  *     onSave: (response) => console.log('Saved:', response),
  *   },
  * });
+ *
+ * // Use instance methods
+ * form.validate();
+ * form.save();
+ * form.destroy();
  * ```
  */
+export declare function createFormGear(options: FormGearOptions): FormGearInstance;
 
-import "./index.css";
-import "toastify-js/src/toastify.css";
-
-// =============================================================================
-// Modern API
-// =============================================================================
-
-export { createFormGear, gearVersion } from "./createFormGear";
+/**
+ * Current version of the FormGear library
+ */
+export declare const gearVersion: string;
 
 // =============================================================================
 // Enums
@@ -46,7 +61,7 @@ export {
   ValidationType,
   ControlType,
   DEFAULT_CONFIG,
-} from "./types";
+} from './types';
 
 // =============================================================================
 // Type Exports
@@ -119,7 +134,7 @@ export type {
 
   // Platform bridge
   PlatformBridge,
-} from "./types";
+} from './types';
 
 // =============================================================================
 // Native Bridge (Platform Communication)
@@ -151,7 +166,7 @@ export {
   isNativeApp,
   isMobile,
   getPlatformName,
-} from "./bridge";
+} from './bridge';
 
 export type {
   // Bridge types
@@ -166,4 +181,4 @@ export type {
   FormGearOutput,
   IOSMessage,
   FlutterMessage,
-} from "./bridge";
+} from './bridge';
