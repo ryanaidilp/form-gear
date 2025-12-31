@@ -34,6 +34,28 @@ import "toastify-js/src/toastify.css";
 export { createFormGear, gearVersion } from "./createFormGear";
 
 // =============================================================================
+// Services (Advanced Usage)
+// =============================================================================
+
+export {
+  // Service factory
+  createFormServices,
+  ServiceProvider,
+
+  // Service hooks
+  useServices,
+  useReferenceService,
+  useExpressionService,
+  useValidationService,
+  useEnableService,
+  useNestedService,
+  useAnswerService,
+  useHistoryService,
+} from "./services";
+
+export type { FormServices } from "./services";
+
+// =============================================================================
 // Enums
 // =============================================================================
 

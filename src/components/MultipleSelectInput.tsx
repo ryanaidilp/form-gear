@@ -3,7 +3,7 @@ import { FormComponentBase, Option, returnAPI } from "../FormType"
 import { useReference, useLocale } from '../stores/StoreContext'
 import { Select, createOptions } from "@thisbeyond/solid-select"
 import "@thisbeyond/solid-select/style.css"
-import Toastify from 'toastify-js'
+import { toastError } from "../utils/toast"
 
 const MultipleSelectInput: FormComponentBase = props => {
     const [reference] = useReference();
@@ -28,20 +28,6 @@ const MultipleSelectInput: FormComponentBase = props => {
         tableName: String,
     }
 
-    const toastInfo = (text: string, color: string) => {
-        Toastify({
-            text: (text == '') ? "" : text,
-            duration: 3000,
-            gravity: "top",
-            position: "right",
-            stopOnFocus: true,
-            className: (color == '') ? "bg-blue-600/80" : color,
-            style: {
-                background: "rgba(8, 145, 178, 0.7)",
-                width: "400px"
-            }
-        }).showToast();
-    }
 
     switch (props.component.typeOption) {
         case 1: {
@@ -53,7 +39,7 @@ const MultipleSelectInput: FormComponentBase = props => {
                 })
 
             } catch (e) {
-                toastInfo(locale.details.language[0].fetchFailed, 'bg-pink-700/80')
+                toastError(locale.details.language[0].fetchFailed)
             }
 
             break
@@ -157,7 +143,7 @@ const MultipleSelectInput: FormComponentBase = props => {
 
                         if (fetched()) {
                             if (!fetched().success) {
-                                toastInfo(locale.details.language[0].fetchFailed, 'bg-pink-700/80')
+                                toastError(locale.details.language[0].fetchFailed)
                             } else {
                                 let arr = []
                                 fetched().data.map((item, value) => {
@@ -198,7 +184,7 @@ const MultipleSelectInput: FormComponentBase = props => {
 
                     let getResult = (result) => {
                         if (!result.success) {
-                            toastInfo(locale.details.language[0].fetchFailed, 'bg-pink-700/80')
+                            toastError(locale.details.language[0].fetchFailed)
                         } else {
                             let arr = []
 
@@ -224,7 +210,7 @@ const MultipleSelectInput: FormComponentBase = props => {
                 }
 
             } catch (e) {
-                toastInfo(locale.details.language[0].fetchFailed, 'bg-pink-700/80')
+                toastError(locale.details.language[0].fetchFailed)
             }
             break;
         }
@@ -249,7 +235,7 @@ const MultipleSelectInput: FormComponentBase = props => {
                     setOptions(optionsFetch)
                 })
             } catch (e) {
-                toastInfo(locale.details.language[0].fetchFailed, 'bg-pink-700/80')
+                toastError(locale.details.language[0].fetchFailed)
             }
 
             break
@@ -269,7 +255,7 @@ const MultipleSelectInput: FormComponentBase = props => {
                     setOptions(optionsFetch)
                 })
             } catch (e) {
-                toastInfo(locale.details.language[0].fetchFailed, 'bg-pink-700/80')
+                toastError(locale.details.language[0].fetchFailed)
             }
             break;
         }

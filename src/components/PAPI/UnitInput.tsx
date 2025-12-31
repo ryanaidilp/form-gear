@@ -1,13 +1,14 @@
 import { createOptions, Select } from "@thisbeyond/solid-select"
 import { FiChevronDown } from 'solid-icons/fi'
 import { createEffect, createResource, createSignal, Show } from "solid-js"
-import Toastify from 'toastify-js'
 import { FormComponentBase } from "../../FormType"
-import { locale } from '../../stores/LocaleStore'
-import { reference } from '../../stores/ReferenceStore'
+import { useLocale, useReference } from '../../stores/StoreContext'
+import { toastError } from "../../utils/toast"
 import { InputContainer } from "./partials"
 
 const UnitInput: FormComponentBase = props => {
+    const [reference] = useReference();
+    const [locale] = useLocale();
     const config = props.config
     const [disableInput] = createSignal((config.formMode > 1) ? true : props.component.disableInput)
     const [label, setLabel] = createSignal('');
@@ -15,21 +16,6 @@ const UnitInput: FormComponentBase = props => {
     const [options, setOptions] = createSignal([]);
     const [selectedOption, setSelectedOption] = createSignal('');
     const isPublic = false;
-
-    const toastInfo = (text: string) => {
-        Toastify({
-            text: (text == '') ? "" : text,
-            duration: 3000,
-            gravity: "top",
-            position: "right",
-            stopOnFocus: true,
-            className: "bg-pink-700/80",
-            style: {
-                background: "rgba(8, 145, 178, 0.7)",
-                width: "400px"
-            }
-        }).showToast();
-    }
 
     let handleOnChange = (value: any, unit: any, isChange: any) => {
         if (isChange == 2 && unit.value != '' && unit.value != undefined) {
@@ -78,7 +64,7 @@ const UnitInput: FormComponentBase = props => {
                     setLoading(true)
                 })
             } catch (e) {
-                toastInfo(locale.details.language[0].fetchFailed)
+                toastError(locale.details.language[0].fetchFailed)
             }
 
             break;
@@ -130,7 +116,7 @@ const UnitInput: FormComponentBase = props => {
 
                         if (fetched()) {
                             if (!fetched().success) {
-                                toastInfo(locale.details.language[0].fetchFailed)
+                                toastError(locale.details.language[0].fetchFailed)
                             } else {
                                 let arr
 
@@ -226,7 +212,7 @@ const UnitInput: FormComponentBase = props => {
                     const fetched = props.MobileOfflineSearch(id, version, tempArr, getResult);
                 }
             } catch (e) {
-                toastInfo(locale.details.language[0].fetchFailed)
+                toastError(locale.details.language[0].fetchFailed)
             }
 
             break;
@@ -268,7 +254,7 @@ const UnitInput: FormComponentBase = props => {
                 })
 
             } catch (e) {
-                toastInfo(locale.details.language[0].fetchFailed)
+                toastError(locale.details.language[0].fetchFailed)
             }
 
             break;
@@ -301,7 +287,7 @@ const UnitInput: FormComponentBase = props => {
 
                 })
             } catch (e) {
-                toastInfo(locale.details.language[0].fetchFailed)
+                toastError(locale.details.language[0].fetchFailed)
             }
 
             break;

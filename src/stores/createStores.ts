@@ -108,7 +108,7 @@ export interface FormStores {
   referenceHistoryEnable: SignalInstance<boolean>;
   referenceHistory: SignalInstance<unknown[]>;
   sidebarHistory: SignalInstance<unknown[]>;
-  referenceEnableFalse: SignalInstance<string[]>;
+  referenceEnableFalse: SignalInstance<Array<{ parentIndex: number[] }>>;
 
   // Cleanup
   dispose: () => void;
@@ -360,7 +360,7 @@ export function createFormStores(initialData?: {
   const referenceHistoryEnable = createTrackedSignal<boolean>(false);
   const referenceHistory = createTrackedSignal<unknown[]>([]);
   const sidebarHistory = createTrackedSignal<unknown[]>([]);
-  const referenceEnableFalse = createTrackedSignal<string[]>([]);
+  const referenceEnableFalse = createTrackedSignal<Array<{ parentIndex: number[] }>>([]);
 
   // ==========================================================================
   // Dispose function

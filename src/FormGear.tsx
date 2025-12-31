@@ -7,6 +7,7 @@ import "./index.css";
 import FormLoaderProvider from "./loader/FormLoaderProvider";
 import Loader from "./loader/Loader";
 
+// Legacy global stores - only used for backward compatibility reads
 import { setMedia } from "./stores/MediaStore";
 import { note, setNote } from './stores/NoteStore';
 import { preset, setPreset } from './stores/PresetStore';
@@ -23,10 +24,10 @@ import { setSidebar } from './stores/SidebarStore';
 import { createSignal } from "solid-js";
 
 import { StoreProvider } from './stores/StoreContext';
-import { createFormStores } from './stores/createStores';
+import { createFormStores, FormStores } from './stores/createStores';
 
 import semverCompare from "semver-compare";
-import { toastInfo } from "./FormInput";
+import { toastError } from "./utils/toast";
 
 import mediaJSON from './data/default/media.json';
 import presetJSON from './data/default/preset.json';
@@ -34,7 +35,9 @@ import referenceJSON from './data/default/reference.json';
 import remarkJSON from './data/default/remark.json';
 import responseJSON from './data/default/response.json';
 
-import { initReferenceMap } from "./GlobalFunction";
+import { createFormServices, ServiceProvider } from "./services";
+import type { FormGearConfig } from "./core/types";
+import { ClientMode, FormMode, InitialMode, LookupMode } from "./core/constants";
 
 export const gearVersion = '1.1.1';
 export let templateVersion = '0.0.0';
@@ -114,7 +117,7 @@ export function FormGear(
 
   let checkJson = (json : string, message : string) => {
     if(Object.keys(json).length == 0){
-      toastInfo(message, 5000, "", "bg-pink-600/80");
+      toastError(message, 5000);
     }
   }
 
@@ -142,6 +145,23 @@ export function FormGear(
       remark: Object.keys(remarkFetch).length > 0 ? remarkFetch : remarkJSON,
     });
 
+    // Create services config
+    const serviceConfig: FormGearConfig = {
+      clientMode: config.clientMode as ClientMode,
+      formMode: config.formMode as FormMode,
+      initialMode: (config.initialMode ?? 1) as InitialMode,
+      lookupMode: (config.lookupMode ?? 1) as LookupMode,
+      username: config.username,
+      token: config.token,
+      baseUrl: config.baseUrl,
+      lookupKey: config.lookupKey ?? 'keys',
+      lookupValue: config.lookupValue ?? 'values',
+    };
+
+    // Create services for this FormGear instance
+    // Cast stores to core/types.FormStores - they are structurally compatible
+    const services = createFormServices(stores as any, serviceConfig);
+
     const tmpVarComp = []
     const tmpEnableComp = [];
     const flagArr = [];
@@ -150,6 +170,20 @@ export function FormGear(
     const sidebarList = [];
     let referenceList = [];
     const nestedList = [];
+
+    // Validate template structure
+    if (!template.details.components || !Array.isArray(template.details.components) || template.details.components.length === 0) {
+      console.error('FormGear Error: Template components is empty or invalid. Expected: { components: [[...sections...]] }');
+      toastError('Template configuration error: No components found', 5000);
+      return;
+    }
+
+    if (!Array.isArray(template.details.components[0]) || template.details.components[0].length === 0) {
+      console.error('FormGear Error: Template has no sections. Expected at least one section with type: 1');
+      toastError('Template configuration error: No sections defined', 5000);
+      return;
+    }
+
     let len = template.details.components[0].length;
     let counterRender = counter.render;
 
@@ -181,21 +215,29 @@ export function FormGear(
     // If a equals b, return 0;
     let runAll = 0;
     if( gearVersionState == 0 && templateVersionState == 0 && validationVersionState == 0 && referenceLen > 0 && sidebarLen > 0){
-      console.log('Reuse reference ♻️');      
+      console.log('Reuse reference ♻️');
+      // Update global stores (for backward compatibility)
       setReference(referenceFetch)
-      initReferenceMap()
+      services.reference.initializeMaps()
       setSidebar('details',referenceFetch.sidebar)
+
+      // Update isolated stores - these are what Form.tsx uses via context
+      stores.reference[1](referenceFetch as any)
+      stores.sidebar[1]('details', (referenceFetch as any).sidebar)
+
       runAll = 1;
 
       setCounter('render', counterRender += 1)
       render(() => (
         <StoreProvider stores={stores}>
-          <FormProvider>
-            <FormLoaderProvider>
-              <Form config={config} timeStart={timeStart} runAll={runAll} tmpEnableComp={tmpEnableComp} tmpVarComp={tmpVarComp} template={template} preset={preset} response={response} validation={validation} remark={remark} uploadHandler={uploadHandler} GpsHandler={GpsHandler} offlineSearch={offlineSearch} onlineSearch={onlineSearch} mobileExit={mobileExit} setResponseMobile={setResponseMobile} setSubmitMobile={setSubmitMobile} openMap={openMap}/>
-              <Loader />
-            </FormLoaderProvider>
-          </FormProvider>
+          <ServiceProvider services={services}>
+            <FormProvider>
+              <FormLoaderProvider>
+                <Form config={config} timeStart={timeStart} runAll={runAll} tmpEnableComp={tmpEnableComp} tmpVarComp={tmpVarComp} template={template} preset={preset} response={response} validation={validation} remark={remark} uploadHandler={uploadHandler} GpsHandler={GpsHandler} offlineSearch={offlineSearch} onlineSearch={onlineSearch} mobileExit={mobileExit} setResponseMobile={setResponseMobile} setSubmitMobile={setSubmitMobile} openMap={openMap}/>
+                <Loader />
+              </FormLoaderProvider>
+            </FormProvider>
+          </ServiceProvider>
         </StoreProvider>
       ), document.getElementById("FormGear-root") as HTMLElement);
     }else{
@@ -524,9 +566,11 @@ export function FormGear(
   
                 loopTemplate(element[j].components[0], 0, [0, j, 0], 1, hasSideEnable)
                 
-                flagArr[j] = 1;               
-              } catch (error) {
-                toastInfo(error.message, 5000, "", "bg-pink-600/80");
+                flagArr[j] = 1;
+                console.log(`FormGear: Section ${j} (${element[j].dataKey}) processed successfully`);
+              } catch (error: unknown) {
+                console.error(`FormGear Error processing section ${j}:`, error);
+                toastError(error instanceof Error ? error.message : String(error), 5000);
               }
             },
             500)
@@ -536,19 +580,38 @@ export function FormGear(
       runAll = 0;
       
       let sum = 0;
+      let intervalCount = 0;
+      const maxIntervals = 20; // Timeout after 10 seconds (20 * 500ms)
       const t = setInterval(() => {
+        intervalCount++;
         sum = 0;
         for(let a = 0; a < len; a++){
           if(flagArr[a] == 1) sum++;
         }
-        
+
+        // Debug logging
+        console.log(`FormGear build progress: ${sum}/${len} sections processed (attempt ${intervalCount})`);
+
+        // Timeout protection
+        if (intervalCount >= maxIntervals && sum !== len) {
+          clearInterval(t);
+          console.error('FormGear Error: Build reference timed out. Check for errors in template processing.');
+          console.error('flagArr state:', JSON.stringify(flagArr));
+          console.error('sideList lengths:', sideList.map((s, i) => `[${i}]: ${s?.length || 0}`).join(', '));
+          toastError('Form build timed out. Check console for errors.', 5000);
+          return;
+        }
+
         if(sum === len){
           clearInterval(t)
+          console.log('FormGear: All sections processed, building sidebar...');
+          console.log('sideList:', sideList);
           for(let x=0; x < sideList.length; x++){
             for(let y=0; y < sideList[x].length; y++){
               sidebarList.push(sideList[x][y])
             }
           }
+          console.log('FormGear: sidebarList built with', sidebarList.length, 'items');
           for(let j = 0; j < refList.length; j++){
             for(let k = 0; k < refList[j].length; k++){
               referenceList.push(refList[j][k])
@@ -585,19 +648,26 @@ export function FormGear(
             referenceList.splice(Number(newIn[counter]), 1)
           }
 
-          initReferenceMap(referenceList)
+          services.reference.initializeMaps(referenceList)
+          // Update both global stores (for backward compatibility) and isolated stores (for context)
           setReference('details', referenceList)
           setSidebar('details', sidebarList)
+
+          // Update isolated stores - these are what Form.tsx uses via context
+          stores.reference[1]('details', referenceList)
+          stores.sidebar[1]('details', sidebarList)
 
           setCounter('render', counterRender += 1)
           render(() => (
             <StoreProvider stores={stores}>
-              <FormProvider>
-                <FormLoaderProvider>
-                  <Form config={config} timeStart={timeStart} runAll={runAll} tmpEnableComp={tmpEnableComp} tmpVarComp={tmpVarComp} template={template} preset={preset} response={response} validation={validation} remark={remark} uploadHandler={uploadHandler} GpsHandler={GpsHandler} offlineSearch={offlineSearch} onlineSearch={onlineSearch} mobileExit={mobileExit} setResponseMobile={setResponseMobile} setSubmitMobile={setSubmitMobile} openMap={openMap}/>
-                  <Loader />
-                </FormLoaderProvider>
-              </FormProvider>
+              <ServiceProvider services={services}>
+                <FormProvider>
+                  <FormLoaderProvider>
+                    <Form config={config} timeStart={timeStart} runAll={runAll} tmpEnableComp={tmpEnableComp} tmpVarComp={tmpVarComp} template={template} preset={preset} response={response} validation={validation} remark={remark} uploadHandler={uploadHandler} GpsHandler={GpsHandler} offlineSearch={offlineSearch} onlineSearch={onlineSearch} mobileExit={mobileExit} setResponseMobile={setResponseMobile} setSubmitMobile={setSubmitMobile} openMap={openMap}/>
+                    <Loader />
+                  </FormLoaderProvider>
+                </FormProvider>
+              </ServiceProvider>
             </StoreProvider>
           ), document.getElementById("FormGear-root") as HTMLElement);
         }
@@ -607,7 +677,7 @@ export function FormGear(
     // console.timeEnd('FormGear renders successfully in ')
   } catch (e: unknown) {
     console.log(e)
-    toastInfo("Failed to render the questionnaire", 5000, "", "bg-pink-600/80");
+    toastError("Failed to render the questionnaire", 5000);
   };  
   
 }

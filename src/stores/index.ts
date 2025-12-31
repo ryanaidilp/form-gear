@@ -85,7 +85,6 @@ export { sidebar, setSidebar } from './SidebarStore';
 export { locale, setLocale } from './LocaleStore';
 export { summary, setSummary } from './SummaryStore';
 export { counter, setCounter } from './CounterStore';
-export { input, setInput } from './InputStore';
 export { nested, setNested } from './NestedStore';
 export { note, setNote } from './NoteStore';
 export { principal, setPrincipal } from './PrincipalStore';

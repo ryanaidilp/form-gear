@@ -1,7 +1,7 @@
 import { createEffect, createSignal, For, Match, Show, Switch } from "solid-js"
 import { FormComponentBase } from "../FormType"
 import SignaturePad from "signature_pad"
-import Toastify from 'toastify-js'
+import { toastInfo, toastError } from "../utils/toast"
 
 const SignatureInput: FormComponentBase = props => {
   const [fileSource, setFileSource] = createSignal('');
@@ -11,21 +11,6 @@ const SignatureInput: FormComponentBase = props => {
 
   const config = props.config
   const [disableInput] = createSignal((config.formMode > 1 ) ? true : props.component.disableInput)
-
-  const toastInfo = (text:string, color:string) => {
-		Toastify({
-			text: (text == '') ? "" : text,
-			duration: 3000,
-			gravity: "top", 
-			position: "right", 
-			stopOnFocus: true, 
-			className: (color == '') ? "bg-blue-600/80" : color,
-			style: {
-				background: "rgba(8, 145, 178, 0.7)",
-				width: "400px"
-			}
-		}).showToast();
-	}
   
   const [instruction, setInstruction] = createSignal(false);
   const showInstruction = () => {
@@ -102,11 +87,11 @@ const SignatureInput: FormComponentBase = props => {
       updatedAnswer = [];
 
       updatedAnswer.push({ value: dataURL, type: 'image/png', signature:signatureData() })
-      
+
       props.onValueChange(updatedAnswer)
-      toastInfo('Signature acquired!','')
+      toastInfo('Signature acquired!')
     }else{
-      toastInfo('Please provide the appropriate signature!','bg-pink-600/70')
+      toastError('Please provide the appropriate signature!')
     }
   }
 

@@ -3,7 +3,7 @@ import { For, Switch, createResource, Match, Show, createMemo, createSignal, cre
 import { useReference, useLocale } from '../stores/StoreContext'
 import { Select, createOptions } from "@thisbeyond/solid-select"
 import "@thisbeyond/solid-select/style.css"
-import Toastify from 'toastify-js'
+import { toastInfo, toastError } from "../utils/toast"
 import LogoImg from "../assets/loading.png"
 
 const ListSelectInputRepeat: FormComponentBase = props => {
@@ -30,20 +30,6 @@ const ListSelectInputRepeat: FormComponentBase = props => {
 		type: string
 	}
 
-	const toastInfo = (text: string, color: string) => {
-		Toastify({
-			text: (text == '') ? "" : text,
-			duration: 3000,
-			gravity: "top",
-			position: "right",
-			stopOnFocus: true,
-			className: (color == '') ? "bg-blue-600/80" : color,
-			style: {
-				background: "rgba(8, 145, 178, 0.7)",
-				width: "400px"
-			}
-		}).showToast();
-	}
 
 	switch (props.component.typeOption) {
 		case 1: {
@@ -70,7 +56,7 @@ const ListSelectInputRepeat: FormComponentBase = props => {
 				})
 			} catch (e) {
 				setisError(true)
-				toastInfo(locale.details.language[0].fetchFailed, 'bg-pink-700/80')
+				toastError(locale.details.language[0].fetchFailed)
 			}
 
 			break
@@ -173,7 +159,7 @@ const ListSelectInputRepeat: FormComponentBase = props => {
                         if (fetched()) {
                             if (!fetched().success) {
 								setisError(true)
-                                toastInfo(locale.details.language[0].fetchFailed, 'bg-pink-700/80')
+                                toastError(locale.details.language[0].fetchFailed)
                             } else {
                                 let arr = []
                                 fetched().data.map((item, value) => {
@@ -233,7 +219,7 @@ const ListSelectInputRepeat: FormComponentBase = props => {
 						getOptions = createMemo(() => {
 							if(!result.success){
 								setisError(true)
-								toastInfo(locale.details.language[0].fetchFailed, 'bg-pink-700/80')
+								toastError(locale.details.language[0].fetchFailed)
 							} else {
 								let arr = []
 								if (result.data.length > 0) {
@@ -276,7 +262,7 @@ const ListSelectInputRepeat: FormComponentBase = props => {
 
 			} catch (e) {
 				setisError(true)
-				toastInfo(locale.details.language[0].fetchFailed, 'bg-pink-700/80')
+				toastError(locale.details.language[0].fetchFailed)
 			}
 
 			break;
@@ -317,7 +303,7 @@ const ListSelectInputRepeat: FormComponentBase = props => {
 				})
 			} catch (e) {
 				setisError(true)
-				toastInfo(locale.details.language[0].fetchFailed, 'bg-pink-700/80')
+				toastError(locale.details.language[0].fetchFailed)
 			}
 
 			break
@@ -355,7 +341,7 @@ const ListSelectInputRepeat: FormComponentBase = props => {
 				})
 			} catch (e) {
 				setisError(true)
-				toastInfo(locale.details.language[0].fetchFailed, 'bg-pink-700/80')
+				toastError(locale.details.language[0].fetchFailed)
 			}
 
 			break;
@@ -368,7 +354,7 @@ const ListSelectInputRepeat: FormComponentBase = props => {
 			setFlag(1);//plus / edit
 			setEdited(0);
 		} else {
-			toastInfo(locale.details.language[0].componentNotAllowed, '');
+			toastInfo(locale.details.language[0].componentNotAllowed);
 		}
 	}
 
@@ -377,7 +363,7 @@ const ListSelectInputRepeat: FormComponentBase = props => {
 			setFlag(1);//plus / edit
 			setEdited(id);
 		} else {
-			toastInfo(locale.details.language[0].componentNotAllowed, '');
+			toastInfo(locale.details.language[0].componentNotAllowed);
 		}
 	}
 
@@ -393,14 +379,14 @@ const ListSelectInputRepeat: FormComponentBase = props => {
 			setEdited(id);
 			modalDelete();
 		} else if (flag() === 1) {//tidak bisa buka modal karena isian lain terbuka
-			toastInfo(locale.details.language[0].componentNotAllowed, '');
+			toastInfo(locale.details.language[0].componentNotAllowed);
 		} else if (flag() === 2) {
 			let updatedAnswer = JSON.parse(JSON.stringify(localAnswer()));
 			let answerIndex = updatedAnswer.findIndex((item) => item.value == id);
 			updatedAnswer.splice(answerIndex, 1);
 
 			props.onValueChange(updatedAnswer);
-			toastInfo(locale.details.language[0].componentDeleted, '');
+			toastInfo(locale.details.language[0].componentDeleted);
 			setFlag(0);
 			setEdited(0);
 		}
@@ -425,15 +411,15 @@ const ListSelectInputRepeat: FormComponentBase = props => {
 			props.onValueChange(updatedAnswer);
 
 			if (edited() === 0) {
-				toastInfo(locale.details.language[0].componentAdded, '');
+				toastInfo(locale.details.language[0].componentAdded);
 			} else {
-				toastInfo(locale.details.language[0].componentEdited, '');
+				toastInfo(locale.details.language[0].componentEdited);
 			}
 			setFlag(0);
 			setEdited(0);
 		} else {
 			if (edited() === 0) {
-				toastInfo(locale.details.language[0].componentEmpty, '');
+				toastInfo(locale.details.language[0].componentEmpty);
 			} else {
 				setFlag(0);
 				setEdited(0);

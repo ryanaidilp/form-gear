@@ -1,10 +1,11 @@
 import { createMemo, createSignal, Show } from "solid-js";
 import { handleInputFocus, handleInputKeyDown } from "../../events";
 import { FormComponentBase, Option } from "../../FormType";
-import { reference } from '../../stores/ReferenceStore';
+import { useReference } from '../../stores/StoreContext';
 import { InputContainer, OptionSection } from "./partials";
 
 const SelectInput: FormComponentBase = props => {
+	const [reference] = useReference();
 	const config = props.config
 	const [disableInput] = createSignal((config.formMode > 1) ? true : props.component.disableInput)
 

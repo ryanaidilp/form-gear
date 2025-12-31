@@ -1,7 +1,7 @@
 import { createEffect, createSignal, Switch, Match, Show, For } from "solid-js"
 import { FormComponentBase } from "../FormType"
-import Toastify from 'toastify-js'
 import { useLocale } from '../stores/StoreContext'
+import { toastInfo } from "../utils/toast"
 
 const GpsInput: FormComponentBase = props => {
   const [locale] = useLocale();
@@ -92,21 +92,6 @@ const GpsInput: FormComponentBase = props => {
 
     navigator.geolocation.getCurrentPosition(success, error, options);
 
-  }
-
-  const toastInfo = (text: string) => {
-    Toastify({
-      text: (text == '') ? "" : text,
-      duration: 3000,
-      gravity: "top",
-      position: "right",
-      stopOnFocus: true,
-      className: "bg-blue-600/80",
-      style: {
-        background: "rgba(8, 145, 178, 0.7)",
-        width: "400px"
-      }
-    }).showToast();
   }
 
   const [instruction, setInstruction] = createSignal(false);

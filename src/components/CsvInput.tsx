@@ -1,8 +1,8 @@
 import { createEffect, createSignal, Switch, Match, Show, For } from "solid-js"
 import { FormComponentBase } from "../FormType"
-import Toastify from 'toastify-js'
 import Papa from 'papaparse'
 import { useLocale } from '../stores/StoreContext'
+import { toastInfo, toastError } from "../utils/toast"
 
 const CsvInput: FormComponentBase = props => {
     const [locale] = useLocale();
@@ -41,7 +41,7 @@ const CsvInput: FormComponentBase = props => {
             let ext = doc.name.split('.').pop().toLowerCase()
 
             if (!allowedExtension.includes(ext)) {
-                toastInfo(locale.details.language[0].fileInvalidFormat, 'bg-pink-600/70')
+                toastError(locale.details.language[0].fileInvalidFormat)
             } else {
                 
                 let docSize = (doc.size / (1024*1024)).toFixed(2)
@@ -55,8 +55,8 @@ const CsvInput: FormComponentBase = props => {
                     validMaxDocSize = props.component.sizeInput[0].max !== undefined ? 
                                             ( Number(docSize) < Number(props.component.sizeInput[0].max) ) : true;
                     
-                    !(validMaxDocSize) && toastInfo(locale.details.language[0].fileInvalidMaxSize + props.component.sizeInput[0].max, 'bg-pink-600/70')
-                    !(validMinDocSize) && toastInfo(locale.details.language[0].fileInvalidMinSize + props.component.sizeInput[0].min, 'bg-pink-600/70')
+                    !(validMaxDocSize) && toastError(locale.details.language[0].fileInvalidMaxSize + props.component.sizeInput[0].max)
+                    !(validMinDocSize) && toastError(locale.details.language[0].fileInvalidMinSize + props.component.sizeInput[0].min)
                     
                     setIsUploading(false)
 
@@ -90,7 +90,7 @@ const CsvInput: FormComponentBase = props => {
 
                                 setIsUploading(false)
                                 props.onValueChange(jsonCsv)
-                                toastInfo(locale.details.language[0].fileUploaded, '')
+                                toastInfo(locale.details.language[0].fileUploaded)
 
                             }
                         });
@@ -147,21 +147,6 @@ const CsvInput: FormComponentBase = props => {
             fileName: props.component.dataKey + '.csv',
             fileType: 'text/csv',
         })
-    }
-
-    const toastInfo = (text: string, color: string) => {
-        Toastify({
-            text: (text == '') ? "" : text,
-            duration: 3000,
-            gravity: "top",
-            position: "right",
-            stopOnFocus: true,
-            className: (color == '') ? "bg-blue-600/80" : color,
-            style: {
-                background: "rgba(8, 145, 178, 0.7)",
-                width: "400px"
-            }
-        }).showToast();
     }
 
     const [instruction, setInstruction] = createSignal(false);

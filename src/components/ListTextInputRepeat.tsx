@@ -1,6 +1,6 @@
 import { FormComponentBase } from "../FormType"
 import { For, Switch, Match, Show, createMemo, createSignal } from 'solid-js'
-import Toastify from 'toastify-js'
+import { toastInfo } from "../utils/toast"
 import { useLocale } from '../stores/StoreContext'
 import LogoImg from "../assets/loading.png"
 
@@ -120,20 +120,6 @@ const ListTextInputRepeat: FormComponentBase = props => {
 		contentModal.innerHTML = props.component.contentModalDelete !== undefined ? props.component.contentModalDelete : 'Deletion will also delete related components, including child components from this parent.';
 	}
 
-	const toastInfo = (text: string) => {
-		Toastify({
-			text: (text == '') ? locale.details.language[0].componentDeleted : text,
-			duration: 3000,
-			gravity: "top",
-			position: "right",
-			stopOnFocus: true,
-			className: "bg-blue-600/80",
-			style: {
-				background: "rgba(8, 145, 178, 0.7)",
-				width: "400px"
-			}
-		}).showToast();
-	}
 
 	const [instruction, setInstruction] = createSignal(false);
 	const showInstruction = () => {

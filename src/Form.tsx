@@ -19,14 +19,15 @@ import {
   useReferenceEnableFalse,
   useReferenceHistoryEnable,
 } from './stores/StoreContext';
-import { Preset } from './stores/PresetStore';
-import { Remark } from './stores/RemarkStore';
-import { Response } from './stores/ResponseStore';
-import { Questionnaire } from './stores/TemplateStore';
-import { Validation } from './stores/ValidationStore';
+import type {
+  TemplateState,
+  PresetState,
+  ResponseState,
+  RemarkState,
+} from './core/types';
 
-import { toastInfo } from "./FormInput";
-import { globalConfig, referenceIndexLookup, refocusLastSelector, runValidation, saveAnswer, setEnableFalse } from "./GlobalFunction";
+import { toastSuccess, toastError, toastWarning } from "./utils/toast";
+import { useServices } from "./services";
 
 import dayjs from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';
@@ -39,6 +40,14 @@ import {
     type ExpressionContext,
 } from './utils/expression';
 
+// Legacy scroll helper - keeping for now
+const refocusLastSelector = () => {
+  const lastSelector = document.querySelector('[data-last-focus="true"]');
+  if (lastSelector) {
+    (lastSelector as HTMLElement).focus();
+  }
+};
+
 
 const Form: Component<{
   config: any
@@ -46,11 +55,11 @@ const Form: Component<{
   runAll: number
   tmpEnableComp: [] | any
   tmpVarComp: [] | any
-  template: Questionnaire | any
-  preset: Preset | any
-  response: Response | any
-  validation: Validation | any
-  remark: Remark | any
+  template: TemplateState | any
+  preset: PresetState | any
+  response: ResponseState | any
+  validation: any
+  remark: RemarkState | any
   uploadHandler: any
   GpsHandler: any
   offlineSearch: any
@@ -60,6 +69,9 @@ const Form: Component<{
   setSubmitMobile: any
   openMap: any
 }> = props => {
+  // Get services
+  const services = useServices();
+
   // Store hooks
   const [locale, setLocale] = useLocale();
   const [note, setNote] = useNote();
@@ -72,7 +84,7 @@ const Form: Component<{
   const [template] = useTemplate();
   const [counter] = useCounter();
   const [media, setMedia] = useMedia();
-  const referenceEnableFalse = useReferenceEnableFalse();
+  const [referenceEnableFalse] = useReferenceEnableFalse();
   const [, setReferenceHistoryEnable] = useReferenceHistoryEnable();
 
   const getValue = (dataKey: string) => {
@@ -86,7 +98,7 @@ const Form: Component<{
     return props.config
   }
 
-  globalConfig(props.config)
+  // Note: globalConfig is no longer needed - config is passed directly to services
 
   const getProp = (config: string) => {
     switch (config) {
@@ -152,6 +164,25 @@ const Form: Component<{
     const components = sidebar.details[componentIndex] !== undefined ? sidebar.details[componentIndex].components[0] : '';
     return components;
   }
+
+  // Check if sidebar has any sections before accessing
+  if (!sidebar.details || sidebar.details.length === 0) {
+    console.error('FormGear Error: No sections found in sidebar. Please check your template configuration.');
+    toastError('Form configuration error: No sections found in template', 5000);
+    return (
+      <div class="flex items-center justify-center h-screen bg-gray-100 dark:bg-gray-900">
+        <div class="text-center p-8 bg-white dark:bg-gray-800 rounded-lg shadow-lg max-w-md">
+          <svg class="mx-auto h-16 w-16 text-red-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-2">Form Configuration Error</h2>
+          <p class="text-gray-600 dark:text-gray-300 mb-4">No sections found in the template. Please ensure your template JSON has at least one section with type 1.</p>
+          <p class="text-sm text-gray-500 dark:text-gray-400">Check the browser console for more details.</p>
+        </div>
+      </div>
+    );
+  }
+
   setActiveComponent({
     dataKey: sidebar.details[0].dataKey,
     label: sidebar.details[0].label,
@@ -180,13 +211,13 @@ const Form: Component<{
       };
       let answer = evaluateVariableExpression(element.expression, context);
       if (answer !== undefined)
-        saveAnswer(element.dataKey, 'answer', answer, sidePosition, { 'clientMode': getProp('clientMode'), 'baseUrl': getProp('baseUrl') }, 0);
+        services.answer.saveAnswer(element.dataKey, answer, { isInitial: true, activePosition: sidePosition });
     })
     // console.timeEnd('tmpVarComp ')
 
     // console.time('response ');
     props.preset.details.predata.forEach((element, index) => {
-      let refPosition = referenceIndexLookup(element.dataKey)
+      let refPosition = services.reference.getIndex(element.dataKey);
       if (refPosition !== -1) {
         if ((config().initialMode == 1 && reference.details[refPosition].presetMaster !== undefined && (reference.details[refPosition].presetMaster)) || (config().initialMode == 2)) {
           let sidePosition = sidebar.details.findIndex(obj => {
@@ -194,14 +225,14 @@ const Form: Component<{
             return (cekInsideIndex == -1) ? 0 : index;
           });
           let answer = (typeof element.answer === 'object') ? JSON.parse(JSON.stringify(element.answer)) : element.answer;
-          saveAnswer(element.dataKey, 'answer', answer, sidePosition, { 'clientMode': getProp('clientMode'), 'baseUrl': getProp('baseUrl') }, 0);
+          services.answer.saveAnswer(element.dataKey, answer, { isInitial: true, activePosition: sidePosition });
         }
       }
     })
 
     props.response.details.answers.forEach((element, index) => {
       if (!element.dataKey.includes("#")) {
-        let refPosition = referenceIndexLookup(element.dataKey)
+        let refPosition = services.reference.getIndex(element.dataKey);
         if (refPosition !== -1) {
           let sidePosition = sidebar.details.findIndex(obj => {
             const cekInsideIndex = obj.components[0].findIndex(objChild => objChild.dataKey === element.dataKey);
@@ -209,21 +240,13 @@ const Form: Component<{
           });
           let answer = (typeof element.answer === 'object') ? JSON.parse(JSON.stringify(element.answer)) : element.answer;
           if (answer !== undefined)
-            saveAnswer(element.dataKey, 'answer', answer, sidePosition, { 'clientMode': getProp('clientMode'), 'baseUrl': getProp('baseUrl') }, 0);
+            services.answer.saveAnswer(element.dataKey, answer, { isInitial: true, activePosition: sidePosition });
         }
       }
     })
 
     // console.time('tmpEnableComp ')
-    props.tmpEnableComp.forEach((element, index) => {
-      let sidePosition = sidebar.details.findIndex((obj, index) => {
-        const cekInsideIndex = obj.components[0].findIndex((objChild, index) => {
-          objChild.dataKey === element.dataKey;
-          return index;
-        });
-        return (cekInsideIndex == -1) ? 0 : index;
-      });
-
+    props.tmpEnableComp.forEach((element) => {
       const getRowIndexFn = createGetRowIndex(element.dataKey);
       const context: ExpressionContext = {
         getValue,
@@ -234,7 +257,7 @@ const Form: Component<{
       const default_eval_enable = true;
       let evEnable = evaluateEnableCondition(element.enableCondition, context, default_eval_enable);
       let enable = (evEnable === undefined) ? false : evEnable;
-      saveAnswer(element.dataKey, 'enable', enable, sidePosition, { 'clientMode': getProp('clientMode'), 'baseUrl': getProp('baseUrl') }, 0);
+      services.answer.saveEnable(element.dataKey, enable);
     })
 
     for (let index = 0; index < reference.details.length; index++) {
@@ -243,14 +266,15 @@ const Form: Component<{
         continue
       }
       if ((obj.enable) && obj.componentValidation !== undefined) {
-        runValidation(obj.dataKey, JSON.parse(JSON.stringify(obj)), null);
+        services.validation.validateComponent(obj.dataKey);
       }
 
       if ((obj.enable) && obj.sourceOption !== undefined) {
         // console.log(obj.sourceOption)
         let editedSourceOption = obj.sourceOption.split('@');
-        let sourceOptionObj = reference.details[referenceIndexLookup(editedSourceOption[0])]
-        if (obj.answer) {
+        let sourceOptionIndex = services.reference.getIndex(editedSourceOption[0]);
+        let sourceOptionObj = sourceOptionIndex !== -1 ? reference.details[sourceOptionIndex] : null;
+        if (obj.answer && sourceOptionObj && sourceOptionObj.answer) {
           let x = [];
           obj.answer.forEach(val => {
             sourceOptionObj.answer.forEach(op => {
@@ -402,7 +426,7 @@ const Form: Component<{
     const dataPrincipal = []
 
     setLoader({});
-    setTimeout(() => setEnableFalse(), 50);
+    setTimeout(() => services.enable.updateDisabledSectionsCache(), 50);
 
     reference.details.forEach((element, index) => {
       if (
@@ -784,7 +808,7 @@ const Form: Component<{
 
   const revalidateError = (event: MouseEvent) => {
     setLoader({});
-    setTimeout(() => setEnableFalse(), 50);
+    setTimeout(() => services.enable.updateDisabledSectionsCache(), 50);
     // revalidateQ();
     if (summary.error > 0) {
       showListError(event);
@@ -828,20 +852,20 @@ const Form: Component<{
     createCaptcha();
     checkDocState();
     if (docState() === 'E') {
-      toastInfo(locale.details.language[0].submitInvalid, 3000, "", "bg-pink-600/80");
+      toastError(locale.details.language[0].submitInvalid, 3000);
     } else {
       setLoader({});
-      setTimeout(() => setEnableFalse(), 50);
+      setTimeout(() => services.enable.updateDisabledSectionsCache(), 50);
       revalidateQ();
       if (summary.error === 0) {
         if (docState() === 'W') {
-          toastInfo(locale.details.language[0].submitWarning, 3000, "", "bg-orange-600/80");
+          toastWarning(locale.details.language[0].submitWarning, 3000);
           setShowSubmit(true);
         } else {
           setShowSubmit(true);
         }
       } else {
-        toastInfo(locale.details.language[0].submitEmpty, 3000, "", "bg-pink-600/80");
+        toastError(locale.details.language[0].submitEmpty, 3000);
       }
     }
   }
@@ -850,9 +874,9 @@ const Form: Component<{
     if (tmpCaptcha().length !== 0 && (tmpCaptcha() === captcha())) {
       writeSubmitResponse();
       setShowSubmit(false)
-      toastInfo(locale.details.language[0].verificationSubmitted, 3000, "", "bg-teal-600/80");
+      toastSuccess(locale.details.language[0].verificationSubmitted, 3000);
     } else {
-      toastInfo(locale.details.language[0].verificationInvalid, 3000, "", "bg-pink-600/80");
+      toastError(locale.details.language[0].verificationInvalid, 3000);
     }
   }
 

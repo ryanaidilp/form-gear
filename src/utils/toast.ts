@@ -45,18 +45,22 @@ const TOAST_PRESETS: Record<ToastType, Partial<ToastOptions>> = {
   info: {
     className: 'bg-blue-600/80',
     duration: 3000,
+    style: { background: 'rgba(37, 99, 235, 0.8)' }, // blue-600/80
   },
   success: {
     className: 'bg-green-600/80',
     duration: 3000,
+    style: { background: 'rgba(22, 163, 74, 0.8)' }, // green-600/80
   },
   warning: {
     className: 'bg-yellow-600/80',
     duration: 4000,
+    style: { background: 'rgba(202, 138, 4, 0.8)' }, // yellow-600/80
   },
   error: {
     className: 'bg-pink-600/80',
     duration: 5000,
+    style: { background: 'rgba(219, 39, 119, 0.8)' }, // pink-600/80
   },
 };
 
@@ -127,6 +131,7 @@ export function toastInfo(
     duration,
     text,
     className,
+    ...TOAST_PRESETS.info,
   });
 }
 

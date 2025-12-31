@@ -108,10 +108,9 @@ const ALLOWED_GLOBALS: Record<string, unknown> = {
   RegExp,
 
   // Utility constants
+  // Note: null, true, false are reserved keywords and available by default
+  // They cannot be used as function parameter names
   undefined,
-  null: null,
-  true: true,
-  false: false,
   NaN,
   Infinity,
 

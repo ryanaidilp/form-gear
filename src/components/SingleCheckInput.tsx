@@ -4,7 +4,10 @@ import { FormComponentBase } from "../FormType"
 const SingleCheckInput: FormComponentBase = props => {
     const config = props.config
     const [disableInput] = createSignal((config.formMode > 1 ) ? true : props.component.disableInput)
-    
+
+    // Local state to prevent re-render issues during save
+    const [val, setVal] = createSignal(props.value !== '' ? props.value : false);
+
     const [instruction, setInstruction] = createSignal(false);
     const showInstruction = () => {
       (instruction()) ? setInstruction(false) : setInstruction(true);
@@ -19,16 +22,19 @@ const SingleCheckInput: FormComponentBase = props => {
     return (
         <div class="grid grid-cols-12 border-b border-gray-300/[.50] dark:border-gray-200/[.10] p-2">
             <div class="font-light text-sm space-x-2 py-2.5 px-2  form-check">
-                <input class=" appearance-none h-4 w-4 border 
-                    border-gray-300 rounded-sm bg-white 
-                    checked:bg-blue-600 checked:border-blue-600 
-                    focus:outline-none transition duration-200 mt-1 align-top 
-                    bg-no-repeat bg-center bg-contain float-left mr-2 cursor-pointer" 
-                    type="checkbox" 
+                <input class=" appearance-none h-4 w-4 border
+                    border-gray-300 rounded-sm bg-white
+                    checked:bg-blue-600 checked:border-blue-600
+                    focus:outline-none transition duration-200 mt-1 align-top
+                    bg-no-repeat bg-center bg-contain float-left mr-2 cursor-pointer"
+                    type="checkbox"
                     id={ 'singlecheck-' +  props.component.dataKey + '_id' }
-                    disabled = { disableInput() }                    
-                    checked={(props.value) ? props.value : false}
-                    onChange={(e) => props.onValueChange(e.target.checked)} />
+                    disabled = { disableInput() }
+                    checked={val() === true}
+                    onChange={(e) => {
+                        setVal(e.target.checked);
+                        props.onValueChange(e.target.checked);
+                    }} />
             </div>
             <div class="font-light text-sm space-y-2 py-2.5 px-2 col-span-10">
                 <div

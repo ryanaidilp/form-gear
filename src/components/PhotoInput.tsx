@@ -1,6 +1,6 @@
 import { createEffect, createSignal, Switch, Match, Show, For } from "solid-js";
 import { FormComponentBase } from "../FormType";
-import Toastify from 'toastify-js'
+import { toastSuccess, toastError } from "../utils/toast";
 import { useLocale } from "../stores/StoreContext";
 
 const PhotoInput: FormComponentBase = props => {
@@ -62,7 +62,7 @@ const PhotoInput: FormComponentBase = props => {
       let doc = data.target.files[0];
       let ext = doc.name.split('.').pop().toLowerCase()
       if (!allowedExtension.includes(ext)) {
-        toastInfo('Please submit the appropriate format!','bg-pink-600/70')
+        toastError('Please submit the appropriate format!')
       } else {
         reader.readAsDataURL(doc)
 
@@ -78,27 +78,13 @@ const PhotoInput: FormComponentBase = props => {
 
           // console.log('hasilny adalah : ', updatedAnswer)
           props.onValueChange(updatedAnswer)
-          toastInfo('Image uploaded successfully!','')
+          toastSuccess('Image uploaded successfully!')
         }
       }
     }
 
   }
   
-  const toastInfo = (text:string, color:string) => {
-		Toastify({
-			text: (text == '') ? "" : text,
-			duration: 3000,
-			gravity: "top", 
-			position: "right", 
-			stopOnFocus: true, 
-			className: (color == '') ? "bg-blue-600/80" : color,
-			style: {
-				background: "rgba(8, 145, 178, 0.7)",
-				width: "400px"
-			}
-		}).showToast();
-	}
   
   const [instruction, setInstruction] = createSignal(false);
   const showInstruction = () => {

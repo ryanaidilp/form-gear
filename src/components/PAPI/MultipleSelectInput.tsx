@@ -1,12 +1,13 @@
 import { createMemo, createSignal, Show } from "solid-js"
 import { handleInputFocus, handleInputKeyDown } from "../../events"
 import { FormComponentBase, Option } from "../../FormType"
-import { findSumCombination, sum, transformCheckboxOptions } from "../../GlobalFunction"
-import { reference } from '../../stores/ReferenceStore'
+import { findSumCombination, sum, transformCheckboxOptions } from "../../utils/helpers"
+import { useReference } from '../../stores/StoreContext'
 import { InputContainer } from "./partials"
 import MultipleOptionSection from "./partials/MultipleOptionSection"
 
 const MultipleSelectInput: FormComponentBase = props => {
+    const [reference] = useReference();
     const config = props.config
     const [disableInput] = createSignal((config.formMode > 1) ? true : props.component.disableInput)
 

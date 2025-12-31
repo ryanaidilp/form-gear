@@ -17,14 +17,12 @@ import {
   useTemplate,
   useCounter,
   useReferenceEnableFalse,
-  useReferenceHistory,
-  useSidebarHistory,
 } from './stores/StoreContext';
 
 import dayjs from 'dayjs';
-import Toastify from 'toastify-js';
 
-import { getValue, reloadDataFromHistory, saveAnswer } from './GlobalFunction';
+import { useServices } from './services';
+import { toastInfo as toastInfoUtil, toastError, toastSuccess } from './utils/toast';
 
 import { ClientMode } from './constants';
 import { locale as globalLocale } from './stores/LocaleStore';
@@ -40,22 +38,19 @@ export const getEnable = (dataKey: string) => {
 
   return enable;
 }
+
+/**
+ * @deprecated Use `toastInfo`, `toastError`, `toastSuccess`, or `toastWarning` from 'utils/toast' instead
+ */
 export const toastInfo = (text: string, duration: number, position: string, bgColor: string) => {
-  Toastify({
-    text: (text == '') ? globalLocale.details.language[0].componentDeleted : text,
-    duration: (duration >= 0) ? duration : 500,
-    gravity: "top",
-    position: (position == '') ? "right" : position,
-    stopOnFocus: true,
-    className: (bgColor == '') ? "bg-blue-600/80" : bgColor,
-    style: {
-      background: "rgba(8, 145, 178, 0.7)",
-      width: "400px"
-    }
-  }).showToast();
+  const message = (text == '') ? globalLocale.details.language[0].componentDeleted : text;
+  toastInfoUtil(message, (duration >= 0) ? duration : 500, '', bgColor || 'bg-blue-600/80');
 }
 
 const FormInput: FormComponentBase = props => {
+  // Get services
+  const services = useServices();
+
   const [form, { setActiveComponent }] = useForm();
   const { setLoader, removeLoader } = useLoaderDispatch();
 
@@ -72,8 +67,6 @@ const FormInput: FormComponentBase = props => {
   const [template] = useTemplate();
   const [counter] = useCounter();
   const referenceEnableFalse = useReferenceEnableFalse();
-  const [, setReferenceHistory] = useReferenceHistory();
-  const [, setSidebarHistory] = useSidebarHistory();
 
   const [flagRemark, setFlagRemark] = createSignal(''); //dataKey Remark
   const [comments, setComments] = createSignal([]); //temp Comments
@@ -182,16 +175,13 @@ const FormInput: FormComponentBase = props => {
     setLoader({});
     setTimeout(() => {
       try {
-        setReferenceHistory([])
-        setSidebarHistory([])
-        saveAnswer(props.component.dataKey, 'answer', value, form.activeComponent.position, { 'clientMode': props.config.clientMode, 'baseUrl': props.config.baseUrl }, 0)
+        services.history.clear();
+        services.answer.saveAnswer(props.component.dataKey, value, { activePosition: form.activeComponent.position });
       } catch (e) {
-        console.log(e)
-        toastInfo(locale.details.language[0].errorSaving + props.component.dataKey, 3000, "", "bg-pink-600/80");
-        reloadDataFromHistory()
+        toastError(locale.details.language[0].errorSaving + props.component.dataKey, 3000);
+        services.history.reloadFromHistory();
       } finally {
-        setReferenceHistory([])
-        setSidebarHistory([])
+        services.history.clear();
       }
     }, 50);
   }
@@ -237,12 +227,12 @@ const FormInput: FormComponentBase = props => {
       setTmpComment('');
       setFlagRemark('');
 
-      toastInfo(locale.details.language[0].remarkAdded, 500, "", "bg-teal-600/80");
+      toastSuccess(locale.details.language[0].remarkAdded, 500);
 
       setData();
       props.setResponseMobile(response.details, remark.details, principal.details, reference);
     } else {
-      toastInfo(locale.details.language[0].remarkEmpty, 500, "", "bg-red-700/80");
+      toastError(locale.details.language[0].remarkEmpty, 500);
     }
   }
 
@@ -369,7 +359,7 @@ const FormInput: FormComponentBase = props => {
                   index: props.index,
                   onValueChange,
                   onUserClick,
-                  value: getValue(props.component.dataKey),
+                  value: services.reference.getValue(props.component.dataKey),
                   config: props.config,
                   classValidation: handleValidation(),
                   comments: getComments(props.component.dataKey),

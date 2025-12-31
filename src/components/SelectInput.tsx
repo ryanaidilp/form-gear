@@ -3,11 +3,14 @@ import { FormComponentBase, returnAPI } from "../FormType"
 import { Select, createOptions } from "@thisbeyond/solid-select"
 import { useReference, useLocale, useSidebar } from '../stores/StoreContext'
 import "@thisbeyond/solid-select/style.css"
-import Toastify from 'toastify-js'
-import { saveAnswer } from "../GlobalFunction";
+import { toastError } from "../utils/toast"
+import { useServices } from "../services";
 
 
 const SelectInput: FormComponentBase = props => {
+    // Get services
+    const services = useServices();
+
     const [reference] = useReference();
     const [locale] = useLocale();
     const [sidebar] = useSidebar();
@@ -25,20 +28,6 @@ const SelectInput: FormComponentBase = props => {
         type: string
     }
 
-    const toastInfo = (text: string) => {
-        Toastify({
-            text: (text == '') ? "" : text,
-            duration: 3000,
-            gravity: "top",
-            position: "right",
-            stopOnFocus: true,
-            className: "bg-pink-700/80",
-            style: {
-                background: "rgba(8, 145, 178, 0.7)",
-                width: "400px"
-            }
-        }).showToast();
-    }
 
     switch (props.component.typeOption) {
         case 1: {
@@ -60,7 +49,7 @@ const SelectInput: FormComponentBase = props => {
                     setLoading(true)
                 })
             } catch (e) {
-                toastInfo(locale.details.language[0].fetchFailed)
+                toastError(locale.details.language[0].fetchFailed)
             }
 
             break;
@@ -163,7 +152,7 @@ const SelectInput: FormComponentBase = props => {
 
                         if (fetched()) {
                             if (!fetched().success) {
-                                toastInfo(locale.details.language[0].fetchFailed)
+                                toastError(locale.details.language[0].fetchFailed)
                             } else {
                                 let arr = []
                                 fetched().data.map((item, value) => {
@@ -279,7 +268,7 @@ const SelectInput: FormComponentBase = props => {
                     // })
                 }
             } catch (e) {
-                toastInfo(locale.details.language[0].fetchFailed)
+                toastError(locale.details.language[0].fetchFailed)
             }
 
             break;
@@ -321,7 +310,7 @@ const SelectInput: FormComponentBase = props => {
                 })
 
             } catch (e) {
-                toastInfo(locale.details.language[0].fetchFailed)
+                toastError(locale.details.language[0].fetchFailed)
             }
 
             break;
@@ -354,7 +343,7 @@ const SelectInput: FormComponentBase = props => {
 
                 })
             } catch (e) {
-                toastInfo(locale.details.language[0].fetchFailed)
+                toastError(locale.details.language[0].fetchFailed)
             }
 
             break;
@@ -376,7 +365,7 @@ const SelectInput: FormComponentBase = props => {
                                     });
                                     return (cekInsideIndex == -1) ? 0 : index;
                                 });
-                                saveAnswer(ref.dataKey, 'answer', null, sidePosition, { 'clientMode': config.clientMode, 'baseUrl': config.baseUrl }, 0)
+                                services.answer.saveAnswer(ref.dataKey, null, { activePosition: sidePosition })
                                 checkDependent(ref.dataKey)
                             } else {
                                 return
@@ -394,7 +383,7 @@ const SelectInput: FormComponentBase = props => {
                                     });
                                     return (cekInsideIndex == -1) ? 0 : index;
                                 });
-                                saveAnswer(ref.dataKey, 'answer', null, sidePosition, { 'clientMode': config.clientMode, 'baseUrl': config.baseUrl }, 0)
+                                services.answer.saveAnswer(ref.dataKey, null, { activePosition: sidePosition })
                                 checkDependent(ref.dataKey)
                             } else {
                                 return

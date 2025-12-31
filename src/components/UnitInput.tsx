@@ -2,7 +2,7 @@ import { createSignal, createResource, createEffect, Show, For, Switch, Match } 
 import { FormComponentBase, returnAPI } from "../FormType"
 import { Select, createOptions } from "@thisbeyond/solid-select"
 import { useReference, useLocale } from '../stores/StoreContext'
-import Toastify from 'toastify-js'
+import { toastError } from "../utils/toast"
 import { FiChevronDown } from 'solid-icons/fi'
 
 const UnitInput: FormComponentBase = props => {
@@ -25,20 +25,6 @@ const UnitInput: FormComponentBase = props => {
     const [enableRemark] = createSignal(props.component.enableRemark !== undefined ? props.component.enableRemark : true);
     const [disableClickRemark] = createSignal((config.formMode > 2 && props.comments == 0) ? true : false);
 
-    const toastInfo = (text: string) => {
-        Toastify({
-            text: (text == '') ? "" : text,
-            duration: 3000,
-            gravity: "top",
-            position: "right",
-            stopOnFocus: true,
-            className: "bg-pink-700/80",
-            style: {
-                background: "rgba(8, 145, 178, 0.7)",
-                width: "400px"
-            }
-        }).showToast();
-    }
 
     let handleOnChange = (value: any, unit: any, isChange: any) => {
         if (isChange == 2 && unit.value != '' && unit.value != undefined) {
@@ -80,7 +66,7 @@ const UnitInput: FormComponentBase = props => {
                     setLoading(true)
                 })
             } catch (e) {
-                toastInfo(locale.details.language[0].fetchFailed)
+                toastError(locale.details.language[0].fetchFailed)
             }
 
             break;
@@ -186,7 +172,7 @@ const UnitInput: FormComponentBase = props => {
 
                         if (fetched()) {
                             if (!fetched().success) {
-                                toastInfo(locale.details.language[0].fetchFailed)
+                                toastError(locale.details.language[0].fetchFailed)
                             } else {
                                 let arr = []
                                 fetched().data.map((item, value) => {
@@ -257,7 +243,7 @@ const UnitInput: FormComponentBase = props => {
                     const fetched = props.MobileOfflineSearch(id, version, tempArr, getResult);
                 }
             } catch (e) {
-                toastInfo(locale.details.language[0].fetchFailed)
+                toastError(locale.details.language[0].fetchFailed)
             }
 
             break;
@@ -299,7 +285,7 @@ const UnitInput: FormComponentBase = props => {
                 })
 
             } catch (e) {
-                toastInfo(locale.details.language[0].fetchFailed)
+                toastError(locale.details.language[0].fetchFailed)
             }
 
             break;
@@ -332,7 +318,7 @@ const UnitInput: FormComponentBase = props => {
 
                 })
             } catch (e) {
-                toastInfo(locale.details.language[0].fetchFailed)
+                toastError(locale.details.language[0].fetchFailed)
             }
 
             break;

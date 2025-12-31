@@ -75,12 +75,7 @@ export {
   getToday,
   compareDates,
 
-  // Number utilities
-  sum,
-  findSumCombination,
-
   // Checkbox utilities
-  transformCheckboxOptions,
   decodeCheckboxValue,
   encodeCheckboxValue,
 
@@ -89,6 +84,18 @@ export {
   getBaseDataKey as getBaseDataKeyFromFormatting,
   parseDataKey as parseDataKeyFromFormatting,
 } from './formatting';
+
+export {
+  // Number utilities
+  sum,
+  findSumCombination,
+
+  // Checkbox utilities
+  transformCheckboxOptions,
+
+  // Scroll utilities
+  scrollCenterInput,
+} from './helpers';
 
 // =============================================================================
 // Reference Utilities
