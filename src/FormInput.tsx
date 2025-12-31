@@ -24,7 +24,7 @@ import dayjs from 'dayjs';
 import { useServices } from './services';
 import { toastInfo as toastInfoUtil, toastError, toastSuccess } from './utils/toast';
 
-import { ClientMode } from './constants';
+import { ClientMode, ComponentType } from './constants';
 import { locale as globalLocale } from './stores/LocaleStore';
 import { reference as globalReference } from './stores/ReferenceStore';
 
@@ -66,7 +66,7 @@ const FormInput: FormComponentBase = props => {
   const [summary] = useSummary();
   const [template] = useTemplate();
   const [counter] = useCounter();
-  const referenceEnableFalse = useReferenceEnableFalse();
+  const [referenceEnableFalse] = useReferenceEnableFalse();
 
   const [flagRemark, setFlagRemark] = createSignal(''); //dataKey Remark
   const [comments, setComments] = createSignal([]); //temp Comments
@@ -75,6 +75,16 @@ const FormInput: FormComponentBase = props => {
 
   const [loading, setLoading] = createSignal(false); //temp Comment
 
+  // Local getEnable function that uses the context reference (not global store)
+  // This ensures enable state changes from services are reflected in rendering
+  const getLocalEnable = (dataKey: string): boolean => {
+    const componentIndex = reference.details.findIndex(obj => obj.dataKey === dataKey);
+    if (componentIndex !== -1) {
+      return reference.details[componentIndex].enable ?? true;
+    }
+    return true;
+  };
+
   const setData = () => {
     const dataForm = [];
     const dataMedia = [];
@@ -82,7 +92,7 @@ const FormInput: FormComponentBase = props => {
 
     reference.details.forEach((element) => {
       if (
-        (element.type > 3)
+        (element.type > ComponentType.INNER_HTML)
         && (element.enable)
         && (element.answer !== undefined)
         && (element.answer !== '')
@@ -90,7 +100,7 @@ const FormInput: FormComponentBase = props => {
       ) {
         let enableFalse = referenceEnableFalse().findIndex(obj => obj.parentIndex.toString() === element.index.slice(0, -2).toString());
         if (enableFalse == -1) {
-          (element.type == 32 || element.type == 36) && dataMedia.push({ dataKey: element.dataKey, name: element.name, answer: element.answer });
+          (element.type === ComponentType.PHOTO || element.type === ComponentType.SIGNATURE) && dataMedia.push({ dataKey: element.dataKey, name: element.name, answer: element.answer });
 
           dataForm.push({ dataKey: element.dataKey, name: element.name, answer: element.answer })
 
@@ -158,7 +168,7 @@ const FormInput: FormComponentBase = props => {
 
 
   const onUserClick = (dataKey: string) => {
-    setData();    
+    setData();
     props.setResponseMobile(response.details, media.details, remark.details, principal.details, reference);
     if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
       var component = document.querySelector(".mobile-component-div");
@@ -166,6 +176,10 @@ const FormInput: FormComponentBase = props => {
       var component = document.querySelector(".component-div");
     }
     const position = sidebar.details.findIndex(obj => obj.dataKey === dataKey);
+    if (position === -1 || !sidebar.details[position]) {
+      console.warn('onUserClick: Could not find sidebar entry for dataKey:', dataKey);
+      return;
+    }
     setActiveComponent({ dataKey: dataKey, label: sidebar.details[position].label, index: JSON.parse(JSON.stringify(sidebar.details[position].index)), position: position });
     window.scrollTo({ top: 0, behavior: "smooth" });
     component.scrollTo({ top: 0, behavior: "smooth" });
@@ -351,7 +365,7 @@ const FormInput: FormComponentBase = props => {
       <Switch>
         <For each={Array.from(controlMap.keys())}>
           {type =>
-            <Match when={props.component.type === type && getEnable(props.component.dataKey)}
+            <Match when={props.component.type === type && getLocalEnable(props.component.dataKey)}
               children={
                 controlMap.get(type)({
                   onMobile: props.onMobile,

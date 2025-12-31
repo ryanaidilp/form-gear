@@ -17,7 +17,7 @@ import { setTemplate, template } from './stores/TemplateStore';
 import { setValidation, validation } from './stores/ValidationStore';
 import { setCounter, counter } from './stores/CounterStore';
 
-import { nested } from './stores/NestedStore';
+import { nested, setNested } from './stores/NestedStore';
 import { reference, setReference } from './stores/ReferenceStore';
 import { setSidebar } from './stores/SidebarStore';
 
@@ -37,7 +37,7 @@ import responseJSON from './data/default/response.json';
 
 import { createFormServices, ServiceProvider } from "./services";
 import type { FormGearConfig } from "./core/types";
-import { ClientMode, FormMode, InitialMode, LookupMode } from "./core/constants";
+import { ClientMode, ComponentType, FormMode, InitialMode, LookupMode } from "./core/constants";
 
 export const gearVersion = '1.1.1';
 export let templateVersion = '0.0.0';
@@ -219,6 +219,7 @@ export function FormGear(
       // Update global stores (for backward compatibility)
       setReference(referenceFetch)
       services.reference.initializeMaps()
+      services.enable.initializeEnableStates()
       setSidebar('details',referenceFetch.sidebar)
 
       // Update isolated stores - these are what Form.tsx uses via context
@@ -361,21 +362,21 @@ export function FormGear(
                     let answer = element[i].answer;
                     
                     let el_type = element[i].type
-                    if((el_type == 21 || el_type == 22)){
+                    if((el_type === ComponentType.LIST_TEXT_REPEAT || el_type === ComponentType.LIST_SELECT_REPEAT)){
                       answer = JSON.parse(JSON.stringify(answer));
-                    } else if(el_type == 4 && level < 2){
+                    } else if(el_type === ComponentType.VARIABLE && level < 2){
                       (answer == undefined ) && (!sideEnable) && tmpVarComp.push(JSON.parse(JSON.stringify(element[i]))) ;
                     }
-  
+
                     let components
-                    if(el_type == 2){
+                    if(el_type === ComponentType.NESTED){
                       let nestPosition = nested.details.findIndex(obj => obj.dataKey === element[i].dataKey);
                       components = (nestPosition !== -1) ? nested.details[nestPosition].components : (element[i].components) ? element[i].components : undefined;
                     }else{
                       components = (element[i].components) ? element[i].components : undefined;
                     }
-  
-                    if(el_type == 1 || (el_type == 2 && components.length > 1)){
+
+                    if(el_type === ComponentType.SECTION || (el_type === ComponentType.NESTED && components.length > 1)){
                         if(element[i].enableCondition !== undefined) {
                           tmpEnableComp.push(JSON.parse(JSON.stringify(element[i])));
                           sideEnable = false;
@@ -491,9 +492,10 @@ export function FormGear(
                         presetMaster: element[i].presetMaster !== undefined ? element[i].presetMaster : undefined,
                         disableInput: element[i].disableInput !== undefined ? element[i].disableInput : undefined,
                         decimalLength: element[i].decimalLength !== undefined ? element[i].decimalLength : undefined,
-                        disableInitial: element[i].disableInitial !== undefined ? element[i].disableInitial : undefined
+                        disableInitial: element[i].disableInitial !== undefined ? element[i].disableInitial : undefined,
+                        components: components
                     }
-                    
+
                     element[i].components && element[i].components.forEach((element) => loopTemplate(element, refListLen, parent.concat(i,0), level+1, sideEnable))
                   }
                 }
@@ -649,13 +651,21 @@ export function FormGear(
           }
 
           services.reference.initializeMaps(referenceList)
+          services.enable.initializeEnableStates()
+
+          // Build nested list for the nested store (flatten nestedList array)
+          const nestedDetails = nestedList.map((n: any) => n[0]);
+          console.log('FormGear: nestedDetails built with', nestedDetails.length, 'items:', nestedDetails);
+
           // Update both global stores (for backward compatibility) and isolated stores (for context)
           setReference('details', referenceList)
           setSidebar('details', sidebarList)
+          setNested('details', nestedDetails)
 
           // Update isolated stores - these are what Form.tsx uses via context
           stores.reference[1]('details', referenceList)
           stores.sidebar[1]('details', sidebarList)
+          stores.nested[1]('details', nestedDetails)
 
           setCounter('render', counterRender += 1)
           render(() => (

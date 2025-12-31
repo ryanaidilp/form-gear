@@ -141,6 +141,7 @@ export interface ReferenceDetail {
   decimalLength?: number;
   disableInitial?: boolean;
   sizeInput?: SizeInput[];
+  components?: unknown; // Template components for nested forms
 }
 
 /**

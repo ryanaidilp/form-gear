@@ -32,7 +32,7 @@ import { useServices } from "./services";
 import dayjs from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
-import { ClientMode } from "./constants";
+import { ClientMode, ComponentType } from "./constants";
 import {
     evaluateEnableCondition,
     evaluateVariableExpression,
@@ -334,13 +334,13 @@ const Form: Component<{
     let _clean = 0;
     reference.details.forEach((element, index) => {
       let enableFalse = referenceEnableFalse().findIndex(obj => obj.parentIndex.toString() === element.index.slice(0, -2).toString());
-      if (enableFalse == -1 && element.type > 4 && element.enable) {
+      if (enableFalse == -1 && element.type > ComponentType.VARIABLE && element.enable) {
         if ((element.answer !== undefined) && (element.answer !== '') && (element.answer !== null)) {
           _answer += 1;
           if ((
             (element.answer === undefined || element.answer === '') ||
-            ((element.type == 21) && element.answer.length == 1) ||
-            ((element.type == 22) && element.answer.length == 1)
+            ((element.type === ComponentType.LIST_TEXT_REPEAT) && Array.isArray(element.answer) && element.answer.length === 1) ||
+            ((element.type === ComponentType.LIST_SELECT_REPEAT) && Array.isArray(element.answer) && element.answer.length === 1)
           )
             && !(JSON.parse(JSON.stringify(element.index[element.index.length - 2])) == 0 && element.level > 1)) {
             _blank += 1;
@@ -438,7 +438,7 @@ const Form: Component<{
       ) {
         let enableFalse = referenceEnableFalse().findIndex(obj => obj.parentIndex.toString() === element.index.slice(0, -2).toString());
         if (enableFalse == -1) {
-          (element.type == 32 || element.type == 36) && dataMedia.push({ dataKey: element.dataKey, name: element.name, answer: element.answer });
+          (element.type === ComponentType.PHOTO || element.type === ComponentType.SIGNATURE) && dataMedia.push({ dataKey: element.dataKey, name: element.name, answer: element.answer });
 
           dataForm.push({ dataKey: element.dataKey, name: element.name, answer: element.answer })
 
@@ -731,9 +731,9 @@ const Form: Component<{
     reference.details.forEach((element, i) => {
       let enableFalse = referenceEnableFalse().findIndex(obj => obj.parentIndex.toString() === element.index.slice(0, -2).toString());
       if (enableFalse == -1) {
-        if ((element.type > 4) && (element.enable) && ((element.answer === undefined || element.answer === '')
-          || ((element.type == 21) && element.answer.length == 1) || ((element.type == 22) && element.answer.length == 1))
-          && !(JSON.parse(JSON.stringify(element.index[element.index.length - 2])) == 0 && element.level > 1)) {
+        if ((element.type > ComponentType.VARIABLE) && (element.enable) && ((element.answer === undefined || element.answer === '')
+          || ((element.type === ComponentType.LIST_TEXT_REPEAT) && Array.isArray(element.answer) && element.answer.length === 1) || ((element.type === ComponentType.LIST_SELECT_REPEAT) && Array.isArray(element.answer) && element.answer.length === 1))
+          && !(JSON.parse(JSON.stringify(element.index[element.index.length - 2])) === 0 && element.level > 1)) {
 
           let sidebarIndex = element.level > 1 ? element.index.slice(0, -1) : element.index.slice(0, -2)
           blankCollection.push({ label: element.label, sideIndex: sidebarIndex, dataKey: element.dataKey })

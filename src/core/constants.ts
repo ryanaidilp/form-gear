@@ -12,86 +12,84 @@
 /**
  * All supported form component types.
  * Each type corresponds to a specific input control or layout element.
+ * Values MUST match ControlType enum in FormType.tsx
  */
 export enum ComponentType {
-  // Layout & Structure (1-3)
+  // Layout & Structure (1-4)
   SECTION = 1,
   NESTED = 2,
-  LABEL = 3,
-
-  // Computed (4)
+  INNER_HTML = 3,
   VARIABLE = 4,
 
-  // Text Inputs (5-8)
-  TEXT = 5,
-  NUMBER = 6,
-  DATE = 7,
-  TIME = 8,
-
-  // Selection - Single (9-13)
-  RADIO = 9,
-  SELECT = 10,
-  RADIO_HORIZONTAL = 11,
-  SELECT_SEARCH = 12,
-  SELECT_CREATABLE = 13,
-
-  // Selection - Multiple (14-15)
-  CHECKBOX = 14,
-  CHECKBOX_HORIZONTAL = 15,
+  // Date/Time Inputs (11-15)
+  DATE = 11,
+  DATETIME = 12,
+  TIME = 13,
+  MONTH = 14,
+  WEEK = 15,
 
   // Boolean (16-17)
-  CHECKBOX_SINGLE = 16,
+  SINGLE_CHECK = 16,
   TOGGLE = 17,
 
-  // Range & Slider (18-19)
-  RANGE = 18,
-  RANGE_SLIDER = 19,
+  // Range & Slider (18)
+  RANGE_SLIDER = 18,
+
+  // URL (19)
+  URL = 19,
 
   // Currency (20)
   CURRENCY = 20,
 
-  // Photo/Camera (21-23)
-  PHOTO = 21,
-  MULTI_PHOTO = 22,
-  GPS_PHOTO = 23,
+  // List Repeats (21-22)
+  LIST_TEXT_REPEAT = 21,
+  LIST_SELECT_REPEAT = 22,
 
-  // Buttons (24-25)
-  BUTTON = 24,
-  URL_BUTTON = 25,
+  // Selection - Multiple (23)
+  MULTIPLE_SELECT = 23,
 
-  // Rating (26)
-  RATING = 26,
+  // Masking (24)
+  MASKING = 24,
 
-  // Date/Time Combined (27-28)
-  DATETIME = 27,
-  DATE_RANGE = 28,
+  // Text Inputs (25)
+  TEXT = 25,
 
-  // Masks & Formatting (29)
-  MASKED_INPUT = 29,
+  // Selection - Single (26-27)
+  RADIO = 26,
+  SELECT = 27,
+
+  // Number (28)
+  NUMBER = 28,
+
+  // Checkbox (29)
+  CHECKBOX = 29,
 
   // Long Text (30)
   TEXTAREA = 30,
 
-  // URL & Email (31-32)
-  URL = 31,
-  EMAIL = 32,
+  // Email (31)
+  EMAIL = 31,
+
+  // Photo (32)
+  PHOTO = 32,
 
   // Location (33)
   GPS = 33,
 
-  // File Uploads (34-35)
+  // File Uploads (34)
   CSV = 34,
-  FILE = 35,
+
+  // Now (35)
+  NOW = 35,
 
   // Drawing (36)
   SIGNATURE = 36,
 
-  // Advanced Inputs (37-38)
-  SCAN = 37,
-  UNIT_INPUT = 38,
+  // Unit Input (37)
+  UNIT = 37,
 
-  // Photo with GPS (39)
-  GPS_MULTI_PHOTO = 39,
+  // Decimal (38)
+  DECIMAL = 38,
 }
 
 /**
@@ -100,11 +98,9 @@ export enum ComponentType {
 export const OPTION_TYPES = [
   ComponentType.RADIO,
   ComponentType.SELECT,
-  ComponentType.RADIO_HORIZONTAL,
-  ComponentType.SELECT_SEARCH,
-  ComponentType.SELECT_CREATABLE,
   ComponentType.CHECKBOX,
-  ComponentType.CHECKBOX_HORIZONTAL,
+  ComponentType.MULTIPLE_SELECT,
+  ComponentType.LIST_SELECT_REPEAT,
 ] as const;
 
 /**
@@ -119,7 +115,8 @@ export const SINGLE_VALUE_TYPES = [
   ComponentType.TEXTAREA,
   ComponentType.URL,
   ComponentType.EMAIL,
-  ComponentType.MASKED_INPUT,
+  ComponentType.MASKING,
+  ComponentType.DECIMAL,
 ] as const;
 
 /**
@@ -127,9 +124,6 @@ export const SINGLE_VALUE_TYPES = [
  */
 export const PHOTO_TYPES = [
   ComponentType.PHOTO,
-  ComponentType.MULTI_PHOTO,
-  ComponentType.GPS_PHOTO,
-  ComponentType.GPS_MULTI_PHOTO,
 ] as const;
 
 /**
@@ -137,10 +131,9 @@ export const PHOTO_TYPES = [
  */
 export const NON_INPUT_TYPES = [
   ComponentType.SECTION,
-  ComponentType.LABEL,
+  ComponentType.INNER_HTML,
   ComponentType.VARIABLE,
-  ComponentType.BUTTON,
-  ComponentType.URL_BUTTON,
+  ComponentType.NOW,
 ] as const;
 
 // =============================================================================
@@ -336,9 +329,7 @@ export const PAPI_TYPES = new Set([
  */
 export const ARRAY_ANSWER_TYPES = new Set([
   ComponentType.CHECKBOX,
-  ComponentType.CHECKBOX_HORIZONTAL,
-  ComponentType.MULTI_PHOTO,
-  ComponentType.GPS_MULTI_PHOTO,
+  ComponentType.MULTIPLE_SELECT,
   ComponentType.CSV,
 ]);
 

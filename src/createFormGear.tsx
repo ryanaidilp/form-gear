@@ -68,11 +68,13 @@ function buildReferenceFromTemplate(
 ): {
   referenceList: any[];
   sidebarList: any[];
+  nestedList: any[];
   tmpVarComp: any[];
   tmpEnableComp: any[];
 } {
   const referenceList: any[] = [];
   const sidebarList: any[] = [];
+  const nestedList: any[] = [];
   const tmpVarComp: any[] = [];
   const tmpEnableComp: any[] = [];
   const dataKeyCollections: string[] = [];
@@ -83,13 +85,13 @@ function buildReferenceFromTemplate(
   const components = templateData.components;
   if (!components || !Array.isArray(components) || components.length === 0) {
     console.error('Template has no components array');
-    return { referenceList, sidebarList, tmpVarComp, tmpEnableComp };
+    return { referenceList, sidebarList, nestedList, tmpVarComp, tmpEnableComp };
   }
 
   const sections = components[0];
   if (!Array.isArray(sections) || sections.length === 0) {
     console.error('Template has no sections');
-    return { referenceList, sidebarList, tmpVarComp, tmpEnableComp };
+    return { referenceList, sidebarList, nestedList, tmpVarComp, tmpEnableComp };
   }
 
   // Helper to get validation for a component
@@ -177,6 +179,23 @@ function buildReferenceFromTemplate(
           components: componentsList,
           sourceQuestion: element.sourceQuestion || '',
           enable: currentSideEnable,
+          enableCondition: element.enableCondition || '',
+          componentEnable: element.componentEnable || [],
+        });
+      }
+
+      // Track nested components (type 2) for the nested store
+      if (elType === 2) {
+        nestedList.push({
+          dataKey: element.dataKey,
+          name: element.name,
+          label: element.label,
+          description: element.description,
+          level: level,
+          index: [...parent, i],
+          components: componentsList,
+          sourceQuestion: element.sourceQuestion || '',
+          enable: sideEnable,
           enableCondition: element.enableCondition || '',
           componentEnable: element.componentEnable || [],
         });
@@ -322,7 +341,7 @@ function buildReferenceFromTemplate(
     }
   }
 
-  return { referenceList, sidebarList, tmpVarComp, tmpEnableComp };
+  return { referenceList, sidebarList, nestedList, tmpVarComp, tmpEnableComp };
 }
 
 /**
@@ -385,7 +404,7 @@ export function createFormGear(options: FormGearOptions): FormGearInstance {
   });
 
   // Build reference and sidebar from template
-  const { referenceList, sidebarList, tmpVarComp, tmpEnableComp } = buildReferenceFromTemplate(
+  const { referenceList, sidebarList, nestedList, tmpVarComp, tmpEnableComp } = buildReferenceFromTemplate(
     stores,
     templateData,
     validationData,
@@ -393,9 +412,12 @@ export function createFormGear(options: FormGearOptions): FormGearInstance {
     presetData
   );
 
+  console.log('createFormGear: nestedList built with', nestedList.length, 'items:', nestedList);
+
   // Update stores with built data
   stores.reference[1]('details', referenceList);
   stores.sidebar[1]('details', sidebarList);
+  stores.nested[1]('details', nestedList);
 
   console.log('FormGear: Reference built with', referenceList.length, 'items');
   console.log('FormGear: Sidebar built with', sidebarList.length, 'sections');
@@ -418,6 +440,9 @@ export function createFormGear(options: FormGearOptions): FormGearInstance {
 
   // Initialize reference map and dependency maps via service
   services.reference.initializeMaps();
+
+  // Initialize enable states for all components with enableConditions
+  services.enable.initializeEnableStates();
 
   // Prepare props for Form component
   const formConfig = {

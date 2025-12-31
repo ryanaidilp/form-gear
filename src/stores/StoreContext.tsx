@@ -265,6 +265,7 @@ export function useSidebarHistory() {
 
 /**
  * Hook to access the reference enable false signal.
+ * Returns the full signal tuple [getter, setter].
  */
 export function useReferenceEnableFalse() {
   return useStores().referenceEnableFalse;
