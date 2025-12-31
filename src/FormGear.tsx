@@ -39,7 +39,8 @@ import { createFormServices, ServiceProvider } from "./services";
 import type { FormGearConfig } from "./core/types";
 import { ClientMode, ComponentType, FormMode, InitialMode, LookupMode } from "./core/constants";
 
-export const gearVersion = '1.1.1';
+declare const __FORM_GEAR_VERSION__: string;
+export const gearVersion = __FORM_GEAR_VERSION__;
 export let templateVersion = '0.0.0';
 export let validationVersion = '0.0.0';
 

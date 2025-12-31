@@ -1,8 +1,12 @@
 import { defineConfig } from "vite";
 import path from 'path';
 import solidPlugin from "vite-plugin-solid";
+import packageJson from './package.json';
 
 export default defineConfig({
+  define: {
+    __FORM_GEAR_VERSION__: JSON.stringify(packageJson.version),
+  },
   plugins: [
     solidPlugin(),
     // Note: Type declarations are manually maintained in src/types/index.ts
