@@ -887,9 +887,9 @@ const Form: Component<{
     <div class="bg-gray-200 dark:bg-[#181f30] h-screen ">
 
       <Show when={showSubmit()}>
-        <div class="fixed z-10 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="modal-confirmation fixed z-10 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
           <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onClick={e => setShowSubmit(false)}></div>
+            <div class="fixed inset-0 bg-gray-500/75 transition-opacity" aria-hidden="true" onClick={e => setShowSubmit(false)}></div>
 
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
             <div class="relative inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
@@ -947,9 +947,9 @@ const Form: Component<{
       </Show>
 
       <Show when={showRemark()}>
-        <div class="fixed z-10 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="modal-remark fixed z-10 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
           <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onClick={e => setShowRemark(false)}></div>
+            <div class="fixed inset-0 bg-gray-500/75 transition-opacity" aria-hidden="true" onClick={e => setShowRemark(false)}></div>
 
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
             <div class="relative inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl sm:w-full">
@@ -1030,9 +1030,9 @@ const Form: Component<{
       </Show>
 
       <Show when={showBlank()}>
-        <div class="fixed z-10 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="modal-confirmation fixed z-10 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
           <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onClick={e => setShowBlank(false)}></div>
+            <div class="fixed inset-0 bg-gray-500/75 transition-opacity" aria-hidden="true" onClick={e => setShowBlank(false)}></div>
 
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
             <div class="relative inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl sm:w-full">
@@ -1113,9 +1113,9 @@ const Form: Component<{
       </Show>
 
       <Show when={showError()}>
-        <div class="fixed z-10 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="modal-confirmation fixed z-10 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
           <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onClick={e => setShowError(false)}></div>
+            <div class="fixed inset-0 bg-gray-500/75 transition-opacity" aria-hidden="true" onClick={e => setShowError(false)}></div>
 
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
             <div class="relative inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl sm:w-full">
@@ -1298,8 +1298,12 @@ const Form: Component<{
                   sidebar-span absolute inset-y-0 left-0 transform -translate-x-full transition-transform duration-500 ease-in-out md:relative md:translate-x-0 z-10">
 
                   <div class="sm:min-h-[7rem] py-3 text-gray-400 tracking-wider flex justify-between">
-                    <div class="text-lg block px-4 py-3 text-gray-600 dark:text-white font-bold sm:text-xl" innerHTML={props.template.details.acronym
-                      + '<div class="text-xs font-light text-gray-600 dark:text-gray-400">🚀' + gearVersion + ' 📋' + (props.template.details.version || '0.0.0') + ' ✔️' + (props.validation.details.version || '0.0.0') + '</div>'} />
+                    <Switch fallback={<div class="text-lg block px-4 py-3 text-gray-600 dark:text-white font-bold sm:text-xl" innerHTML={props.template.details.acronym
+                      + '<div class="text-xs font-light text-gray-600 dark:text-gray-400">🚀' + gearVersion + ' 📋' + (props.template.details.version || '0.0.0') + ' ✔️' + (props.validation.details.version || '0.0.0') + '</div>'} />}>
+                      <Match when={getConfig().clientMode == ClientMode.CAWI}>
+                        <div class="text-lg block px-4 py-3 text-gray-600 dark:text-white font-bold sm:text-xl" innerHTML={props.template.details.acronym} />
+                      </Match>
+                    </Switch>
 
                     <button type="button"
                       class="md:hidden p-2 mobile-menu-button " onClick={sidebarCollapse}>
@@ -1503,11 +1507,11 @@ const Form: Component<{
               </Show>
 
               <div class="component-div min-h-screen flex-grow bg-white dark:bg-gray-900 z-10
-                        scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-gray-50 dark:scrollbar-thumb-gray-700 dark:scrollbar-track-gray-500 
-                        overflow-y-scroll scrollbar-thumb-rounded-full scrollbar-track-rounded-full " 
+                        scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-gray-50 dark:scrollbar-thumb-gray-700 dark:scrollbar-track-gray-500
+                        overflow-y-visible md:overflow-y-scroll scrollbar-thumb-rounded-full scrollbar-track-rounded-full "
                    onScroll={ checkScrollTopWeb }>
 
-                <div class="sm:px-7 sm:pt-7 px-4 pt-4 flex flex-col w-full border-b border-gray-200 bg-white dark:bg-gray-900 dark:text-white dark:border-gray-800 z-10 xl:sticky" classList={{
+                <div class="sm:px-7 sm:pt-7 px-4 pt-4 flex flex-col w-full border-b border-gray-200 bg-white dark:bg-gray-900 dark:text-white dark:border-gray-800 z-10 sticky" classList={{
                   'top-0': getConfig().clientMode !== ClientMode.PAPI,
                   '-top-[121px]': getConfig().clientMode === ClientMode.PAPI,
                 }}>
