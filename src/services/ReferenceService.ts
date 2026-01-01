@@ -361,14 +361,27 @@ export class ReferenceService {
 
   /**
    * Get nested components using this dataKey as sourceQuestion.
+   * Uses direct reference.details filtering like production GlobalFunction.tsx
+   * to catch dynamically created nested components.
    *
    * @param dataKey - The dataKey to check dependencies for
    * @returns Set of nested component dataKeys
    */
   getNestedDependents(dataKey: string): Set<string> {
-    const [maps] = this.stores.compSourceQuestionMap;
-    const dependents = maps()[dataKey];
-    return new Set(dependents ?? []);
+    // Direct filter of reference.details like production code:
+    // const hasComponentUsing = reference.details.filter(obj => obj.type === 2 && obj.sourceQuestion == dataKey);
+    const [reference] = this.stores.reference;
+    const dependents = (reference.details as ReferenceDetail[]).filter(
+      (comp) => comp.type === ComponentType.NESTED && comp.sourceQuestion === dataKey
+    );
+
+    console.log('[ReferenceService] getNestedDependents:', {
+      dataKey,
+      foundCount: dependents.length,
+      dependentKeys: dependents.map((d) => d.dataKey),
+    });
+
+    return new Set(dependents.map((d) => d.dataKey));
   }
 
   // ===========================================================================
