@@ -1,6 +1,6 @@
 import { Component, createEffect, createSignal, For, Match, Show, Switch } from "solid-js";
 import FormComponent from './FormComponent';
-import { gearVersion, templateVersion, validationVersion } from "./createFormGear";
+import { gearVersion } from "./createFormGear";
 import { useForm } from "./FormProvider";
 
 import { useLoaderDispatch } from "./loader/FormLoaderProvider";
@@ -484,8 +484,8 @@ const Form: Component<{
     setResponse('details', 'answers', dataForm)
     setResponse('details', 'templateDataKey', template.details.dataKey)
     setResponse('details', 'gearVersion', gearVersion)
-    setResponse('details', 'templateVersion', templateVersion)
-    setResponse('details', 'validationVersion', validationVersion)
+    setResponse('details', 'templateVersion', props.template.details.version || '0.0.0')
+    setResponse('details', 'validationVersion', props.validation.details.version || '0.0.0')
     setResponse('details', 'docState', docState())
     setResponse('details', 'summary', JSON.parse(JSON.stringify(summary)))
     setResponse('details', 'counter', [JSON.parse(JSON.stringify(counter))])
@@ -520,8 +520,8 @@ const Form: Component<{
     setMedia('details', 'media', dataMedia);
     setMedia('details', 'templateDataKey', template.details.dataKey)
     setMedia('details', 'gearVersion', gearVersion)
-    setMedia('details', 'templateVersion', templateVersion)
-    setMedia('details', 'validationVersion', validationVersion);
+    setMedia('details', 'templateVersion', props.template.details.version || '0.0.0')
+    setMedia('details', 'validationVersion', props.validation.details.version || '0.0.0');
     (principal.details.createdBy === undefined || (principal.details.createdBy !== undefined && principal.details.createdBy === '')) ?
       setMedia('details', 'createdBy', getConfig().username) :
       setMedia('details', 'updatedBy', getConfig().username);
@@ -544,8 +544,8 @@ const Form: Component<{
     setPrincipal('details', 'principals', dataPrincipal)
     setPrincipal('details', 'templateDataKey', template.details.dataKey)
     setPrincipal('details', 'gearVersion', gearVersion)
-    setPrincipal('details', 'templateVersion', templateVersion)
-    setPrincipal('details', 'validationVersion', validationVersion);
+    setPrincipal('details', 'templateVersion', props.template.details.version || '0.0.0')
+    setPrincipal('details', 'validationVersion', props.validation.details.version || '0.0.0');
     (principal.details.createdBy === undefined || (principal.details.createdBy !== undefined && principal.details.createdBy === '')) ?
       setPrincipal('details', 'createdBy', getConfig().username) :
       setPrincipal('details', 'updatedBy', getConfig().username);
@@ -568,8 +568,8 @@ const Form: Component<{
     setRemark('details', 'notes', JSON.parse(JSON.stringify(note.details.notes)));
     setRemark('details', 'templateDataKey', template.details.dataKey)
     setRemark('details', 'gearVersion', gearVersion);
-    setRemark('details', 'templateVersion', templateVersion);
-    setRemark('details', 'validationVersion', validationVersion);
+    setRemark('details', 'templateVersion', props.template.details.version || '0.0.0');
+    setRemark('details', 'validationVersion', props.validation.details.version || '0.0.0');
     (remark.details.createdBy === undefined || (remark.details.createdBy !== undefined && remark.details.createdBy === '')) ?
       setRemark('details', 'createdBy', getConfig().username) :
       setRemark('details', 'updatedBy', getConfig().username);
@@ -1298,12 +1298,8 @@ const Form: Component<{
                   sidebar-span absolute inset-y-0 left-0 transform -translate-x-full transition-transform duration-500 ease-in-out md:relative md:translate-x-0 z-10">
 
                   <div class="sm:min-h-[7rem] py-3 text-gray-400 tracking-wider flex justify-between">
-                    <Switch fallback={<div class="text-lg block px-4 py-3 text-gray-600 dark:text-white font-bold sm:text-xl" innerHTML={props.template.details.acronym
-                      + '<div class="text-xs font-light text-gray-600 ">🚀' + gearVersion + ' 📋' + templateVersion + ' ✔️' + validationVersion + ' </div>  '} />}>
-                      <Match when={getConfig().clientMode == 1}>
-                        <div class="text-lg block px-4 py-3 text-gray-600 dark:text-white font-bold sm:text-xl" innerHTML={props.template.details.acronym} />
-                      </Match>
-                    </Switch>
+                    <div class="text-lg block px-4 py-3 text-gray-600 dark:text-white font-bold sm:text-xl" innerHTML={props.template.details.acronym
+                      + '<div class="text-xs font-light text-gray-600 dark:text-gray-400">🚀' + gearVersion + ' 📋' + (props.template.details.version || '0.0.0') + ' ✔️' + (props.validation.details.version || '0.0.0') + '</div>'} />
 
                     <button type="button"
                       class="md:hidden p-2 mobile-menu-button " onClick={sidebarCollapse}>

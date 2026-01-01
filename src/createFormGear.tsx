@@ -162,8 +162,8 @@ function buildReferenceFromTemplate(
       // Get components for nested types
       let componentsList = element.components;
 
-      // Add to sidebar for sections (type 1) or nested with multiple rows
-      if (elType === 1 || (elType === 2 && componentsList && componentsList.length > 1)) {
+      // Add to sidebar for sections (type 1) or nested (type 2)
+      if (elType === 1 || elType === 2) {
         let currentSideEnable = sideEnable;
         if (element.enableCondition !== undefined) {
           tmpEnableComp.push(JSON.parse(JSON.stringify(element)));
@@ -370,6 +370,10 @@ export function createFormGear(options: FormGearOptions): FormGearInstance {
   const validationData = data.validation || {};
   const mediaData = data.media || mediaJSON;
   const remarkData = data.remark || remarkJSON;
+
+  // Update version variables from loaded data
+  templateVersion = (templateData as any).version || '0.0.0';
+  validationVersion = (validationData as any).version || '0.0.0';
 
   // Extract handlers with defaults
   const uploadHandler = mobileHandlers.uploadHandler || (() => {});
