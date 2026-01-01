@@ -90,20 +90,18 @@ const RadioInput: FormComponentBase = props => {
 							>
 							<For each={options()}>
 								{(item, index) => (
-									<div class="font-light text-sm space-x-2 py-2.5 px-4 grid grid-cols-12" onClick={e => handleLabelClick(index())}>
-										<div class="col-span-1">
-											<label class="cursor-pointer text-sm" for={props.component.dataKey + index()}>
-												<input type="radio" checked={settedValue === item.value} 
-													class="checked:disabled:bg-gray-500 checked:dark:disabled:bg-gray-300 disabled:bg-gray-200 dark:disabled:bg-gray-700 dark:disabled:text-gray-400"
-													value={item.value} name={props.component.dataKey} id={"radio-"+props.component.dataKey + "-" + index()} 
-													disabled = { disableInput() }
-													onChange={e => handleOnChange(e.currentTarget.value, item.label)} />
-											</label>
-										</div>
+									<div class="font-light text-sm py-2.5 px-4 flex items-start gap-2 cursor-pointer" onClick={() => handleLabelClick(index())}>
+										<label class="cursor-pointer text-sm shrink-0 mt-0.5" for={props.component.dataKey + index()}>
+											<input type="radio" checked={settedValue === item.value}
+												class="checked:disabled:bg-gray-500 checked:dark:disabled:bg-gray-300 disabled:bg-gray-200 dark:disabled:bg-gray-700 dark:disabled:text-gray-400"
+												value={item.value} name={props.component.dataKey} id={"radio-"+props.component.dataKey + "-" + index()}
+												disabled = { disableInput() }
+												onChange={e => handleOnChange(e.currentTarget.value, item.label)} />
+										</label>
 										<Switch>
-											<Match when={(item.open) && (settedValue === item.value) }>										
-												<div class="col-span-11">
-													<input type="text" value={ (props.value) ? props.value.length > 0 ? props.value[0].label : item.label : item.label}  
+											<Match when={(item.open) && (settedValue === item.value) }>
+												<div class="flex-1">
+													<input type="text" value={ (props.value) ? props.value.length > 0 ? props.value[0].label : item.label : item.label}
 														name={props.component.dataKey} id={props.component.dataKey}
 														class="w-full font-light px-4 py-2.5 text-sm text-gray-700 bg-white bg-clip-padding
 															border border-solid border-gray-300 rounded transition ease-in-out m-0
@@ -115,7 +113,7 @@ const RadioInput: FormComponentBase = props => {
 												</div>
 											</Match>
 											<Match when={!(item.open) || (settedValue !== item.value) }>
-												<div class="col-span-11" innerHTML={item.label}></div>
+												<div class="flex-1" innerHTML={item.label}></div>
 											</Match>
 										</Switch>
 									</div>
