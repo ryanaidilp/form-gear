@@ -244,7 +244,7 @@ export interface TestFunction {
 /**
  * Validation store state
  */
-export interface ValidationState {
+export interface ValidationStoreState {
   status: number;
   details: {
     description?: string;
@@ -593,7 +593,7 @@ export interface FormStores {
   reference: StoreInstance<ReferenceState>;
   response: StoreInstance<ResponseState>;
   template: StoreInstance<TemplateState>;
-  validation: StoreInstance<ValidationState>;
+  validation: StoreInstance<ValidationStoreState>;
   preset: StoreInstance<PresetState>;
   media: StoreInstance<MediaState>;
   remark: StoreInstance<RemarkState>;

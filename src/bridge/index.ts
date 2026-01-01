@@ -61,6 +61,17 @@ export {
   isFlutterChannelAvailable,
   isFlutterAvailable,
 } from './flutter';
+
+// Flutter adapter for MobileHandlers integration
+export {
+  createFlutterMobileHandlers,
+  detectFlutterHandlers,
+  createFlutterCallbacks,
+  initFlutterIntegration,
+  FLUTTER_HANDLER_NAMES,
+} from './flutter-adapter';
+
+export type { FlutterAdapterConfig } from './flutter-adapter';
 export { createWebBridge, isWebAvailable } from './web';
 
 // =============================================================================

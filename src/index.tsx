@@ -173,6 +173,13 @@ export {
   isNativeApp,
   isMobile,
   getPlatformName,
+
+  // Flutter adapter for MobileHandlers integration
+  createFlutterMobileHandlers,
+  detectFlutterHandlers,
+  createFlutterCallbacks,
+  initFlutterIntegration,
+  FLUTTER_HANDLER_NAMES,
 } from "./bridge";
 
 export type {
@@ -188,4 +195,5 @@ export type {
   FormGearOutput,
   IOSMessage,
   FlutterMessage,
+  FlutterAdapterConfig,
 } from "./bridge";
