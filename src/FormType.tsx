@@ -31,7 +31,7 @@ import SignatureInput from "./components/SignatureInput"
 import UnitInput from "./components/UnitInput"
 import DecimalInput from "./components/DecimalInput"
 
-import * as PAPI from "./components/PAPI/index"
+import * as PAPI from "./components/PAPI"
 
 export enum ControlType {
   Section = 1,

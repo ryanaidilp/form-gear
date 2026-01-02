@@ -2,11 +2,15 @@
 @plugin "@tailwindcss/forms";
 @plugin "tailwind-scrollbar";
 
+/* Ensure safelist classes are included for dynamic HTML content */
+@source "./safelist.html";
+
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
     --font-sans: 'Montserrat', ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
+
 
 /* Montserrat Font - Italic weights */
 @font-face {

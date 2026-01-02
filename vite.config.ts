@@ -40,6 +40,9 @@ export default defineConfig({
     cssCodeSplit: false,
     // Chunk size warning limit (in kB)
     chunkSizeWarningLimit: 700,
+    // Don't inline fonts as base64 - keep them as separate files
+    // Set to 0 to never inline assets (fonts are typically 50-100KB each)
+    assetsInlineLimit: 0,
   },
   // Resolve aliases for cleaner imports
   resolve: {
