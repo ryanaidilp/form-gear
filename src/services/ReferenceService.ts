@@ -1,3 +1,4 @@
+import logger from '../utils/logger';
 /**
  * ReferenceService
  *
@@ -339,7 +340,7 @@ export class ReferenceService {
     const [maps] = this.stores.compVarMap;
     const allMaps = maps();
     const dependents = allMaps[dataKey];
-    console.log('[ReferenceService] getVariableDependents:', {
+    logger.log('ReferenceService', 'getVariableDependents:', {
       dataKey,
       dependents,
       allVarMapKeys: Object.keys(allMaps),
@@ -375,7 +376,7 @@ export class ReferenceService {
       (comp) => comp.type === ComponentType.NESTED && comp.sourceQuestion === dataKey
     );
 
-    console.log('[ReferenceService] getNestedDependents:', {
+    logger.log('ReferenceService', 'getNestedDependents:', {
       dataKey,
       foundCount: dependents.length,
       dependentKeys: dependents.map((d) => d.dataKey),
@@ -436,7 +437,7 @@ export class ReferenceService {
    * @param components - The newly created components to register
    */
   registerDynamicComponents(components: ReferenceDetail[]): void {
-    console.log('[ReferenceService] registerDynamicComponents called with', components.length, 'components');
+    logger.log('ReferenceService', 'registerDynamicComponents called with', components.length, 'components');
 
     const [enableMap, setEnableMap] = this.stores.compEnableMap;
     const [validMap, setValidMap] = this.stores.compValidMap;
@@ -480,13 +481,13 @@ export class ReferenceService {
 
       // Register variable dependencies
       if (component.componentVar && component.type === ComponentType.VARIABLE) {
-        console.log('[ReferenceService] Registering variable component:', {
+        logger.log('ReferenceService', 'Registering variable component:', {
           dataKey: component.dataKey,
           componentVar: component.componentVar,
           type: component.type,
         });
         for (const varKey of component.componentVar) {
-          console.log('[ReferenceService] Adding varMap entry:', varKey, '->', component.dataKey);
+          logger.log('ReferenceService', 'Adding varMap entry:', varKey, '->', component.dataKey);
           if (!newVarMap[varKey]) {
             newVarMap[varKey] = [];
           }
@@ -509,7 +510,7 @@ export class ReferenceService {
 
       // Register sourceQuestion dependencies (for nested components)
       if (component.sourceQuestion && component.type === ComponentType.NESTED) {
-        console.log('[ReferenceService] Registering nested dependency:', {
+        logger.log('ReferenceService', 'Registering nested dependency:', {
           sourceQuestion: component.sourceQuestion,
           dataKey: component.dataKey,
         });

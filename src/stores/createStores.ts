@@ -400,7 +400,7 @@ export function createFormStores(initialData?: {
     sidebarHistory[1]([]);
     referenceEnableFalse[1]([]);
 
-    console.log('FormGear stores disposed');
+    
   };
 
   return {

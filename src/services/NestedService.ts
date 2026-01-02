@@ -17,6 +17,7 @@ import type {
 import { ComponentType, PATTERNS } from '../core/constants';
 import type { ReferenceService } from './ReferenceService';
 import type { ExpressionService } from './ExpressionService';
+import logger from '../utils/logger';
 
 /**
  * Component with nested position information
@@ -77,14 +78,14 @@ export class NestedService {
     answer: Option,
     sidebarPosition: number
   ): void {
-    console.log('[NestedService] insertFromArray called:', { dataKey, answer, sidebarPosition });
+    logger.log('NestedService', 'insertFromArray called:', { dataKey, answer, sidebarPosition });
 
     let component = this.referenceService.getComponent(dataKey);
-    console.log('[NestedService] Parent component from reference:', component);
+    logger.log('NestedService', 'Parent component from reference:', component);
 
     // Get components from nested store if not in reference (nested store has the template)
     let components = component?.components;
-    console.log('[NestedService] Component components:', components);
+    logger.log('NestedService', 'Component components:', components);
 
     // Check nested store for correct level and components
     // The nested store has the authoritative level set during initial form processing
@@ -103,9 +104,9 @@ export class NestedService {
       componentEnable?: string[];
     }>;
 
-    console.log('[NestedService] Looking for dataKey in nested store:', dataKey);
+    logger.log('NestedService', 'Looking for dataKey in nested store:', dataKey);
     const nestedEntry = nestedDetails.find((n) => n.dataKey === dataKey);
-    console.log('[NestedService] Nested store entry:', nestedEntry);
+    logger.log('NestedService', 'Nested store entry:', nestedEntry);
 
     if (nestedEntry) {
       // Always use components from nested store if available (has correct template)
@@ -125,7 +126,7 @@ export class NestedService {
           label: component.label || nestedEntry.label,
           name: component.name || nestedEntry.name,
         } as ReferenceDetail;
-        console.log('[NestedService] Updated component with nested store values:', {
+        logger.log('NestedService', 'Updated component with nested store values:', {
           level: component.level,
           index: component.index,
         });
@@ -138,12 +139,12 @@ export class NestedService {
       const sidebarEntry = sidebar.details.find(
         (s: SidebarDetail) => s.dataKey === dataKey
       );
-      console.log('[NestedService] Sidebar entry (fallback):', sidebarEntry);
+      logger.log('NestedService', 'Sidebar entry (fallback):', sidebarEntry);
       components = sidebarEntry?.components;
     }
 
     if (!component || !components) {
-      console.log('[NestedService] No component or no components array, returning');
+      logger.log('NestedService', 'No component or no components array, returning');
       return;
     }
 
@@ -164,7 +165,7 @@ export class NestedService {
       const comps = parentSidebar.components[0] as ReferenceDetail[];
       const compPosition = comps.findIndex((c) => c.dataKey === dataKey);
       runtimeIndex = [...parentSidebar.index, 0, compPosition];
-      console.log('[NestedService] Found parent sidebar, computed runtime index:', {
+      logger.log('NestedService', 'Found parent sidebar, computed runtime index:', {
         parentSidebarDataKey: parentSidebar.dataKey,
         parentSidebarIndex: JSON.stringify(parentSidebar.index),
         compPosition,
@@ -178,7 +179,7 @@ export class NestedService {
       components,
       index: runtimeIndex,
     } as ReferenceDetail;
-    console.log('[NestedService] Component with components:', componentWithComponents);
+    logger.log('NestedService', 'Component with components:', componentWithComponents);
 
     // Create components for the new nested section
     const newComponents = this.createNestedComponents(
@@ -188,26 +189,26 @@ export class NestedService {
       answer.label
     );
 
-    console.log('[NestedService] Created new components:', newComponents.length);
+    logger.log('NestedService', 'Created new components:', newComponents.length);
     if (newComponents.length === 0) return;
 
     try {
       // Insert into reference store
-      console.log('[NestedService] About to insertIntoReference');
+      logger.log('NestedService', 'About to insertIntoReference');
       this.insertIntoReference(newComponents, componentWithComponents);
-      console.log('[NestedService] insertIntoReference completed');
+      logger.log('NestedService', 'insertIntoReference completed');
 
       // Create and insert sidebar entry
-      console.log('[NestedService] About to insertIntoSidebar');
+      logger.log('NestedService', 'About to insertIntoSidebar');
       this.insertIntoSidebar(componentWithComponents, answer, newComponents, sidebarPosition);
-      console.log('[NestedService] insertIntoSidebar completed');
+      logger.log('NestedService', 'insertIntoSidebar completed');
 
       // Initialize answers for new components
-      console.log('[NestedService] About to initializeNestedAnswers');
+      logger.log('NestedService', 'About to initializeNestedAnswers');
       this.initializeNestedAnswers(newComponents, sidebarPosition);
-      console.log('[NestedService] initializeNestedAnswers completed');
+      logger.log('NestedService', 'initializeNestedAnswers completed');
 
-      console.log('[NestedService] insertFromArray completed successfully');
+      logger.log('NestedService', 'insertFromArray completed successfully');
     } catch (error) {
       console.error('[NestedService] Error in insertFromArray:', error);
     }
@@ -305,14 +306,14 @@ export class NestedService {
     currentCount: number,
     sidebarPosition: number
   ): void {
-    console.log('[NestedService] insertFromNumber called:', { dataKey, targetCount, currentCount, sidebarPosition });
+    logger.log('NestedService', 'insertFromNumber called:', { dataKey, targetCount, currentCount, sidebarPosition });
 
     let component = this.referenceService.getComponent(dataKey);
-    console.log('[NestedService] Parent component from reference:', component);
+    logger.log('NestedService', 'Parent component from reference:', component);
 
     // Get components from nested store if not in reference (nested store has the template)
     let components = component?.components;
-    console.log('[NestedService] Component components:', components);
+    logger.log('NestedService', 'Component components:', components);
 
     // Check nested store for correct level and components
     // The nested store has the authoritative level set during initial form processing
@@ -331,9 +332,9 @@ export class NestedService {
       componentEnable?: string[];
     }>;
 
-    console.log('[NestedService] Looking for dataKey in nested store:', dataKey);
+    logger.log('NestedService', 'Looking for dataKey in nested store:', dataKey);
     const nestedEntry = nestedDetails.find((n) => n.dataKey === dataKey);
-    console.log('[NestedService] Nested store entry:', nestedEntry);
+    logger.log('NestedService', 'Nested store entry:', nestedEntry);
 
     if (nestedEntry) {
       // Always use components from nested store if available (has correct template)
@@ -353,7 +354,7 @@ export class NestedService {
           label: component.label || nestedEntry.label,
           name: component.name || nestedEntry.name,
         } as ReferenceDetail;
-        console.log('[NestedService] Updated component with nested store values:', {
+        logger.log('NestedService', 'Updated component with nested store values:', {
           level: component.level,
           index: component.index,
         });
@@ -366,12 +367,12 @@ export class NestedService {
       const sidebarEntry = sidebar.details.find(
         (s: SidebarDetail) => s.dataKey === dataKey
       );
-      console.log('[NestedService] Sidebar entry (fallback):', sidebarEntry);
+      logger.log('NestedService', 'Sidebar entry (fallback):', sidebarEntry);
       components = sidebarEntry?.components;
     }
 
     if (!component || !components) {
-      console.log('[NestedService] No component or no components array, returning');
+      logger.log('NestedService', 'No component or no components array, returning');
       return;
     }
 
@@ -392,7 +393,7 @@ export class NestedService {
       const comps = parentSidebar.components[0] as ReferenceDetail[];
       const compPosition = comps.findIndex((c) => c.dataKey === dataKey);
       runtimeIndex = [...parentSidebar.index, 0, compPosition];
-      console.log('[NestedService] Found parent sidebar, computed runtime index:', {
+      logger.log('NestedService', 'Found parent sidebar, computed runtime index:', {
         parentSidebarDataKey: parentSidebar.dataKey,
         parentSidebarIndex: JSON.stringify(parentSidebar.index),
         compPosition,
@@ -406,7 +407,7 @@ export class NestedService {
       components,
       index: runtimeIndex,
     } as ReferenceDetail;
-    console.log('[NestedService] Component with components:', componentWithComponents);
+    logger.log('NestedService', 'Component with components:', componentWithComponents);
 
     for (let i = currentCount + 1; i <= targetCount; i++) {
       const newComponents = this.createNestedComponents(
@@ -416,32 +417,32 @@ export class NestedService {
         String(i)
       );
 
-      console.log('[NestedService] Created new components:', newComponents.length);
+      logger.log('NestedService', 'Created new components:', newComponents.length);
       if (newComponents.length === 0) continue;
 
       try {
         // Insert into reference store
-        console.log('[NestedService] About to insertIntoReference');
+        logger.log('NestedService', 'About to insertIntoReference');
         this.insertIntoReference(newComponents, componentWithComponents);
-        console.log('[NestedService] insertIntoReference completed');
+        logger.log('NestedService', 'insertIntoReference completed');
 
         // Create and insert sidebar entry
         // For number-based sources, format description with dashes like original FormGear
-        console.log('[NestedService] About to insertIntoSidebar');
+        logger.log('NestedService', 'About to insertIntoSidebar');
         this.insertIntoSidebar(
           componentWithComponents,
           { label: `<i>___________ # ${i}</i>`, value: i },
           newComponents,
           sidebarPosition
         );
-        console.log('[NestedService] insertIntoSidebar completed');
+        logger.log('NestedService', 'insertIntoSidebar completed');
 
         // Initialize answers for new components
-        console.log('[NestedService] About to initializeNestedAnswers');
+        logger.log('NestedService', 'About to initializeNestedAnswers');
         this.initializeNestedAnswers(newComponents, sidebarPosition);
-        console.log('[NestedService] initializeNestedAnswers completed');
+        logger.log('NestedService', 'initializeNestedAnswers completed');
 
-        console.log('[NestedService] insertFromNumber iteration completed successfully for i:', i);
+        logger.log('NestedService', 'insertFromNumber iteration completed successfully for i:', i);
       } catch (error) {
         console.error('[NestedService] Error in insertFromNumber iteration:', error);
       }
@@ -613,7 +614,7 @@ export class NestedService {
       originalCompVar,
       info.nestedPosition
     );
-    console.log('[NestedService] Updated componentVar:', {
+    logger.log('NestedService', 'Updated componentVar:', {
       dataKey: newComp.dataKey,
       type: newComp.type,
       originalCompVar,
@@ -663,7 +664,7 @@ export class NestedService {
       // Nested components inside a parent get level = parentLevel + 1
       // This matches how createFormGear.tsx processes nested components
       newComp.level = info.parentLevel + 1;
-      console.log('[NestedService] Set nested component level:', {
+      logger.log('NestedService', 'Set nested component level:', {
         dataKey: newComp.dataKey,
         parentLevel: info.parentLevel,
         newLevel: newComp.level,
@@ -713,7 +714,7 @@ export class NestedService {
     parentName: string
   ): ReferenceDetail[] {
     const components: ReferenceDetail[] = [];
-    console.log('[NestedService] createNestedComponents parent:', {
+    logger.log('NestedService', 'createNestedComponents parent:', {
       dataKey: parent.dataKey,
       level: parent.level,
       index: parent.index,
@@ -721,10 +722,10 @@ export class NestedService {
     const templateComponents = (parent as any).components?.[0] as
       | ReferenceDetail[]
       | undefined;
-    console.log('[NestedService] templateComponents:', templateComponents?.length);
+    logger.log('NestedService', 'templateComponents:', templateComponents?.length);
 
     if (!templateComponents) {
-      console.log('[NestedService] No templateComponents, returning empty array');
+      logger.log('NestedService', 'No templateComponents, returning empty array');
       return components;
     }
 
@@ -739,7 +740,7 @@ export class NestedService {
     const shouldUseParentIndex = parentLevel >= 2;
     const parentIndexForChildren = shouldUseParentIndex ? [...parent.index, nestedPosition] : [];
 
-    console.log('[NestedService] Index strategy:', {
+    logger.log('NestedService', 'Index strategy:', {
       parentLevel,
       shouldUseParentIndex,
       parentIndexForChildren: JSON.stringify(parentIndexForChildren),
@@ -747,7 +748,7 @@ export class NestedService {
 
     for (let i = 0; i < templateComponents.length; i++) {
       try {
-        console.log(`[NestedService] Creating component ${i}:`, templateComponents[i].dataKey);
+        logger.log('NestedService', `Creating component ${i}:`, templateComponents[i].dataKey);
         const info: NestedComponentInfo = {
           dataKey: templateComponents[i].dataKey,
           nestedPosition,
@@ -758,14 +759,14 @@ export class NestedService {
           parentLevel, // Pass parent level so children get correct level
         };
         const newComp = this.createNestedComponent(templateComponents[i], info);
-        console.log(`[NestedService] Created component ${i}:`, newComp.dataKey, 'level:', newComp.level);
+        logger.log('NestedService', `Created component ${i}:`, newComp.dataKey, 'level:', newComp.level);
         components.push(newComp);
       } catch (error) {
         console.error(`[NestedService] Error creating component ${i}:`, error);
       }
     }
 
-    console.log('[NestedService] createNestedComponents returning', components.length, 'components');
+    logger.log('NestedService', 'createNestedComponents returning', components.length, 'components');
     return components;
   }
 
@@ -850,7 +851,7 @@ export class NestedService {
     // which was set correctly during initial form processing in createFormGear.tsx
     // (level 1 for nested inside section, level 2 for nested inside nested, etc.)
     // The parent's index is now the correct runtime index (set in insertFromArray/insertFromNumber)
-    console.log('[NestedService] insertIntoSidebar:', {
+    logger.log('NestedService', 'insertIntoSidebar:', {
       parentDataKey: parent.dataKey,
       parentLevel: parent.level,
       parentIndex: JSON.stringify(parent.index),
@@ -873,7 +874,7 @@ export class NestedService {
       componentEnable: parent.componentEnable,
     };
 
-    console.log('[NestedService] Creating sidebar entry:', {
+    logger.log('NestedService', 'Creating sidebar entry:', {
       dataKey: newSide.dataKey,
       level: newSide.level,
       index: JSON.stringify(newSide.index),
@@ -884,7 +885,7 @@ export class NestedService {
     // Check if already exists
     const exists = sidebar.details.some((s) => s.dataKey === newSide.dataKey);
     if (exists) {
-      console.log('[NestedService] Sidebar entry already exists, skipping:', newSide.dataKey);
+      logger.log('NestedService', 'Sidebar entry already exists, skipping:', newSide.dataKey);
       return;
     }
 
@@ -895,7 +896,7 @@ export class NestedService {
       sidebarPosition
     );
 
-    console.log('[NestedService] Inserting sidebar at position:', {
+    logger.log('NestedService', 'Inserting sidebar at position:', {
       insertPos,
       currentSidebarLength: sidebar.details.length,
     });
@@ -903,7 +904,7 @@ export class NestedService {
     const updatedSidebar = [...sidebar.details];
     updatedSidebar.splice(insertPos, 0, newSide);
 
-    console.log('[NestedService] Sidebar after insert:', {
+    logger.log('NestedService', 'Sidebar after insert:', {
       newLength: updatedSidebar.length,
       entries: updatedSidebar.map((s) => ({
         dataKey: s.dataKey,
@@ -949,7 +950,7 @@ export class NestedService {
         const exists = currentDetails.some((n) => n.dataKey === component.dataKey);
         if (!exists) {
           // The component already has the correct level set by createNestedComponent
-          console.log('[NestedService] Registering nested component in store:', component.dataKey, 'level:', component.level);
+          logger.log('NestedService', 'Registering nested component in store:', component.dataKey, 'level:', component.level);
           // Include all properties needed for sidebar insertion
           currentDetails.push({
             dataKey: component.dataKey,

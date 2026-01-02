@@ -1,3 +1,4 @@
+import logger from '../utils/logger';
 /**
  * AnswerService
  *
@@ -217,11 +218,11 @@ export class AnswerService {
     beforeAnswer: unknown,
     activePosition: number
   ): void {
-    console.log('[AnswerService] runCascadingUpdates called:', { dataKey, value, beforeAnswer, activePosition });
+    logger.log('AnswerService', 'runCascadingUpdates called:', { dataKey, value, beforeAnswer, activePosition });
 
     const component = this.referenceService.getComponent(dataKey);
     if (!component) {
-      console.log('[AnswerService] No component found for dataKey:', dataKey);
+      logger.log('AnswerService', 'No component found for dataKey:', dataKey);
       return;
     }
 
@@ -230,7 +231,7 @@ export class AnswerService {
 
     // Only continue if component is enabled
     if (!component.enable) {
-      console.log('[AnswerService] Component is disabled, stopping cascade');
+      logger.log('AnswerService', 'Component is disabled, stopping cascade');
       return;
     }
 
@@ -244,7 +245,7 @@ export class AnswerService {
     this.updateVariableDependents(dataKey);
 
     // 5. Handle nested component updates
-    console.log('[AnswerService] About to call handleNestedUpdates');
+    logger.log('AnswerService', 'About to call handleNestedUpdates');
     this.handleNestedUpdates(dataKey, value, beforeAnswer, activePosition);
 
     // 6. Update disabled sections cache
@@ -317,7 +318,7 @@ export class AnswerService {
     // Find nested components that use this dataKey as source
     const nestedDependents = this.referenceService.getNestedDependents(dataKey);
 
-    console.log('[AnswerService] handleNestedUpdates:', {
+    logger.log('AnswerService', 'handleNestedUpdates:', {
       dataKey,
       value,
       beforeAnswer,
@@ -326,12 +327,12 @@ export class AnswerService {
 
     for (const nestedKey of nestedDependents) {
       const nested = this.referenceService.getComponent(nestedKey);
-      console.log('[AnswerService] Processing nested:', { nestedKey, nested, type: nested?.type });
+      logger.log('AnswerService', 'Processing nested:', { nestedKey, nested, type: nested?.type });
       if (!nested || nested.type !== ComponentType.NESTED) continue;
 
       // Handle based on value type
       if (typeof value === 'number' || typeof value === 'string') {
-        console.log('[AnswerService] Handling number-based nested');
+        logger.log('AnswerService', 'Handling number-based nested');
         this.handleNumberBasedNested(
           nestedKey,
           Number(value),
@@ -339,7 +340,7 @@ export class AnswerService {
           activePosition
         );
       } else if (Array.isArray(value)) {
-        console.log('[AnswerService] Handling array-based nested');
+        logger.log('AnswerService', 'Handling array-based nested');
         this.handleArrayBasedNested(
           nestedKey,
           value as Option[],
@@ -389,7 +390,7 @@ export class AnswerService {
     const cleanCurrent = this.cleanNestedOptions(current);
     const cleanPrevious = this.cleanNestedOptions(previous);
 
-    console.log('[AnswerService] handleArrayBasedNested:', {
+    logger.log('AnswerService', 'handleArrayBasedNested:', {
       nestedKey,
       cleanCurrent,
       cleanPrevious,
@@ -405,9 +406,9 @@ export class AnswerService {
         const existsInSidebar = sidebar.details.some(
           (s) => s.dataKey === `${nestedKey}#${item.value}`
         );
-        console.log('[AnswerService] Checking item to add:', { item, existsInPrevious, existsInSidebar });
+        logger.log('AnswerService', 'Checking item to add:', { item, existsInPrevious, existsInSidebar });
         if (!existsInSidebar) {
-          console.log('[AnswerService] Calling insertFromArray for:', item);
+          logger.log('AnswerService', 'Calling insertFromArray for:', item);
           this.nestedService.insertFromArray(nestedKey, item, activePosition);
         }
       }
@@ -417,7 +418,7 @@ export class AnswerService {
     for (const item of cleanPrevious) {
       const existsInCurrent = cleanCurrent.some((c) => c.value === item.value);
       if (!existsInCurrent) {
-        console.log('[AnswerService] Removing item:', item);
+        logger.log('AnswerService', 'Removing item:', item);
         this.nestedService.deleteFromArray(nestedKey, item, activePosition);
       }
     }
