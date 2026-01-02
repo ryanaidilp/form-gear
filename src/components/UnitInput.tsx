@@ -90,8 +90,9 @@ const UnitInput: FormComponentBase = props => {
                             let dataKey = item.sourceAnswer.split('@');
                             let sourceAnswer = reference.details.find(obj => obj.dataKey == dataKey[0])
                             if (sourceAnswer.answer) {
-                                if (sourceAnswer.answer.length > 0) {
-                                    let parentValue = encodeURI(sourceAnswer.answer[sourceAnswer.answer.length - 1].value)
+                                const answerArr = sourceAnswer.answer as any[];
+                                if (answerArr.length > 0) {
+                                    let parentValue = encodeURI(answerArr[answerArr.length - 1].value)
                                     urlParamsDummy = `${item.params}=${parentValue}`
                                 }
                             } else {
@@ -99,10 +100,10 @@ const UnitInput: FormComponentBase = props => {
                             }
                             return urlParamsDummy
                         }).join('&');
-                        
+
                         url = `${urlHead}?${urlParams}`
                     }
-                                    
+
                     if ( sourceAPI.subResourceDependencies !== undefined && sourceAPI.subResourceDependencies.length > 0) {
                         let urlParams, urlParamsDummy
                         let urlHead = url
@@ -111,8 +112,9 @@ const UnitInput: FormComponentBase = props => {
                             let dataKey = item.sourceAnswer.split('@');
                             let sourceAnswer = reference.details.find(obj => obj.dataKey == dataKey[0])
                             if (sourceAnswer.answer) {
-                                if (sourceAnswer.answer.length > 0) {
-                                    let parentValue = encodeURI(sourceAnswer.answer[sourceAnswer.answer.length - 1].value)
+                                const answerArr = sourceAnswer.answer as any[];
+                                if (answerArr.length > 0) {
+                                    let parentValue = encodeURI(answerArr[answerArr.length - 1].value)
                                     urlParamsDummy = `${parentValue}/${item.params}`
                                 }
                             } else {
@@ -121,16 +123,16 @@ const UnitInput: FormComponentBase = props => {
                             return urlParamsDummy
                         }).join('/');
 
-                        url = `${urlHead}/${urlParams}` 
+                        url = `${urlHead}/${urlParams}`
                     }
-                    
-                    let head: RequestInit = {
-                        headers: JSON.stringify(sourceAPI.headers),
+
+                    const fetchOptions: RequestInit = {
+                        headers: sourceAPI.headers as HeadersInit,
                         method: "GET",
                       }
 
                     const onlineSearch = async (url:string) =>
-                        (await fetch(url, {head})
+                        (await fetch(url, fetchOptions)
                         .catch((error: any) => {
                             return {
                                 success: false,
@@ -204,8 +206,9 @@ const UnitInput: FormComponentBase = props => {
 
                             let tobeLookup = reference.details.find(obj => obj.dataKey == newParams[0])
                             if (tobeLookup.answer) {
-                                if (tobeLookup.answer.length > 0) {
-                                    let parentValue = tobeLookup.answer[tobeLookup.answer.length - 1].value.toString()
+                                const answerArr = tobeLookup.answer as any[];
+                                if (answerArr.length > 0) {
+                                    let parentValue = answerArr[answerArr.length - 1].value.toString()
                                     tempArr.push({ "key": item.key, "value": parentValue })
                                 }
                             }
@@ -380,7 +383,7 @@ const UnitInput: FormComponentBase = props => {
                             onChange={(e) => {
                                 handleOnChange(e ? e.currentTarget.value : '', props.value != undefined && props.value != '' ? props.value[0].unit ? props.value[0].unit : { value: '', label: '' } : { value: '', label: '' }, 1)
                             }}
-                            oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
+                            oninput={(e: InputEvent) => { const t = e.currentTarget as HTMLInputElement; if (t.value.length > t.maxLength) t.value = t.value.slice(0, t.maxLength); }}
                             maxlength={props.component.lengthInput[0].maxlength !== undefined ? props.component.lengthInput[0].maxlength : ''}
                             minlength={props.component.lengthInput[0].minlength !== undefined ? props.component.lengthInput[0].minlength : ''}
                             max={props.component.rangeInput ? props.component.rangeInput[0].max !== undefined ? props.component.rangeInput[0].max : '' : ''}

@@ -34,7 +34,7 @@ const RadioInput: FormComponentBase = props => {
 		return []
 	})
 	
-	const [options] = createSignal<Option[]>(props.component.sourceOption !== undefined ? getOptions() : props.component.options );
+	const [options] = createSignal<Option[]>(props.component.sourceOption !== undefined ? getOptions() as Option[] : props.component.options as Option[]);
 	
 	const [instruction, setInstruction] = createSignal(false);
 	const showInstruction = () => {

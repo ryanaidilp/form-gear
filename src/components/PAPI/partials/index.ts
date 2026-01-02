@@ -10,7 +10,7 @@ export {
 
 export type InputContainerBase = ParentComponent<{
     component: ComponentType
-    optionSection?: () => JSXElement
+    optionSection?: JSXElement | (() => JSXElement)
     classValidation?: any
     validationMessage?: any
 }>

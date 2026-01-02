@@ -322,19 +322,19 @@ describe('createFormStores', () => {
     it('should update reference store', () => {
       const [reference, setReference] = stores.reference;
 
-      setReference('details', [{ dataKey: 'Q1', type: 'text' }]);
+      setReference('details', [{ dataKey: 'Q1', name: 'Q1', label: 'Question 1', type: 1, index: [0], level: 0 }] as any);
 
-      expect(reference.details).toEqual([{ dataKey: 'Q1', type: 'text' }]);
+      expect(reference.details[0].dataKey).toBe('Q1');
     });
 
     it('should update response store', () => {
       const [response, setResponse] = stores.response;
 
       setResponse('details', 'dataKey', 'FORM_001');
-      setResponse('details', 'answers', [{ dataKey: 'Q1', value: 'test' }]);
+      setResponse('details', 'answers', [{ dataKey: 'Q1', answer: 'test' }]);
 
       expect(response.details.dataKey).toBe('FORM_001');
-      expect(response.details.answers).toEqual([{ dataKey: 'Q1', value: 'test' }]);
+      expect(response.details.answers).toEqual([{ dataKey: 'Q1', answer: 'test' }]);
     });
 
     it('should update summary store', () => {
@@ -442,8 +442,8 @@ describe('createFormStores', () => {
 
     it('should reset reference store to initial state', () => {
       const [, setReference] = stores.reference;
-      setReference('details', [{ dataKey: 'Q1' }]);
-      setReference('sidebar', [{ name: 'Section 1' }]);
+      setReference('details', [{ dataKey: 'Q1', name: 'Q1', label: 'Q1', type: 1, index: [0], level: 0 }] as any);
+      setReference('sidebar', [{ dataKey: 'S1', name: 'Section 1', label: 'Section 1', level: 0, index: [0], enable: true }] as any);
 
       stores.dispose();
 

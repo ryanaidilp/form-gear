@@ -5,8 +5,8 @@
  * Replaces runValidation from GlobalFunction.tsx.
  */
 
+import type { FormStores } from '../stores/createStores';
 import type {
-  FormStores,
   ReferenceDetail,
   ValidationRule,
   Language,
@@ -116,9 +116,6 @@ export class ValidationService {
 
     // Check if this component type supports URL validation
     const urlValidationTypes = [
-      ComponentType.BUTTON,
-      ComponentType.URL_BUTTON,
-      ComponentType.DATE_RANGE,
       ComponentType.TEXTAREA,
       ComponentType.URL,
     ];
@@ -268,14 +265,14 @@ export class ValidationService {
     const value = Number(component.answer);
     const range = component.rangeInput;
 
-    if (range.max !== undefined && value > range.max) {
+    if (range.max !== undefined && value > Number(range.max)) {
       result.messages.push(
         `${this.getLocaleString('validationMax')} ${range.max}`
       );
       result.state = ValidationState.ERROR;
     }
 
-    if (range.min !== undefined && value < range.min) {
+    if (range.min !== undefined && value < Number(range.min)) {
       result.messages.push(
         `${this.getLocaleString('validationMin')} ${range.min}`
       );

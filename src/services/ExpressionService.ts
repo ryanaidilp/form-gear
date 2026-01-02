@@ -5,8 +5,8 @@
  * Provides sandboxed execution of enable conditions, validations, and variable expressions.
  */
 
+import type { FormStores } from '../stores/createStores';
 import type {
-  FormStores,
   ExpressionContext,
   ExpressionResult,
   FormGearConfig,

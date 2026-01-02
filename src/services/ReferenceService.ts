@@ -6,8 +6,8 @@ import logger from '../utils/logger';
  * Replaces the global referenceMap and lookup functions from GlobalFunction.tsx.
  */
 
+import type { FormStores } from '../stores/createStores';
 import type {
-  FormStores,
   ReferenceDetail,
 } from '../core/types';
 import { ComponentType, PATTERNS } from '../core/constants';

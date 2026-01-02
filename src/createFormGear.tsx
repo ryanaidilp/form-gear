@@ -389,13 +389,14 @@ export function createFormGear(options: FormGearOptions): FormGearInstance {
   const onSubmitCallback = callbacks.onSubmit || (() => {});
 
   // Validate template structure
-  if (!templateData.components || !Array.isArray(templateData.components) || templateData.components.length === 0) {
+  const template = templateData as any;
+  if (!template.components || !Array.isArray(template.components) || template.components.length === 0) {
     console.error('FormGear Error: Template components is empty or invalid');
     toastError('Template configuration error: No components found', 5000);
     throw new Error('Template configuration error: No components found');
   }
 
-  if (!Array.isArray(templateData.components[0]) || templateData.components[0].length === 0) {
+  if (!Array.isArray(template.components[0]) || template.components[0].length === 0) {
     console.error('FormGear Error: Template has no sections');
     toastError('Template configuration error: No sections defined', 5000);
     throw new Error('Template configuration error: No sections defined');

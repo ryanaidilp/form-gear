@@ -346,8 +346,8 @@ export interface ReferenceDetail {
   dataKey: string;
   name: string;
   label: string;
-  hint: string;
-  description: string;
+  hint?: string;
+  description?: string;
   type: number;
   answer?: Option[] | string | number | boolean | null;
   index: number[];
@@ -412,14 +412,14 @@ export interface SidebarDetail {
   dataKey: string;
   name: string;
   label: string;
-  description: string;
+  description?: string;
   level: number;
   index: number[];
-  components: TemplateComponent;
+  components?: TemplateComponent;
   sourceQuestion?: string;
   enable: boolean;
-  enableCondition: string;
-  componentEnable: string[];
+  enableCondition?: string;
+  componentEnable?: string[];
 }
 
 /**

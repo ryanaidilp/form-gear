@@ -87,9 +87,9 @@ const Form: Component<{
   const [referenceEnableFalse] = useReferenceEnableFalse();
   const [, setReferenceHistoryEnable] = useReferenceHistoryEnable();
 
-  const getValue = (dataKey: string) => {
+  const getValue = (dataKey: string): unknown => {
     const componentIndex = reference.details.findIndex(obj => obj.dataKey === dataKey);
-    let answer = '';
+    let answer: unknown = '';
     if (componentIndex !== -1 && (reference.details[componentIndex].answer) && (reference.details[componentIndex].enable)) answer = reference.details[componentIndex].answer;
     return answer;
   }
@@ -157,12 +157,12 @@ const Form: Component<{
     })
     setLocale('details', 'language', [updatedLocale])
   }
-  const [components, setComponents] = createSignal([]);
+  const [components, setComponents] = createSignal<unknown[]>([]);
 
-  const getComponents = (dataKey: string) => {
+  const getComponents = (dataKey: string): unknown[] => {
     const componentIndex = sidebar.details.findIndex(obj => obj.dataKey === dataKey);
-    const components = sidebar.details[componentIndex] !== undefined ? sidebar.details[componentIndex].components[0] : '';
-    return components;
+    const components = sidebar.details[componentIndex] !== undefined ? sidebar.details[componentIndex].components[0] : [];
+    return components as unknown[];
   }
 
   // Check if sidebar has any sections before accessing
@@ -195,7 +195,7 @@ const Form: Component<{
     // console.time('tmpVarComp ')
     props.tmpVarComp.forEach((element, index) => {
       let sidePosition = sidebar.details.findIndex((obj, index) => {
-        const cekInsideIndex = obj.components[0].findIndex((objChild, index) => {
+        const cekInsideIndex = obj.components[0].findIndex((objChild: any, index) => {
           objChild.dataKey === element.dataKey;
           return index;
         });
@@ -221,7 +221,7 @@ const Form: Component<{
       if (refPosition !== -1) {
         if ((config().initialMode == 1 && reference.details[refPosition].presetMaster !== undefined && (reference.details[refPosition].presetMaster)) || (config().initialMode == 2)) {
           let sidePosition = sidebar.details.findIndex(obj => {
-            const cekInsideIndex = obj.components[0].findIndex(objChild => objChild.dataKey === element.dataKey);
+            const cekInsideIndex = obj.components[0].findIndex((objChild: any) => objChild.dataKey === element.dataKey);
             return (cekInsideIndex == -1) ? 0 : index;
           });
           let answer = (typeof element.answer === 'object') ? JSON.parse(JSON.stringify(element.answer)) : element.answer;
@@ -235,7 +235,7 @@ const Form: Component<{
         let refPosition = services.reference.getIndex(element.dataKey);
         if (refPosition !== -1) {
           let sidePosition = sidebar.details.findIndex(obj => {
-            const cekInsideIndex = obj.components[0].findIndex(objChild => objChild.dataKey === element.dataKey);
+            const cekInsideIndex = obj.components[0].findIndex((objChild: any) => objChild.dataKey === element.dataKey);
             return (cekInsideIndex == -1) ? 0 : index;
           });
           let answer = (typeof element.answer === 'object') ? JSON.parse(JSON.stringify(element.answer)) : element.answer;
@@ -275,9 +275,9 @@ const Form: Component<{
         let sourceOptionIndex = services.reference.getIndex(editedSourceOption[0]);
         let sourceOptionObj = sourceOptionIndex !== -1 ? reference.details[sourceOptionIndex] : null;
         if (obj.answer && sourceOptionObj && sourceOptionObj.answer) {
-          let x = [];
-          obj.answer.forEach(val => {
-            sourceOptionObj.answer.forEach(op => {
+          let x: any[] = [];
+          (obj.answer as any[]).forEach((val: any) => {
+            (sourceOptionObj.answer as any[]).forEach((op: any) => {
               if (val.value == op.value) {
                 x.push(op);
               }
@@ -1004,7 +1004,7 @@ const Form: Component<{
                           disabled={(currentRemarkPage() == 1) ? true : false}
                         >Prev</button>
 
-                        <div class="text-center px-4 text-xs">{currentRemarkPage}</div>
+                        <div class="text-center px-4 text-xs">{currentRemarkPage()}</div>
 
                         <button type="button" class="w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base 
                                     font-light text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm"
@@ -1087,7 +1087,7 @@ const Form: Component<{
                           disabled={(currentBlankPage() == 1) ? true : false}
                         >Prev</button>
 
-                        <div class="text-center px-4 text-xs">{currentBlankPage}</div>
+                        <div class="text-center px-4 text-xs">{currentBlankPage()}</div>
 
                         <button type="button" class="w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base 
                                     font-light text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm"
@@ -1182,7 +1182,7 @@ const Form: Component<{
                           disabled={(currentErrorPage() == 1) ? true : false}
                         >Prev</button>
 
-                        <div class="text-center px-4 text-xs">{currentErrorPage}</div>
+                        <div class="text-center px-4 text-xs">{currentErrorPage()}</div>
 
                         <button type="button" class="w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base 
                                   font-light text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm"
@@ -1257,7 +1257,7 @@ const Form: Component<{
                             disabled={(currentWarningPage() == 1) ? true : false}
                           >Prev</button>
 
-                          <div class="text-center px-4 text-xs">{currentWarningPage}</div>
+                          <div class="text-center px-4 text-xs">{currentWarningPage()}</div>
 
                           <button type="button" class="w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base 
                                     font-light text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm"
@@ -1526,7 +1526,7 @@ const Form: Component<{
                       />
                       <Switch>
                         <Match when={getConfig().clientMode == 2}>
-                          <div class="text-xs font-light text-gray-600 "> {renderGear} &#177; {timeDiff} ms</div>
+                          <div class="text-xs font-light text-gray-600 "> {renderGear()} &#177; {timeDiff} ms</div>
                         </Match>
                       </Switch>
 

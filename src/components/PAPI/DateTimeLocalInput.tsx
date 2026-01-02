@@ -45,7 +45,7 @@ const DateTimeLocalInput: FormComponentBase = props => {
         onKeyDown={(e) => handleInputKeyDown(e, props)}
         onFocus={(e) => handleInputFocus(e, props)}
         onChange={(e) => handleOnChange(e.currentTarget.value)}
-        onclick={formatMask} oninput={formatMask} onpaste={formatMask}
+        onclick={() => formatMask({ currentTarget: inputMask.ref } as any)} oninput={formatMask} onpaste={() => formatMask({ currentTarget: inputMask.ref } as any)}
       />
     </InputContainer>
   )

@@ -90,8 +90,9 @@ const UnitInput: FormComponentBase = props => {
 
                                 let tobeLookup = reference.details.find(obj => obj.dataKey == newParams[0])
                                 if (tobeLookup.answer) {
-                                    if (tobeLookup.answer.length > 0) {
-                                        let parentValue = encodeURI(tobeLookup.answer[tobeLookup.answer.length - 1].value)
+                                    const answerArr = tobeLookup.answer as any[];
+                                    if (answerArr.length > 0) {
+                                        let parentValue = encodeURI(answerArr[answerArr.length - 1].value)
                                         url = `${config.lookupKey}=${item.key}&${config.lookupValue}=${parentValue}`
                                     }
                                 } else {
@@ -108,7 +109,7 @@ const UnitInput: FormComponentBase = props => {
                     }
                     // console.log('Lookup URL ', url)
 
-                    const [fetched] = createResource<optionSelect>(url, props.MobileOnlineSearch);
+                    const [fetched] = createResource<optionSelect>(() => url, props.MobileOnlineSearch as any);
                     let checker = props.value ? props.value != '' ? props.value[0].unit ? props.value[0].unit.value ? props.value[0].unit.value != '' ? props.value[0].unit.value : '' : '' : '' : '' : ''
 
                     createEffect(() => {
@@ -173,8 +174,9 @@ const UnitInput: FormComponentBase = props => {
 
                             let tobeLookup = reference.details.find(obj => obj.dataKey == newParams[0])
                             if (tobeLookup.answer) {
-                                if (tobeLookup.answer.length > 0) {
-                                    let parentValue = tobeLookup.answer[tobeLookup.answer.length - 1].value.toString()
+                                const answerArr = tobeLookup.answer as any[];
+                                if (answerArr.length > 0) {
+                                    let parentValue = answerArr[answerArr.length - 1].value.toString()
                                     tempArr.push({ "key": item.key, "value": parentValue })
                                 }
                             }
@@ -323,7 +325,7 @@ const UnitInput: FormComponentBase = props => {
                         onChange={(e) => {
                             handleOnChange(e ? e.currentTarget.value : '', props.value != undefined && props.value != '' ? props.value[0].unit ? props.value[0].unit : { value: '', label: '' } : { value: '', label: '' }, 1)
                         }}
-                        oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
+                        oninput={(e: InputEvent) => { const t = e.currentTarget as HTMLInputElement; if (t.value.length > t.maxLength) t.value = t.value.slice(0, t.maxLength); }}
                         maxlength={props.component.lengthInput[0].maxlength !== undefined ? props.component.lengthInput[0].maxlength : ''}
                         minlength={props.component.lengthInput[0].minlength !== undefined ? props.component.lengthInput[0].minlength : ''}
                         max={props.component.rangeInput ? props.component.rangeInput[0].max !== undefined ? props.component.rangeInput[0].max : '' : ''}

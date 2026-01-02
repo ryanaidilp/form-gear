@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { EnableService } from '../EnableService';
-import { createFormStores } from '../../stores/createStores';
-import type { FormStores, FormGearConfig, ReferenceDetail, SidebarDetail } from '../../core/types';
-import { ComponentType, ValidationState } from '../../core/constants';
+import { createFormStores, type FormStores } from '../../stores/createStores';
+import type { FormGearConfig, ReferenceDetail, SidebarDetail } from '../../core/types';
+import { ComponentType, ValidationState, InitialMode, LookupMode } from '../../core/constants';
 
 // Mock ReferenceService
 const createMockReferenceService = () => ({
@@ -37,7 +37,8 @@ const createMockExpressionService = () => ({
 const defaultConfig: FormGearConfig = {
   clientMode: 1,
   formMode: 1,
-  initialMode: 0,
+  initialMode: InitialMode.INITIAL,
+  lookupMode: LookupMode.ONLINE,
 };
 
 describe('EnableService', () => {
@@ -187,7 +188,7 @@ describe('EnableService', () => {
           level: 0,
           enable: true,
           enableCondition: "getValue('Q0') === 'yes'",
-          validationState: ValidationState.NONE,
+          validationState: ValidationState.VALID,
           validationMessage: [],
         },
         {
@@ -199,7 +200,7 @@ describe('EnableService', () => {
           level: 0,
           enable: true,
           // No enableCondition
-          validationState: ValidationState.NONE,
+          validationState: ValidationState.VALID,
           validationMessage: [],
         },
         {
@@ -211,7 +212,7 @@ describe('EnableService', () => {
           level: 0,
           enable: true,
           enableCondition: "getValue('Q1') > 5",
-          validationState: ValidationState.NONE,
+          validationState: ValidationState.VALID,
           validationMessage: [],
         },
       ];
@@ -256,7 +257,7 @@ describe('EnableService', () => {
           index: [0],
           level: 0,
           enable: true,
-          validationState: ValidationState.NONE,
+          validationState: ValidationState.VALID,
           validationMessage: [],
         },
         {
@@ -268,7 +269,7 @@ describe('EnableService', () => {
           level: 1,
           enable: true,
           parent: 'section1',
-          validationState: ValidationState.NONE,
+          validationState: ValidationState.VALID,
           validationMessage: [],
         },
         {
@@ -280,7 +281,7 @@ describe('EnableService', () => {
           level: 1,
           enable: true,
           parent: 'section1',
-          validationState: ValidationState.NONE,
+          validationState: ValidationState.VALID,
           validationMessage: [],
         },
       ];
@@ -323,7 +324,7 @@ describe('EnableService', () => {
           index: [0],
           level: 0,
           enable: true,
-          validationState: ValidationState.NONE,
+          validationState: ValidationState.VALID,
           validationMessage: [],
         },
         {
@@ -335,7 +336,7 @@ describe('EnableService', () => {
           level: 1,
           enable: true,
           parent: 'nested1',
-          validationState: ValidationState.NONE,
+          validationState: ValidationState.VALID,
           validationMessage: [],
         },
       ];
@@ -401,7 +402,7 @@ describe('EnableService', () => {
           index: [0],
           level: 0,
           enable: false,
-          validationState: ValidationState.NONE,
+          validationState: ValidationState.VALID,
           validationMessage: [],
         },
         {
@@ -414,7 +415,7 @@ describe('EnableService', () => {
           enable: false,
           parent: 'section1',
           enableCondition: "getValue('Q0') === 'yes'",
-          validationState: ValidationState.NONE,
+          validationState: ValidationState.VALID,
           validationMessage: [],
         },
         {
@@ -427,7 +428,7 @@ describe('EnableService', () => {
           enable: false,
           parent: 'section1',
           // No enableCondition
-          validationState: ValidationState.NONE,
+          validationState: ValidationState.VALID,
           validationMessage: [],
         },
       ];

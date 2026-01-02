@@ -62,8 +62,9 @@ const MultipleSelectInput: FormComponentBase = props => {
                             let dataKey = item.sourceAnswer.split('@');
                             let sourceAnswer = reference.details.find(obj => obj.dataKey == dataKey[0])
                             if (sourceAnswer.answer) {
-                                if (sourceAnswer.answer.length > 0) {
-                                    let parentValue = encodeURI(sourceAnswer.answer[sourceAnswer.answer.length - 1].value)
+                                const answerArr = sourceAnswer.answer as any[];
+                                if (answerArr.length > 0) {
+                                    let parentValue = encodeURI(answerArr[answerArr.length - 1].value)
                                     urlParamsDummy = `${item.params}=${parentValue}`
                                 }
                             } else {
@@ -71,10 +72,10 @@ const MultipleSelectInput: FormComponentBase = props => {
                             }
                             return urlParamsDummy
                         }).join('&');
-                        
+
                         url = `${urlHead}?${urlParams}`
                     }
-                                    
+
                     if ( sourceAPI.subResourceDependencies !== undefined && sourceAPI.subResourceDependencies.length > 0) {
                         let urlParams, urlParamsDummy
                         let urlHead = url
@@ -83,8 +84,9 @@ const MultipleSelectInput: FormComponentBase = props => {
                             let dataKey = item.sourceAnswer.split('@');
                             let sourceAnswer = reference.details.find(obj => obj.dataKey == dataKey[0])
                             if (sourceAnswer.answer) {
-                                if (sourceAnswer.answer.length > 0) {
-                                    let parentValue = encodeURI(sourceAnswer.answer[sourceAnswer.answer.length - 1].value)
+                                const answerArr = sourceAnswer.answer as any[];
+                                if (answerArr.length > 0) {
+                                    let parentValue = encodeURI(answerArr[answerArr.length - 1].value)
                                     urlParamsDummy = `${parentValue}/${item.params}`
                                 }
                             } else {
@@ -93,16 +95,16 @@ const MultipleSelectInput: FormComponentBase = props => {
                             return urlParamsDummy
                         }).join('/');
 
-                        url = `${urlHead}/${urlParams}` 
+                        url = `${urlHead}/${urlParams}`
                     }
-                    
-                    let head: RequestInit = {
-                        headers: JSON.stringify(sourceAPI.headers),
+
+                    const fetchOptions: RequestInit = {
+                        headers: sourceAPI.headers as HeadersInit,
                         method: "GET",
                       }
 
                     const onlineSearch = async (url:string) =>
-                        (await fetch(url, {head})
+                        (await fetch(url, fetchOptions)
                         .catch((error: any) => {
                             return {
                                 success: false,
@@ -171,8 +173,9 @@ const MultipleSelectInput: FormComponentBase = props => {
 
                             let tobeLookup = reference.details.find(obj => obj.dataKey == newParams[0])
                             if (tobeLookup.answer) {
-                                if (tobeLookup.answer.length > 0) {
-                                    let parentValue = tobeLookup.answer[tobeLookup.answer.length - 1].value.toString()
+                                const answerArr = tobeLookup.answer as any[];
+                                if (answerArr.length > 0) {
+                                    let parentValue = answerArr[answerArr.length - 1].value.toString()
                                     tempArr.push({ "key": item.key, "value": parentValue })
                                 }
                             }

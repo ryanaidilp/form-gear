@@ -43,8 +43,8 @@ export interface Option {
  * Range input configuration
  */
 export interface RangeInput {
-  min?: number;
-  max?: number;
+  min?: number | string;
+  max?: number | string;
   step?: number;
 }
 
@@ -112,7 +112,7 @@ export interface ReferenceDetail {
   componentVar?: string[];
   render?: boolean;
   renderType?: number;
-  enable: boolean;
+  enable?: boolean;
   enableCondition?: string;
   componentEnable?: string[];
   enableRemark?: boolean;
@@ -122,8 +122,8 @@ export interface ReferenceDetail {
   sourceAPI?: SourceAPI;
   typeOption?: OptionType;
   contentModalDelete?: string;
-  validationState: ValidationState;
-  validationMessage: string[];
+  validationState?: ValidationState;
+  validationMessage?: string[];
   validations?: ValidationRule[];
   componentValidation?: string[];
   hasRemark?: boolean;
@@ -305,6 +305,19 @@ export interface ResponseState {
     summary?: unknown[];
     counter?: unknown[];
     auxiliaries?: Auxiliary[];
+    templateDataKey?: string;
+    gearVersion?: string;
+    templateVersion?: string;
+    validationVersion?: string;
+    docState?: number | string;
+    createdBy?: string;
+    updatedBy?: string;
+    createdAt?: string;
+    updatedAt?: string;
+    createdAtTimezone?: string;
+    createdAtGMT?: number | string;
+    updatedAtTimezone?: string;
+    updatedAtGMT?: number | string;
   };
 }
 
@@ -324,6 +337,18 @@ export interface MediaState {
   details: {
     dataKey: string;
     media: MediaEntry[];
+    templateDataKey?: string;
+    gearVersion?: string;
+    templateVersion?: string;
+    validationVersion?: string;
+    createdBy?: string;
+    updatedBy?: string;
+    createdAt?: string;
+    updatedAt?: string;
+    createdAtTimezone?: string;
+    createdAtGMT?: number | string;
+    updatedAtTimezone?: string;
+    updatedAtGMT?: number | string;
   };
 }
 
@@ -354,6 +379,18 @@ export interface RemarkState {
   details: {
     dataKey: string;
     notes: Note[];
+    templateDataKey?: string;
+    gearVersion?: string;
+    templateVersion?: string;
+    validationVersion?: string;
+    createdBy?: string;
+    updatedBy?: string;
+    createdAt?: string;
+    updatedAt?: string;
+    createdAtTimezone?: string;
+    createdAtGMT?: number | string;
+    updatedAtTimezone?: string;
+    updatedAtGMT?: number | string;
   };
 }
 
@@ -447,6 +484,20 @@ export interface HistoryEntry {
   attribute: string | null;
   value: unknown;
   timestamp: number;
+}
+
+/**
+ * History state for undo/redo operations
+ */
+export interface HistoryState {
+  /** Whether history tracking is enabled */
+  referenceHistoryEnable: boolean;
+  /** History of reference states */
+  referenceHistory: ReferenceDetail[][];
+  /** History of sidebar states */
+  sidebarHistory: SidebarDetail[][];
+  /** Components that are currently disabled */
+  referenceEnableFalse: Array<{ parentIndex: number[] }>;
 }
 
 // =============================================================================
@@ -580,50 +631,21 @@ export interface PrincipalState {
   status: number;
   details: {
     principals: PrincipalItem[];
+    templateDataKey?: string;
+    gearVersion?: string;
+    templateVersion?: string;
+    validationVersion?: string;
+    createdBy?: string;
+    updatedBy?: string;
+    createdAt?: string;
+    updatedAt?: string;
+    createdAtTimezone?: string;
+    createdAtGMT?: number | string;
+    updatedAtTimezone?: string;
+    updatedAtGMT?: number | string;
   };
 }
 
-/**
- * All stores for a FormGear instance.
- * This interface extends the base createStores return type with additional
- * service-specific signals.
- */
-export interface FormStores {
-  // Main stores
-  reference: StoreInstance<ReferenceState>;
-  response: StoreInstance<ResponseState>;
-  template: StoreInstance<TemplateState>;
-  validation: StoreInstance<ValidationStoreState>;
-  preset: StoreInstance<PresetState>;
-  media: StoreInstance<MediaState>;
-  remark: StoreInstance<RemarkState>;
-  sidebar: StoreInstance<SidebarState>;
-  locale: StoreInstance<LocaleState>;
-
-  // Helper stores
-  summary: StoreInstance<Summary>;
-  counter: StoreInstance<Counter>;
-  input: StoreInstance<InputState>;
-  nested: StoreInstance<NestedState>;
-  note: StoreInstance<NoteState>;
-  principal: StoreInstance<PrincipalState>;
-
-  // Signals (maps and history) - matches createStores.ts
-  referenceMap: SignalInstance<Record<string, number>>;
-  sidebarIndexMap: SignalInstance<Record<string, number>>;
-  compEnableMap: SignalInstance<Record<string, string[]>>;
-  compValidMap: SignalInstance<Record<string, string[]>>;
-  compSourceOptionMap: SignalInstance<Record<string, string[]>>;
-  compVarMap: SignalInstance<Record<string, string[]>>;
-  compSourceQuestionMap: SignalInstance<Record<string, string[]>>;
-  referenceHistoryEnable: SignalInstance<boolean>;
-  referenceHistory: SignalInstance<unknown[]>;
-  sidebarHistory: SignalInstance<unknown[]>;
-  referenceEnableFalse: SignalInstance<string[]>;
-
-  // Cleanup
-  dispose: () => void;
-}
 
 // =============================================================================
 // FormGear Instance Types

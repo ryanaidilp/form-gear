@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ReferenceService } from '../ReferenceService';
-import { createFormStores } from '../../stores/createStores';
-import type { FormStores, ReferenceDetail } from '../../core/types';
+import { createFormStores, type FormStores } from '../../stores/createStores';
+import type { ReferenceDetail } from '../../core/types';
 import { ComponentType, ValidationState } from '../../core/constants';
 
 describe('ReferenceService', () => {
@@ -19,7 +19,7 @@ describe('ReferenceService', () => {
     index: [0],
     level: 0,
     enable: true,
-    validationState: ValidationState.NONE,
+    validationState: ValidationState.VALID,
     validationMessage: [],
     ...overrides,
   });
@@ -514,7 +514,7 @@ describe('ReferenceService', () => {
         createComponent('Q1', {
           answer: 'old',
           enable: true,
-          validationState: ValidationState.NONE,
+          validationState: ValidationState.VALID,
         }),
       ]);
       referenceService.rebuildIndexMap();

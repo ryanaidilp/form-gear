@@ -13,8 +13,8 @@ import {
   useAnswerService,
   useHistoryService,
 } from '../ServiceContext';
-import { createFormStores } from '../../stores/createStores';
-import type { FormStores, FormGearConfig } from '../../core/types';
+import { createFormStores, type FormStores } from '../../stores/createStores';
+import type { FormGearConfig } from '../../core/types';
 import { ReferenceService } from '../ReferenceService';
 import { ExpressionService } from '../ExpressionService';
 import { ValidationService } from '../ValidationService';
@@ -22,11 +22,13 @@ import { EnableService } from '../EnableService';
 import { NestedService } from '../NestedService';
 import { AnswerService } from '../AnswerService';
 import { HistoryService } from '../HistoryService';
+import { InitialMode, LookupMode } from '../../core/constants';
 
 const defaultConfig: FormGearConfig = {
   clientMode: 1,
   formMode: 1,
-  initialMode: 0,
+  initialMode: InitialMode.INITIAL,
+  lookupMode: LookupMode.ONLINE,
 };
 
 describe('ServiceContext', () => {
@@ -91,7 +93,8 @@ describe('ServiceContext', () => {
       const customConfig: FormGearConfig = {
         clientMode: 2,
         formMode: 3,
-        initialMode: 1,
+        initialMode: InitialMode.ASSIGN,
+        lookupMode: LookupMode.ONLINE,
         baseUrl: 'https://custom.api.com',
         username: 'testuser',
         token: 'secret-token',

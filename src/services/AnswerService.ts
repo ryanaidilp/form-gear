@@ -6,8 +6,8 @@ import logger from '../utils/logger';
  * Replaces the saveAnswer function from GlobalFunction.tsx.
  */
 
+import type { FormStores } from '../stores/createStores';
 import type {
-  FormStores,
   ReferenceDetail,
   FormGearConfig,
   Option,

@@ -11,7 +11,7 @@ import { createSignal, Accessor, Setter } from 'solid-js';
 import type {
   Summary,
   Counter,
-  ValidationState,
+  ValidationStoreState as ValidationState,
   ResponseState,
   PresetState,
   MediaState,
@@ -20,7 +20,7 @@ import type {
   ReferenceState,
   SidebarState,
   LocaleState,
-} from '../types/stores';
+} from '../core/types';
 
 // =============================================================================
 // Store Types
@@ -60,6 +60,18 @@ interface PrincipalState {
       principal: number;
       columnName: string;
     }>;
+    templateDataKey?: string;
+    gearVersion?: string;
+    templateVersion?: string;
+    validationVersion?: string;
+    createdBy?: string;
+    updatedBy?: string;
+    createdAt?: string;
+    updatedAt?: string;
+    createdAtTimezone?: string;
+    createdAtGMT?: number | string;
+    updatedAtTimezone?: string;
+    updatedAtGMT?: number | string;
   };
 }
 

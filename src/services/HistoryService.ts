@@ -5,8 +5,8 @@
  * Replaces addHistory and reloadDataFromHistory from GlobalFunction.tsx.
  */
 
+import type { FormStores } from '../stores/createStores';
 import type {
-  FormStores,
   ReferenceDetail,
   SidebarDetail,
   HistoryEntry,

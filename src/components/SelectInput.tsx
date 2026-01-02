@@ -70,8 +70,9 @@ const SelectInput: FormComponentBase = props => {
                             let dataKey = item.sourceAnswer.split('@');
                             let sourceAnswer = reference.details.find(obj => obj.dataKey == dataKey[0])
                             if (sourceAnswer.answer) {
-                                if (sourceAnswer.answer.length > 0) {
-                                    let parentValue = encodeURI(sourceAnswer.answer[sourceAnswer.answer.length - 1].value)
+                                const answerArr = sourceAnswer.answer as any[];
+                                if (answerArr.length > 0) {
+                                    let parentValue = encodeURI(answerArr[answerArr.length - 1].value)
                                     urlParamsDummy = `${item.params}=${parentValue}`
                                 }
                             } else {
@@ -91,8 +92,9 @@ const SelectInput: FormComponentBase = props => {
                             let dataKey = item.sourceAnswer.split('@');
                             let sourceAnswer = reference.details.find(obj => obj.dataKey == dataKey[0])
                             if (sourceAnswer.answer) {
-                                if (sourceAnswer.answer.length > 0) {
-                                    let parentValue = encodeURI(sourceAnswer.answer[sourceAnswer.answer.length - 1].value)
+                                const answerArr = sourceAnswer.answer as any[];
+                                if (answerArr.length > 0) {
+                                    let parentValue = encodeURI(answerArr[answerArr.length - 1].value)
                                     urlParamsDummy = `${parentValue}/${item.params}`
                                 }
                             } else {
@@ -104,13 +106,13 @@ const SelectInput: FormComponentBase = props => {
                         url = `${urlHead}/${urlParams}` 
                     }
                     
-                    let head: RequestInit = {
-                        headers: JSON.stringify(sourceAPI.headers),
+                    const fetchOptions: RequestInit = {
+                        headers: sourceAPI.headers as HeadersInit,
                         method: "GET",
                       }
 
                     const onlineSearch = async (url:string) =>
-                        (await fetch(url, {head})
+                        (await fetch(url, fetchOptions)
                         .catch((error: any) => {
                             return {
                                 success: false,
@@ -183,8 +185,9 @@ const SelectInput: FormComponentBase = props => {
 
                             let tobeLookup = reference.details.find(obj => obj.dataKey == newParams[0])
                             if (tobeLookup.answer) {
-                                if (tobeLookup.answer.length > 0) {
-                                    let parentValue = tobeLookup.answer[tobeLookup.answer.length - 1].value.toString()
+                                const answerArr = tobeLookup.answer as any[];
+                                if (answerArr.length > 0) {
+                                    let parentValue = answerArr[answerArr.length - 1].value.toString()
                                     tempArr.push({ "key": item.key, "value": parentValue })
                                 }
                             }
@@ -359,7 +362,7 @@ const SelectInput: FormComponentBase = props => {
                         check.map((child: any) => {
                             if (child.sourceAnswer == parentKey && ref.answer != null) {
                                 let sidePosition = sidebar.details.findIndex((obj, index) => {
-                                    const cekInsideIndex = obj.components[0].findIndex((objChild, index) => {
+                                    const cekInsideIndex = obj.components[0].findIndex((objChild: any, index) => {
                                         objChild.dataKey === ref.dataKey;
                                         return index;
                                     });
@@ -377,7 +380,7 @@ const SelectInput: FormComponentBase = props => {
                         check.map((child: any) => {
                             if (child.sourceAnswer == parentKey && ref.answer != null) {
                                 let sidePosition = sidebar.details.findIndex((obj, index) => {
-                                    const cekInsideIndex = obj.components[0].findIndex((objChild, index) => {
+                                    const cekInsideIndex = obj.components[0].findIndex((objChild: any, index) => {
                                         objChild.dataKey === ref.dataKey;
                                         return index;
                                     });

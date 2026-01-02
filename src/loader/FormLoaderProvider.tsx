@@ -1,19 +1,32 @@
-import { createContext, useContext } from "solid-js";
+import { createContext, useContext, ParentComponent } from "solid-js";
 import { createStore, produce } from "solid-js/store";
 
-const LoaderStateContext = createContext<{"loader"}>();
-const LoaderDispatchContext = createContext<{"setLoader", "removeLoader"}>();
+interface LoaderItem {
+    id: number;
+}
 
-const initialState = {
+interface LoaderState {
+    loader: LoaderItem[];
+}
+
+interface LoaderDispatch {
+    setLoader: (options?: unknown) => void;
+    removeLoader: (id: number) => () => void;
+}
+
+const LoaderStateContext = createContext<LoaderState>();
+const LoaderDispatchContext = createContext<LoaderDispatch>();
+
+const initialState: LoaderState = {
     loader: [],
   };
-export default function FormLoaderProvider(props) {
+const FormLoaderProvider: ParentComponent = (props) => {
     const [store, setStore] = createStore(initialState);
 
-    function setLoader() {
+    function setLoader(_options?: unknown) {
         setStore(
             "loader",
-                produce((loader : []) => {
+                produce((loader: LoaderItem[]) => {
                     loader.push({
                         id : 1,
                     });
@@ -21,10 +34,10 @@ export default function FormLoaderProvider(props) {
         );
     }
 
-    const removeLoader = (id) => () => {
+    const removeLoader = (id: number) => () => {
         setStore(
           "loader",
-          produce((loader : []) => {
+          produce((loader: LoaderItem[]) => {
             const index = loader.findIndex((s) => s.id === id);
             if (index > -1) {
               loader.splice(index, 1);
@@ -57,3 +70,5 @@ export default function FormLoaderProvider(props) {
 
 export const useLoaderState = () => useContext(LoaderStateContext);
 export const useLoaderDispatch = () => useContext(LoaderDispatchContext);
+
+export default FormLoaderProvider;

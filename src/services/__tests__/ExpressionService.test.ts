@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ExpressionService } from '../ExpressionService';
-import { createFormStores } from '../../stores/createStores';
-import type { FormStores, FormGearConfig, ReferenceDetail } from '../../core/types';
-import { ComponentType, ValidationState } from '../../core/constants';
+import { createFormStores, type FormStores } from '../../stores/createStores';
+import type { FormGearConfig, ReferenceDetail } from '../../core/types';
+import { ComponentType, ValidationState, InitialMode, LookupMode } from '../../core/constants';
 
 // Mock ReferenceService
 const createMockReferenceService = () => ({
@@ -29,7 +29,8 @@ const defaultConfig: FormGearConfig = {
   baseUrl: 'https://api.example.com',
   username: 'testuser',
   token: 'test-token',
-  initialMode: 0,
+  initialMode: InitialMode.INITIAL,
+  lookupMode: LookupMode.ONLINE,
 };
 
 describe('ExpressionService', () => {
@@ -605,7 +606,7 @@ describe('ExpressionService', () => {
       const serviceWithMinimalConfig = new ExpressionService(
         stores,
         mockReferenceService as never,
-        { clientMode: 1, formMode: 1, initialMode: 0 }
+        { clientMode: 1, formMode: 1, initialMode: InitialMode.INITIAL, lookupMode: LookupMode.ONLINE }
       );
 
       expect(

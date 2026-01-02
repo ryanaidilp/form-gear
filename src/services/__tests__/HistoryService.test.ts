@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { HistoryService } from '../HistoryService';
-import { createFormStores } from '../../stores/createStores';
-import type { FormStores, ReferenceDetail } from '../../core/types';
+import { createFormStores, type FormStores } from '../../stores/createStores';
+import type { ReferenceDetail } from '../../core/types';
 import { ComponentType, ValidationState } from '../../core/constants';
 
 // Mock ReferenceService
@@ -166,7 +166,7 @@ describe('HistoryService', () => {
         index: [0, 0],
         level: 1,
         enable: true,
-        validationState: ValidationState.NONE,
+        validationState: ValidationState.VALID,
         validationMessage: [],
       };
 
@@ -238,7 +238,7 @@ describe('HistoryService', () => {
           level: 0,
           enable: true,
           answer: 'new value',
-          validationState: ValidationState.NONE,
+          validationState: ValidationState.VALID,
           validationMessage: [],
         },
         {
@@ -250,7 +250,7 @@ describe('HistoryService', () => {
           level: 0,
           enable: true,
           answer: 42,
-          validationState: ValidationState.NONE,
+          validationState: ValidationState.VALID,
           validationMessage: [],
         },
       ];
@@ -326,7 +326,7 @@ describe('HistoryService', () => {
         index: [2],
         level: 0,
         enable: true,
-        validationState: ValidationState.NONE,
+        validationState: ValidationState.VALID,
         validationMessage: [],
       };
 
@@ -362,7 +362,7 @@ describe('HistoryService', () => {
         index: [2],
         level: 0,
         enable: true,
-        validationState: ValidationState.NONE,
+        validationState: ValidationState.VALID,
         validationMessage: [],
       };
 

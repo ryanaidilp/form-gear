@@ -388,8 +388,8 @@ describe('ValidationService', () => {
 
       const component = createMockComponent({
         type: ComponentType.RADIO,
-        answer: [{ value: 'invalid' }],
-        options: [{ value: 'a' }, { value: 'b' }],
+        answer: [{ label: 'Invalid', value: 'invalid' }],
+        options: [{ label: 'A', value: 'a' }, { label: 'B', value: 'b' }],
       });
       mocks.referenceService.getComponent.mockReturnValue(component);
 
@@ -402,8 +402,8 @@ describe('ValidationService', () => {
       const { service, mocks } = createValidationService();
       const component = createMockComponent({
         type: ComponentType.RADIO,
-        answer: [{ value: 'invalid' }],
-        options: [{ value: 'a' }, { value: 'b' }],
+        answer: [{ label: 'Invalid', value: 'invalid' }],
+        options: [{ label: 'A', value: 'a' }, { label: 'B', value: 'b' }],
       });
       mocks.referenceService.getComponent.mockReturnValue(component);
 

@@ -6,7 +6,8 @@
  */
 
 import { createContext, useContext, ParentComponent } from 'solid-js';
-import type { FormStores, FormGearConfig } from '../core/types';
+import type { FormStores } from '../stores/createStores';
+import type { FormGearConfig } from '../core/types';
 import { ReferenceService } from './ReferenceService';
 import { ExpressionService } from './ExpressionService';
 import { ValidationService } from './ValidationService';

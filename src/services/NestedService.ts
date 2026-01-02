@@ -7,8 +7,8 @@
  */
 
 import { batch } from 'solid-js';
+import type { FormStores } from '../stores/createStores';
 import type {
-  FormStores,
   ReferenceDetail,
   SidebarDetail,
   FormGearConfig,

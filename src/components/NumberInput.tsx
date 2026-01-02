@@ -70,7 +70,7 @@ const NumberInput: FormComponentBase = props => {
                 onChange={(e) => {
                   props.onValueChange(parseInt(e.currentTarget.value));
                 } }
-                oninput = "javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
+                oninput={(e: InputEvent) => { const t = e.currentTarget as HTMLInputElement; if (t.value.length > t.maxLength) t.value = t.value.slice(0, t.maxLength); }}
                 maxlength = {props.component.lengthInput[0].maxlength !== undefined ? props.component.lengthInput[0].maxlength : ''}
                 minlength = {props.component.lengthInput[0].minlength !== undefined ? props.component.lengthInput[0].minlength : ''}
                 max = {props.component.rangeInput ? props.component.rangeInput[0].max !== undefined ? props.component.rangeInput[0].max : '' : ''}

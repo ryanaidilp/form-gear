@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { AnswerService } from '../AnswerService';
-import { createFormStores } from '../../stores/createStores';
-import type { FormStores, FormGearConfig, ReferenceDetail } from '../../core/types';
-import { ComponentType, ValidationState } from '../../core/constants';
+import { createFormStores, type FormStores } from '../../stores/createStores';
+import type { FormGearConfig, ReferenceDetail } from '../../core/types';
+import { ComponentType, ValidationState, InitialMode, LookupMode } from '../../core/constants';
 
 // Mock ReferenceService
 const createMockReferenceService = () => ({
@@ -82,7 +82,8 @@ const createMockHistoryService = () => ({
 const defaultConfig: FormGearConfig = {
   clientMode: 1,
   formMode: 1,
-  initialMode: 0,
+  initialMode: InitialMode.INITIAL,
+  lookupMode: LookupMode.ONLINE,
 };
 
 const createComponent = (
@@ -96,7 +97,7 @@ const createComponent = (
   index: [0],
   level: 0,
   enable: true,
-  validationState: ValidationState.NONE,
+  validationState: ValidationState.VALID,
   validationMessage: [],
   ...overrides,
 });

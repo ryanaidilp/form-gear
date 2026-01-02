@@ -29,7 +29,7 @@ const InputContainer: InputContainerBase = props => {
                         <div class="italic text-xs font-extralight text-zinc-400 " innerHTML={props.component.hint} />
                     </Show>
 
-                    {props.optionSection}
+                    {typeof props.optionSection === 'function' ? props.optionSection() : props.optionSection}
 
                 </div>
             </div>
