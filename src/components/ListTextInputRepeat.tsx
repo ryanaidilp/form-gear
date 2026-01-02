@@ -2,7 +2,6 @@ import { FormComponentBase } from "../FormType"
 import { For, Switch, Match, Show, createMemo, createSignal } from 'solid-js'
 import { toastInfo } from "../utils/toast"
 import { useLocale } from '../stores/StoreContext'
-import LogoImg from "../assets/loading.png"
 
 
 const ListTextInputRepeat: FormComponentBase = props => {

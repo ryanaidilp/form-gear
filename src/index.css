@@ -1,3 +1,6 @@
+/* Google Fonts CDN - Montserrat with all weights */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
 @import "tailwindcss";
 @plugin "@tailwindcss/forms";
 @plugin "tailwind-scrollbar";
@@ -9,137 +12,6 @@
 
 @theme {
     --font-sans: 'Montserrat', ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-}
-
-
-/* Montserrat Font - Italic weights */
-@font-face {
-    font-family: 'Montserrat';
-    font-style: italic;
-    font-weight: 100;
-    font-display: swap;
-    src: url(@/assets/font-montserrat/Montserrat-ThinItalic.ttf) format('truetype');
-}
-@font-face {
-    font-family: 'Montserrat';
-    font-style: italic;
-    font-weight: 200;
-    font-display: swap;
-    src: url(@/assets/font-montserrat/Montserrat-ExtraLightItalic.ttf) format('truetype');
-}
-@font-face {
-    font-family: 'Montserrat';
-    font-style: italic;
-    font-weight: 300;
-    font-display: swap;
-    src: url(@/assets/font-montserrat/Montserrat-LightItalic.ttf) format('truetype');
-}
-@font-face {
-    font-family: 'Montserrat';
-    font-style: italic;
-    font-weight: 400;
-    font-display: swap;
-    src: url(@/assets/font-montserrat/Montserrat-Italic.ttf) format('truetype');
-}
-@font-face {
-    font-family: 'Montserrat';
-    font-style: italic;
-    font-weight: 500;
-    font-display: swap;
-    src: url(@/assets/font-montserrat/Montserrat-MediumItalic.ttf) format('truetype');
-}
-@font-face {
-    font-family: 'Montserrat';
-    font-style: italic;
-    font-weight: 600;
-    font-display: swap;
-    src: url(@/assets/font-montserrat/Montserrat-SemiBoldItalic.ttf) format('truetype');
-}
-@font-face {
-    font-family: 'Montserrat';
-    font-style: italic;
-    font-weight: 700;
-    font-display: swap;
-    src: url(@/assets/font-montserrat/Montserrat-BoldItalic.ttf) format('truetype');
-}
-@font-face {
-    font-family: 'Montserrat';
-    font-style: italic;
-    font-weight: 800;
-    font-display: swap;
-    src: url(@/assets/font-montserrat/Montserrat-ExtraBoldItalic.ttf) format('truetype');
-}
-@font-face {
-    font-family: 'Montserrat';
-    font-style: italic;
-    font-weight: 900;
-    font-display: swap;
-    src: url(@/assets/font-montserrat/Montserrat-BlackItalic.ttf) format('truetype');
-}
-
-/* Montserrat Font - Normal weights */
-@font-face {
-    font-family: 'Montserrat';
-    font-style: normal;
-    font-weight: 100;
-    font-display: swap;
-    src: url(@/assets/font-montserrat/Montserrat-Thin.ttf) format('truetype');
-}
-@font-face {
-    font-family: 'Montserrat';
-    font-style: normal;
-    font-weight: 200;
-    font-display: swap;
-    src: url(@/assets/font-montserrat/Montserrat-ExtraLight.ttf) format('truetype');
-}
-@font-face {
-    font-family: 'Montserrat';
-    font-style: normal;
-    font-weight: 300;
-    font-display: swap;
-    src: url(@/assets/font-montserrat/Montserrat-Light.ttf) format('truetype');
-}
-@font-face {
-    font-family: 'Montserrat';
-    font-style: normal;
-    font-weight: 400;
-    font-display: swap;
-    src: url(@/assets/font-montserrat/Montserrat-Regular.ttf) format('truetype');
-}
-@font-face {
-    font-family: 'Montserrat';
-    font-style: normal;
-    font-weight: 500;
-    font-display: swap;
-    src: url(@/assets/font-montserrat/Montserrat-Medium.ttf) format('truetype');
-}
-@font-face {
-    font-family: 'Montserrat';
-    font-style: normal;
-    font-weight: 600;
-    font-display: swap;
-    src: url(@/assets/font-montserrat/Montserrat-SemiBold.ttf) format('truetype');
-}
-@font-face {
-    font-family: 'Montserrat';
-    font-style: normal;
-    font-weight: 700;
-    font-display: swap;
-    src: url(@/assets/font-montserrat/Montserrat-Bold.ttf) format('truetype');
-}
-@font-face {
-    font-family: 'Montserrat';
-    font-style: normal;
-    font-weight: 800;
-    font-display: swap;
-    src: url(@/assets/font-montserrat/Montserrat-ExtraBold.ttf) format('truetype');
-}
-@font-face {
-    font-family: 'Montserrat';
-    font-style: normal;
-    font-weight: 900;
-    font-display: swap;
-    src: url(@/assets/font-montserrat/Montserrat-Black.ttf) format('truetype');
 }
 
 
@@ -492,12 +364,13 @@
 
 /* Modal animations */
 @keyframes modal-backdrop-in {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes modal-backdrop-out {
+    from { opacity: 1; }
+    to { opacity: 0; }
 }
 
 @keyframes modal-content-in {
@@ -511,16 +384,51 @@
     }
 }
 
+@keyframes modal-content-out {
+    from {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: scale(0.95) translateY(10px);
+    }
+}
+
+/* Modal enter animations */
 .modal-remark,
 .modal-loading,
 .modal-delete,
-.modal-confirmation {
+.modal-confirmation,
+.modal-blank,
+.modal-error {
     animation: modal-backdrop-in 0.2s ease-out forwards;
 }
 
 .modal-remark > div > div:last-of-type:not([aria-hidden]),
 .modal-loading > div > div:last-of-type:not([aria-hidden]),
 .modal-delete > div > div:last-of-type:not([aria-hidden]),
-.modal-confirmation > div > div:last-of-type:not([aria-hidden]) {
+.modal-confirmation > div > div:last-of-type:not([aria-hidden]),
+.modal-blank > div > div:last-of-type:not([aria-hidden]),
+.modal-error > div > div:last-of-type:not([aria-hidden]) {
     animation: modal-content-in 0.3s ease-out forwards;
+}
+
+/* Modal exit animations - applied via .closing class */
+.modal-remark.closing,
+.modal-loading.closing,
+.modal-delete.closing,
+.modal-confirmation.closing,
+.modal-blank.closing,
+.modal-error.closing {
+    animation: modal-backdrop-out 0.2s ease-in forwards;
+}
+
+.modal-remark.closing > div > div:last-of-type:not([aria-hidden]),
+.modal-loading.closing > div > div:last-of-type:not([aria-hidden]),
+.modal-delete.closing > div > div:last-of-type:not([aria-hidden]),
+.modal-confirmation.closing > div > div:last-of-type:not([aria-hidden]),
+.modal-blank.closing > div > div:last-of-type:not([aria-hidden]),
+.modal-error.closing > div > div:last-of-type:not([aria-hidden]) {
+    animation: modal-content-out 0.2s ease-in forwards;
 }

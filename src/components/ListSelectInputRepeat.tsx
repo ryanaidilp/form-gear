@@ -4,7 +4,6 @@ import { useReference, useLocale } from '../stores/StoreContext'
 import { Select, createOptions } from "@thisbeyond/solid-select"
 import "@thisbeyond/solid-select/style.css"
 import { toastInfo, toastError } from "../utils/toast"
-import LogoImg from "../assets/loading.png"
 
 const ListSelectInputRepeat: FormComponentBase = props => {
 	const [reference] = useReference();

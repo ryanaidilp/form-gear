@@ -126,6 +126,20 @@ const Form: Component<{
   const [showRemark, setShowRemark] = createSignal(false)
   const [showBlank, setShowBlank] = createSignal(false)
 
+  // Helper to close modal with animation
+  const closeModalWithAnimation = (modalClass: string, setShowFn: (v: boolean) => void) => {
+    const modal = document.querySelector(`.${modalClass}`);
+    if (modal) {
+      modal.classList.add('closing');
+      setTimeout(() => {
+        setShowFn(false);
+        modal.classList.remove('closing');
+      }, 200); // Match animation duration
+    } else {
+      setShowFn(false);
+    }
+  }
+
 
   const [listError, setListError] = createSignal([])
   const [listErrorPage, setListErrorPage] = createSignal([])
@@ -417,7 +431,15 @@ const Form: Component<{
 
   const sidebarCollapse = (event: MouseEvent) => {
     var sidebar = document.querySelector(".sidebar-span");
-    sidebar.classList.toggle("-translate-x-full");
+    var overlay = document.querySelector(".sidebar-overlay");
+    // Toggle sidebar position with animation
+    sidebar?.classList.toggle("-translate-x-full");
+    sidebar?.classList.toggle("translate-x-0");
+    // Toggle overlay visibility with animation
+    overlay?.classList.toggle("opacity-0");
+    overlay?.classList.toggle("opacity-100");
+    overlay?.classList.toggle("pointer-events-none");
+    overlay?.classList.toggle("pointer-events-auto");
   }
 
   const setData = () => {
@@ -777,12 +799,25 @@ const Form: Component<{
   const lookInto = (e: MouseEvent, sidebarIndex, dataKey) => {
     const sidebarIntoIndex = sidebar.details.findIndex(obj => obj.index.toString() === sidebarIndex.toString());
     let sidebarInto = sidebar.details[sidebarIntoIndex]
-    setShowError(false);
-    setShowRemark(false);
-    setShowBlank(false);
+
+    // Close modals with animation
+    const modalError = document.querySelector('.modal-error');
+    const modalRemark = document.querySelector('.modal-remark');
+    const modalBlank = document.querySelector('.modal-blank');
+
+    if (modalError) modalError.classList.add('closing');
+    if (modalRemark) modalRemark.classList.add('closing');
+    if (modalBlank) modalBlank.classList.add('closing');
+
+    setTimeout(() => {
+      setShowError(false);
+      setShowRemark(false);
+      setShowBlank(false);
+    }, 200);
+
     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) && sidebarCollapse(e);
     setLoader({});
-    setTimeout(() => setActiveComponent({ dataKey: sidebarInto.dataKey, label: sidebarInto.label, index: JSON.parse(JSON.stringify(sidebarInto.index)), position: sidebarIntoIndex }), 50);
+    setTimeout(() => setActiveComponent({ dataKey: sidebarInto.dataKey, label: sidebarInto.label, index: JSON.parse(JSON.stringify(sidebarInto.index)), position: sidebarIntoIndex }), 250);
     var component = document.getElementById(dataKey + "___scrollView");
     component.scrollIntoView({ behavior: "smooth" });
   }
@@ -889,7 +924,7 @@ const Form: Component<{
       <Show when={showSubmit()}>
         <div class="modal-confirmation fixed z-10 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
           <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div class="fixed inset-0 bg-gray-500/75 transition-opacity" aria-hidden="true" onClick={e => setShowSubmit(false)}></div>
+            <div class="fixed inset-0 bg-gray-500/75 transition-opacity" aria-hidden="true" onClick={() => closeModalWithAnimation('modal-confirmation', setShowSubmit)}></div>
 
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
             <div class="relative inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
@@ -908,7 +943,7 @@ const Form: Component<{
                     </div>
 
                     <div class="mt-4 flex space-y-2 space-x-2 items-center justify-center md:items-end md:justify-start">
-                      <span class="rounded-lg text-3xl italic font-mono cursor-not-allowed text-slate-600 p-2 bg-gradient-to-r from-teal-500 to-teal-50 text-justify 
+                      <span class="rounded-lg text-3xl italic font-mono cursor-not-allowed text-slate-600 p-2 bg-gradient-to-r from-teal-500 to-teal-50 text-justify
                                   line-through pointer-events-none select-none ">{captcha()}</span>
                       <button class="bg-transparent text-gray-300 rounded-full focus:outline-none h-5 w-5 flex justify-center items-center" onClick={createCaptcha}>
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -919,8 +954,8 @@ const Form: Component<{
 
                     <div class="mt-4 flex space-y-2 space-x-2 items-center justify-center">
                       <input type="number"
-                        class="w-full rounded font-light px-4 py-2.5 text-sm text-gray-700 border 
-                              border-solid border-gray-300 bg-white bg-clip-padding transition ease-in-out m-0 
+                        class="w-full rounded font-light px-4 py-2.5 text-sm text-gray-700 border
+                              border-solid border-gray-300 bg-white bg-clip-padding transition ease-in-out m-0
                               focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
                         placeholder=""
                         onChange={(e) => { setTmpCaptcha(e.currentTarget.value) }}
@@ -933,12 +968,12 @@ const Form: Component<{
 
               <div class="bg-white px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
                 <button type="button"
-                  class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-teal-600 text-base font-medium text-white 
+                  class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-teal-600 text-base font-medium text-white
                         hover:bg-teal-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm"
                   onClick={e => submitData(e)}>Submit</button>
-                <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base 
+                <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base
                           font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-                  onClick={e => setShowSubmit(false)}>Cancel</button>
+                  onClick={() => closeModalWithAnimation('modal-confirmation', setShowSubmit)}>Cancel</button>
               </div>
 
             </div>
@@ -949,7 +984,7 @@ const Form: Component<{
       <Show when={showRemark()}>
         <div class="modal-remark fixed z-10 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
           <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div class="fixed inset-0 bg-gray-500/75 transition-opacity" aria-hidden="true" onClick={e => setShowRemark(false)}></div>
+            <div class="fixed inset-0 bg-gray-500/75 transition-opacity" aria-hidden="true" onClick={() => closeModalWithAnimation('modal-remark', setShowRemark)}></div>
 
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
             <div class="relative inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl sm:w-full">
@@ -1019,9 +1054,9 @@ const Form: Component<{
               </div>
 
               <div class="bg-white px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base 
+                <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base
                           font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-                  onClick={e => setShowRemark(false)}>Close</button>
+                  onClick={() => closeModalWithAnimation('modal-remark', setShowRemark)}>Close</button>
               </div>
 
             </div>
@@ -1030,9 +1065,9 @@ const Form: Component<{
       </Show>
 
       <Show when={showBlank()}>
-        <div class="modal-confirmation fixed z-10 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="modal-confirmation modal-blank fixed z-10 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
           <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div class="fixed inset-0 bg-gray-500/75 transition-opacity" aria-hidden="true" onClick={e => setShowBlank(false)}></div>
+            <div class="fixed inset-0 bg-gray-500/75 transition-opacity" aria-hidden="true" onClick={() => closeModalWithAnimation('modal-blank', setShowBlank)}></div>
 
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
             <div class="relative inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl sm:w-full">
@@ -1102,9 +1137,9 @@ const Form: Component<{
               </div>
 
               <div class="bg-white px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base 
+                <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base
                           font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-                  onClick={e => setShowBlank(false)}>Close</button>
+                  onClick={() => closeModalWithAnimation('modal-blank', setShowBlank)}>Close</button>
               </div>
 
             </div>
@@ -1113,9 +1148,9 @@ const Form: Component<{
       </Show>
 
       <Show when={showError()}>
-        <div class="modal-confirmation fixed z-10 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="modal-confirmation modal-error fixed z-10 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
           <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div class="fixed inset-0 bg-gray-500/75 transition-opacity" aria-hidden="true" onClick={e => setShowError(false)}></div>
+            <div class="fixed inset-0 bg-gray-500/75 transition-opacity" aria-hidden="true" onClick={() => closeModalWithAnimation('modal-error', setShowError)}></div>
 
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
             <div class="relative inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl sm:w-full">
@@ -1273,9 +1308,9 @@ const Form: Component<{
               </div>
 
               <div class="bg-white px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base 
+                <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base
                           font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-                  onClick={e => setShowError(false)}>Close</button>
+                  onClick={() => closeModalWithAnimation('modal-error', setShowError)}>Close</button>
               </div>
 
             </div>
@@ -1294,8 +1329,14 @@ const Form: Component<{
               {/* <div class="absolute pt-1 z-20 h-8 w-36 left-0 -ml-8 top-5 bg-teal-600/70 -rotate-45 text-white font-semibold text-center"  >&#946;eta 🤖</div> */}
 
               <Show when={getProp('clientMode') != ClientMode.PAPI}>
-                <div class="bg-white dark:bg-gray-900 w-72  flex-shrink-0 border-r border-gray-200 dark:border-gray-800 h-screen p-5
-                  sidebar-span fixed inset-y-0 left-0 transform -translate-x-full transition-transform duration-500 ease-in-out md:relative md:translate-x-0 z-20">
+                {/* Mobile sidebar overlay - click to close sidebar */}
+                <div
+                  class="sidebar-overlay fixed inset-0 bg-black/80 backdrop-blur-sm z-10 md:hidden
+                    opacity-0 pointer-events-none transition-all duration-300 ease-in-out"
+                  onClick={sidebarCollapse}
+                />
+                <div class="bg-white dark:bg-gray-900 w-72 flex-shrink-0 border-r border-gray-200 dark:border-gray-800 h-screen p-5
+                  sidebar-span fixed inset-y-0 left-0 -translate-x-full transition-all duration-300 ease-in-out md:relative md:translate-x-0 z-20 md:z-auto">
 
                   <div class="sm:min-h-[7rem] py-3 text-gray-400 tracking-wider flex justify-between">
                     <Switch fallback={<div class="text-lg block px-4 py-3 text-gray-600 dark:text-white font-bold sm:text-xl" innerHTML={props.template.details.acronym
@@ -1671,12 +1712,12 @@ const Form: Component<{
                     </Switch>
                   </div>
 
-                  <div class="  justify-end items-center pr-8 transition"
+                  <div class="flex justify-end items-center pr-8 transition-all duration-300 ease-in-out"
                     classList={{
-                      'flex': showScrollWeb() === true,
-                      'hidden': showScrollWeb() === false,
+                      'opacity-100 translate-y-0': showScrollWeb() === true,
+                      'opacity-0 translate-y-4 pointer-events-none': showScrollWeb() === false,
                     }}>
-                    <button class="scrolltotop-div bg-yellow-400 text-white p-2 rounded-full focus:outline-none items-center h-12 w-12 hover:bg-yellow-300" onClick={scrollToTop}>
+                    <button class="scrolltotop-div bg-yellow-400 text-white p-2 rounded-full focus:outline-none items-center h-12 w-12 hover:bg-yellow-300 transition-transform hover:scale-110" onClick={scrollToTop}>
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd" />
                       </svg>
@@ -1739,12 +1780,12 @@ const Form: Component<{
                     </Match>
                   </Switch>
                 </div>
-                <div class=" justify-end items-center pr-2 transition"
+                <div class="flex justify-end items-center pr-2 transition-all duration-300 ease-in-out"
                   classList={{
-                    'flex': showScrollMobile() === true,
-                    'hidden': showScrollMobile() === false,
+                    'opacity-100 translate-y-0': showScrollMobile() === true,
+                    'opacity-0 translate-y-4 pointer-events-none': showScrollMobile() === false,
                   }}>
-                  <button class="scrolltotop-div bg-yellow-400 text-white p-2 rounded-full focus:outline-none items-center h-10 w-10 hover:bg-yellow-300"
+                  <button class="scrolltotop-div bg-yellow-400 text-white p-2 rounded-full focus:outline-none items-center h-10 w-10 hover:bg-yellow-300 transition-transform hover:scale-110"
                     onClick={scrollToTop}>
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
                       <path fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd" />
