@@ -61,7 +61,9 @@ describe('InnerHTML Component', () => {
       const innerDiv = container.querySelector('div');
       const shadowRoot = innerDiv?.shadowRoot;
 
-      expect(shadowRoot?.innerHTML).toBe('<p>Test paragraph</p>');
+      // Content is wrapped in a div container for stylesheet isolation
+      const contentDiv = shadowRoot?.querySelector('div');
+      expect(contentDiv?.innerHTML).toBe('<p>Test paragraph</p>');
     });
 
     it('should isolate complex HTML with styles', async () => {
@@ -102,7 +104,9 @@ describe('InnerHTML Component', () => {
       const innerDiv = container.querySelector('div');
       const shadowRoot = innerDiv?.shadowRoot;
 
-      expect(shadowRoot?.innerHTML).toBe('Just plain text');
+      // Content is wrapped in a div container for stylesheet isolation
+      const contentDiv = shadowRoot?.querySelector('div');
+      expect(contentDiv?.innerHTML).toBe('Just plain text');
     });
 
     it('should handle nested HTML elements', async () => {
@@ -158,7 +162,9 @@ describe('InnerHTML Component', () => {
       const innerDiv = container.querySelector('div');
       const shadowRoot = innerDiv?.shadowRoot;
 
-      expect(shadowRoot?.innerHTML).toBe('');
+      // Content is wrapped in a div container for stylesheet isolation
+      const contentDiv = shadowRoot?.querySelector('div');
+      expect(contentDiv?.innerHTML).toBe('');
     });
 
     it('should handle undefined label gracefully', async () => {
