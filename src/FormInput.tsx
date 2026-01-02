@@ -24,7 +24,7 @@ import dayjs from 'dayjs';
 import { useServices } from './services';
 import { toastInfo as toastInfoUtil, toastError, toastSuccess } from './utils/toast';
 
-import { ClientMode, ComponentType } from './constants';
+import { ClientMode, ComponentType } from './constants/index';
 import { locale as globalLocale } from './stores/LocaleStore';
 import { reference as globalReference } from './stores/ReferenceStore';
 

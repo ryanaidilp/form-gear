@@ -2,7 +2,7 @@ import { createInputMask } from "@solid-primitives/input-mask";
 import dayjs from "dayjs";
 import CustomParseFormat from "dayjs/plugin/customParseFormat";
 import { createSignal } from "solid-js";
-import { handleInputFocus, handleInputKeyDown } from "../../events";
+import { handleInputFocus, handleInputKeyDown } from "../../events/index";
 import { FormComponentBase } from "../../FormType";
 import { InputContainer } from "./partials";
 

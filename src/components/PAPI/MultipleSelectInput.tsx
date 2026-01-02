@@ -1,5 +1,5 @@
 import { createMemo, createSignal, Show } from "solid-js"
-import { handleInputFocus, handleInputKeyDown } from "../../events"
+import { handleInputFocus, handleInputKeyDown } from "../../events/index"
 import { FormComponentBase, Option } from "../../FormType"
 import { findSumCombination, sum, transformCheckboxOptions } from "../../utils/helpers"
 import { useReference } from '../../stores/StoreContext'

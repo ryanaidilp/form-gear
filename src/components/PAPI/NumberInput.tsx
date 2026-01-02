@@ -1,5 +1,5 @@
 import { createSignal, Show, For, Switch, Match } from "solid-js"
-import { handleInputFocus, handleInputKeyDown } from "../../events"
+import { handleInputFocus, handleInputKeyDown } from "../../events/index"
 import { FormComponentBase } from "../../FormType"
 import { InputContainer } from "./partials"
 

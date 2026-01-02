@@ -1,7 +1,7 @@
 import { FormComponentBase } from "../FormType"
 import { For, createMemo, Switch, Match, Show, createSignal } from 'solid-js'
 import { useReference } from '../stores/StoreContext';
-import { ComponentType } from '../constants';
+import { ComponentType } from '../constants/index';
 
 const NestedInput: FormComponentBase = props => {
     const [reference] = useReference();

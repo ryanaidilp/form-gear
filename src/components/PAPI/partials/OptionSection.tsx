@@ -1,6 +1,6 @@
 import { For, Match, Switch } from "solid-js"
 import { OptionSectionBase } from "."
-import { handleInputFocus, handleInputKeyDown } from "../../../events"
+import { handleInputFocus, handleInputKeyDown } from "../../../events/index"
 
 const OptionSection: OptionSectionBase = props => {
     return (

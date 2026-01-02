@@ -32,12 +32,12 @@ import { useServices } from "./services";
 import dayjs from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
-import { ClientMode, ComponentType } from "./constants";
+import { ClientMode, ComponentType } from "./constants/index";
 import {
-    evaluateEnableCondition,
-    evaluateVariableExpression,
-    createGetRowIndex,
-    type ExpressionContext,
+  evaluateEnableCondition,
+  evaluateVariableExpression,
+  createGetRowIndex,
+  type ExpressionContext,
 } from './utils/expression';
 
 // Legacy scroll helper - keeping for now
@@ -345,7 +345,7 @@ const Form: Component<{
             && !(JSON.parse(JSON.stringify(element.index[element.index.length - 2])) == 0 && element.level > 1)) {
             _blank += 1;
           }
-          if (element.validationState != 1 && element.validationState != 2){
+          if (element.validationState != 1 && element.validationState != 2) {
             _clean += 1;
           }
         }
@@ -1290,7 +1290,7 @@ const Form: Component<{
             <div class="mobile-component-div relative h-screen md:flex md:overflow-hidden 
                         scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-gray-50 dark:scrollbar-thumb-gray-700 dark:scrollbar-track-gray-500 
                         overflow-y-scroll scrollbar-thumb-rounded-full scrollbar-track-rounded-full  "
-                        onScroll={checkScrollTopMobile} >
+              onScroll={checkScrollTopMobile} >
               {/* <div class="absolute pt-1 z-20 h-8 w-36 left-0 -ml-8 top-5 bg-teal-600/70 -rotate-45 text-white font-semibold text-center"  >&#946;eta 🤖</div> */}
 
               <Show when={getProp('clientMode') != ClientMode.PAPI}>
@@ -1509,7 +1509,7 @@ const Form: Component<{
               <div class="component-div min-h-screen flex-grow bg-white dark:bg-gray-900 z-10
                         scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-gray-50 dark:scrollbar-thumb-gray-700 dark:scrollbar-track-gray-500
                         overflow-y-visible md:overflow-y-scroll scrollbar-thumb-rounded-full scrollbar-track-rounded-full "
-                   onScroll={ checkScrollTopWeb }>
+                onScroll={checkScrollTopWeb}>
 
                 <div class="sm:px-7 sm:pt-7 px-4 pt-4 flex flex-col w-full border-b border-gray-200 bg-white dark:bg-gray-900 dark:text-white dark:border-gray-800 z-10 sticky" classList={{
                   'top-0': getConfig().clientMode !== ClientMode.PAPI,
@@ -1693,7 +1693,7 @@ const Form: Component<{
 
               </div>
 
-              <div class="grid grid-cols-6 sticky w-full justify-end bottom-4 mt-10"
+              <div class="grid grid-cols-6 sticky w-full justify-end pb-4 pt-2 bottom-0 mt-10 bg-gray-100/10 dark:bg-gray-900/70 backdrop-blur-md"
                 classList={{
                   'flex': onMobile() === true,
                   'hidden': onMobile() === false,
