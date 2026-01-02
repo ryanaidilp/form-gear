@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main, develop, 'feature/**', 'release/**', 'hotfix/**']
+    branches: [main, develop, 'release/**', 'hotfix/**']
   pull_request:
     branches: [main, develop]
 
@@ -165,7 +165,8 @@ jobs:
 
     strategy:
       matrix:
-        node-version: ['18', '20', '22']
+        # Node 18 is not supported - Vite 7 and Vitest 4 require Node 20+
+        node-version: ['20', '22']
       fail-fast: false
 
     steps:
