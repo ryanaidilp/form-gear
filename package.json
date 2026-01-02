@@ -62,20 +62,30 @@
     "dev": "vite --host",
     "build": "vite build && npm run build:types",
     "build:types": "tsc -p tsconfig.types.json && cp src/index.d.ts.template dist/index.d.ts",
-    "serve": "vite preview"
+    "serve": "vite preview",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:watch": "vitest watch",
+    "test:coverage": "vitest run --coverage",
+    "type-check": "tsc --noEmit"
   },
   "devDependencies": {
+    "@solidjs/testing-library": "^0.8.10",
     "@tailwindcss/forms": "^0.5.11",
     "@tailwindcss/postcss": "^4.1.18",
+    "@testing-library/jest-dom": "^6.9.1",
     "@types/node": "^22.19.3",
+    "@vitest/coverage-v8": "^4.0.16",
     "autoprefixer": "^10.4.7",
+    "jsdom": "^27.4.0",
     "postcss": "^8.4.13",
     "tailwind-scrollbar": "^4.0.2",
     "tailwindcss": "^4.1.18",
     "typescript": "^5.9.3",
     "vite": "^7.3.0",
     "vite-plugin-dts": "^4.5.4",
-    "vite-plugin-solid": "^2.2.6"
+    "vite-plugin-solid": "^2.2.6",
+    "vitest": "^4.0.16"
   },
   "dependencies": {
     "@solid-primitives/debounce": "^1.3.0",
