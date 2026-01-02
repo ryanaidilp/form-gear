@@ -1284,7 +1284,7 @@ const Form: Component<{
       </Show>
 
       <div class=" overflow-hidden">
-        <div class="bg-gray-50 dark:bg-gray-900 dark:text-white h-screen shadow-xl text-gray-600 flex overflow-hidden text-sm font-montserrat xl:rounded-xl dark:shadow-gray-800">
+        <div class="bg-gray-50 dark:bg-gray-900 dark:text-white h-screen shadow-xl text-gray-600 flex overflow-hidden text-sm font-sans xl:rounded-xl dark:shadow-gray-800">
           <div class="flex-grow overflow-hidden h-full flex flex-col bg-white dark:bg-gray-900 z-0" >
 
             <div class="mobile-component-div relative h-screen md:flex md:overflow-hidden 
@@ -1294,8 +1294,8 @@ const Form: Component<{
               {/* <div class="absolute pt-1 z-20 h-8 w-36 left-0 -ml-8 top-5 bg-teal-600/70 -rotate-45 text-white font-semibold text-center"  >&#946;eta 🤖</div> */}
 
               <Show when={getProp('clientMode') != ClientMode.PAPI}>
-                <div class="bg-white dark:bg-gray-900 w-72  flex-shrink-0 border-r border-gray-200 dark:border-gray-800 max-h-screen p-5 
-                  sidebar-span absolute inset-y-0 left-0 transform -translate-x-full transition-transform duration-500 ease-in-out md:relative md:translate-x-0 z-10">
+                <div class="bg-white dark:bg-gray-900 w-72  flex-shrink-0 border-r border-gray-200 dark:border-gray-800 max-h-screen p-5
+                  sidebar-span absolute inset-y-0 left-0 transform -translate-x-full transition-transform duration-500 ease-in-out md:relative md:translate-x-0 z-20">
 
                   <div class="sm:min-h-[7rem] py-3 text-gray-400 tracking-wider flex justify-between">
                     <Switch fallback={<div class="text-lg block px-4 py-3 text-gray-600 dark:text-white font-bold sm:text-xl" innerHTML={props.template.details.acronym
