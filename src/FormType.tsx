@@ -31,7 +31,20 @@ import SignatureInput from "./components/SignatureInput"
 import UnitInput from "./components/UnitInput"
 import DecimalInput from "./components/DecimalInput"
 
-import * as PAPI from "./components/PAPI"
+import {
+  TextInput as PAPITextInput,
+  SelectInput as PAPISelectInput,
+  NumberInput as PAPINumberInput,
+  TextAreaInput as PAPITextAreaInput,
+  DateInput as PAPIDateInput,
+  DateTimeLocalInput as PAPIDateTimeLocalInput,
+  RangeSliderInput as PAPIRangeSliderInput,
+  UnitInput as PAPIUnitInput,
+  CurrencyInput as PAPICurrencyInput,
+  MaskingInput as PAPIMaskingInput,
+  MultipleSelectInput as PAPIMultipleSelectInput,
+  PhotoInput as PAPIPhotoInput
+} from "./components/PAPI/index"
 
 export enum ControlType {
   Section = 1,
@@ -248,34 +261,34 @@ export const OPTION_INPUT_CONTROL = [
 
 export const CONTROL_MAP_PAPI = new Map<ControlType, FormComponentBase>([
   [ControlType.NestedInput, NestedInput],
-  [ControlType.TextInput, PAPI.TextInput],
-  [ControlType.RadioInput, PAPI.SelectInput],
-  [ControlType.SelectInput, PAPI.SelectInput],
-  [ControlType.NumberInput, PAPI.NumberInput],
-  [ControlType.CheckboxInput, PAPI.MultipleSelectInput],
-  [ControlType.TextAreaInput, PAPI.TextAreaInput],
+  [ControlType.TextInput, PAPITextInput],
+  [ControlType.RadioInput, PAPISelectInput],
+  [ControlType.SelectInput, PAPISelectInput],
+  [ControlType.NumberInput, PAPINumberInput],
+  [ControlType.CheckboxInput, PAPIMultipleSelectInput],
+  [ControlType.TextAreaInput, PAPITextAreaInput],
   [ControlType.EmailInput, EmailInput],
   [ControlType.UrlInput, UrlInput],
-  [ControlType.DateInput, PAPI.DateInput],
-  [ControlType.DateTimeLocalInput, PAPI.DateTimeLocalInput],
+  [ControlType.DateInput, PAPIDateInput],
+  [ControlType.DateTimeLocalInput, PAPIDateTimeLocalInput],
   [ControlType.TimeInput, TimeInput],
   [ControlType.MonthInput, MonthInput],
   [ControlType.WeekInput, WeekInput],
   [ControlType.SingleCheckInput, SingleCheckInput],
   [ControlType.ToggleInput, ToggleInput],
-  [ControlType.RangeSliderInput, PAPI.RangeSliderInput],
+  [ControlType.RangeSliderInput, PAPIRangeSliderInput],
   [ControlType.InnerHTML, InnerHTML],
-  [ControlType.CurrencyInput, PAPI.CurrencyInput],
+  [ControlType.CurrencyInput, PAPICurrencyInput],
   [ControlType.ListTextInputRepeat, ListTextInputRepeat],
   [ControlType.ListSelectInputRepeat, ListSelectInputRepeat],
-  [ControlType.MultipleSelectInput, PAPI.MultipleSelectInput],
-  [ControlType.MaskingInput, PAPI.MaskingInput],
+  [ControlType.MultipleSelectInput, PAPIMultipleSelectInput],
+  [ControlType.MaskingInput, PAPIMaskingInput],
   [ControlType.VariableInput, VariableInput],
-  [ControlType.PhotoInput, PAPI.PhotoInput],
+  [ControlType.PhotoInput, PAPIPhotoInput],
   [ControlType.GpsInput, GpsInput],
   [ControlType.CsvInput, CsvInput],
   [ControlType.NowInput, NowInput],
   [ControlType.SignatureInput, SignatureInput],
-  [ControlType.UnitInput, PAPI.UnitInput],
+  [ControlType.UnitInput, PAPIUnitInput],
   [ControlType.DecimalInput, DecimalInput]
 ]);
