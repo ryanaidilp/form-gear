@@ -1,4 +1,4 @@
-import { ClientMode } from "../constants/index"
+import { ClientMode } from "../core/constants"
 import { scrollCenterInput } from "../utils/helpers"
 
 /**

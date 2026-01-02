@@ -32,7 +32,7 @@ import { useServices } from "./services";
 import dayjs from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
-import { ClientMode, ComponentType } from "./constants/index";
+import { ClientMode, ComponentType } from "./core/constants";
 import {
   evaluateEnableCondition,
   evaluateVariableExpression,

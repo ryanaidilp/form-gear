@@ -1,5 +1,6 @@
 import { createMemo, createSignal, Show } from "solid-js";
-import { handleInputFocus, handleInputKeyDown } from "../../events/index";
+import { handleInputFocus } from "../../events/Focus";
+import { handleInputKeyDown } from "../../events/KeyDown";
 import { FormComponentBase, Option } from "../../FormType";
 import { useReference } from '../../stores/StoreContext';
 import { InputContainer, OptionSection } from "./partials";
