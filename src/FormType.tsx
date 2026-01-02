@@ -31,20 +31,18 @@ import SignatureInput from "./components/SignatureInput"
 import UnitInput from "./components/UnitInput"
 import DecimalInput from "./components/DecimalInput"
 
-import {
-  TextInput as PAPITextInput,
-  SelectInput as PAPISelectInput,
-  NumberInput as PAPINumberInput,
-  TextAreaInput as PAPITextAreaInput,
-  DateInput as PAPIDateInput,
-  DateTimeLocalInput as PAPIDateTimeLocalInput,
-  RangeSliderInput as PAPIRangeSliderInput,
-  UnitInput as PAPIUnitInput,
-  CurrencyInput as PAPICurrencyInput,
-  MaskingInput as PAPIMaskingInput,
-  MultipleSelectInput as PAPIMultipleSelectInput,
-  PhotoInput as PAPIPhotoInput
-} from "./components/PAPI/index"
+import PAPITextInput from "./components/PAPI/TextInput"
+import PAPISelectInput from "./components/PAPI/SelectInput"
+import PAPINumberInput from "./components/PAPI/NumberInput"
+import PAPITextAreaInput from "./components/PAPI/TextAreaInput"
+import PAPIDateInput from "./components/PAPI/DateInput"
+import PAPIDateTimeLocalInput from "./components/PAPI/DateTimeLocalInput"
+import PAPIRangeSliderInput from "./components/PAPI/RangeSliderInput"
+import PAPIUnitInput from "./components/PAPI/UnitInput"
+import PAPICurrencyInput from "./components/PAPI/CurrencyInput"
+import PAPIMaskingInput from "./components/PAPI/MaskingInput"
+import PAPIMultipleSelectInput from "./components/PAPI/MultipleSelectInput"
+import PAPIPhotoInput from "./components/PAPI/PhotoInput"
 
 export enum ControlType {
   Section = 1,
