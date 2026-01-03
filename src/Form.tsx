@@ -626,27 +626,10 @@ const Form: Component<FormProps> = props => {
     setCaptcha(captchaStr.join(""));
   };
 
-  const confirmSave = (event: MouseEvent) => {
+  const confirmSave = (_event: MouseEvent) => {
     setLoader({});
     setTimeout(() => services.enable.updateDisabledSectionsCache(), 50);
     writeResponse();
-
-    if (summary.error > 0) {
-      showListError(event);
-      return;
-    }
-
-    const warningCount = reference.details.filter(element => Number(element.validationState) === 1).length;
-    if (warningCount > 0) {
-      showListError(event);
-      return;
-    }
-
-    if (summary.blank > 0) {
-      showListBlank(event);
-      return;
-    }
-
     toastSuccess('Data saved', 1500);
   };
 

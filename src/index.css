@@ -12,6 +12,18 @@
 
 @theme {
     --font-sans: 'Montserrat', ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    /* Set default border color to gray-200 for Tailwind v4 compatibility */
+    /* In v4, border utilities use currentColor by default instead of gray */
+    --default-border-color: #e5e7eb;
+}
+
+/* Reset border color to gray for elements using border utilities without explicit color */
+/* This maintains Tailwind v3 behavior where borders were gray by default */
+.border,
+.border-2,
+.border-4,
+.border-8 {
+    border-color: var(--default-border-color, #e5e7eb);
 }
 
 

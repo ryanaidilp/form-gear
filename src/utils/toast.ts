@@ -55,6 +55,8 @@ const TOAST_PRESETS: Record<ToastType, Partial<ToastOptions>> = {
   warning: {
     className: 'bg-yellow-600/80',
     duration: 4000,
+    gravity: 'top',
+    position: 'right',
     style: { background: 'rgba(202, 138, 4, 0.8)' }, // yellow-600/80
   },
   error: {
