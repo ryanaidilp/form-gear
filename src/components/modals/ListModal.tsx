@@ -175,26 +175,37 @@ const Pagination: Component<{
 
   return (
     <Show when={hasMultiplePages()}>
-      <div class="flex justify-start items-center text-center font-light px-3 pb-3">
-        <Show when={!isFirstPage()}>
-          <button
-            type="button"
-            class="w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-light text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm"
-            onClick={() => props.onPageChange(props.currentPage - 1)}
-          >
-            Prev
-          </button>
-        </Show>
-        <div class="text-center px-4 text-xs">{props.currentPage} / {props.maxPage}</div>
-        <Show when={!isLastPage()}>
-          <button
-            type="button"
-            class="w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-light text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm"
-            onClick={() => props.onPageChange(props.currentPage + 1)}
-          >
-            Next
-          </button>
-        </Show>
+      <div class="flex justify-center items-center gap-2 py-3 border-t border-gray-100">
+        {/* Prev Button */}
+        <button
+          type="button"
+          class="inline-flex items-center justify-center w-8 h-8 rounded-full text-gray-500 hover:bg-gray-100 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-500 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent transition-all duration-200"
+          onClick={() => props.onPageChange(props.currentPage - 1)}
+          disabled={isFirstPage()}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+          </svg>
+        </button>
+
+        {/* Page Indicator */}
+        <div class="flex items-center gap-1 px-3 py-1 text-sm text-gray-600 font-medium">
+          <span class="text-gray-900">{props.currentPage}</span>
+          <span class="text-gray-400">/</span>
+          <span class="text-gray-500">{props.maxPage}</span>
+        </div>
+
+        {/* Next Button */}
+        <button
+          type="button"
+          class="inline-flex items-center justify-center w-8 h-8 rounded-full text-gray-500 hover:bg-gray-100 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-indigo-500 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent transition-all duration-200"
+          onClick={() => props.onPageChange(props.currentPage + 1)}
+          disabled={isLastPage()}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+          </svg>
+        </button>
       </div>
     </Show>
   );
