@@ -7,6 +7,11 @@ export default defineConfig({
   define: {
     __FORM_GEAR_VERSION__: JSON.stringify(packageJson.version),
   },
+  // Esbuild options for minification
+  esbuild: {
+    drop: ['console', 'debugger'],
+    legalComments: 'none',
+  },
   plugins: [
     solidPlugin(),
     // Note: Type declarations are manually maintained in src/types/index.ts
@@ -31,8 +36,10 @@ export default defineConfig({
     },
     // Generate sourcemaps for debugging
     sourcemap: true,
-    // Use esbuild for minification (built-in, fast)
+    // Use esbuild for fast minification
     minify: 'esbuild',
+    // Minify CSS
+    cssMinify: 'esbuild',
     // Target ES2015 for better mobile WebView compatibility
     // (iOS Safari 10+, Android WebView 51+)
     target: 'es2015',

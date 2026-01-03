@@ -129,3 +129,42 @@ export type {
   ParsedDataKey,
   ComponentDependencyMaps,
 } from './reference';
+
+// =============================================================================
+// Device Detection
+// =============================================================================
+
+export {
+  isMobileDevice,
+  isMobileViewport,
+  isMobileOrSmallScreen,
+  isTouchDevice,
+} from './device';
+
+// =============================================================================
+// Navigation Utilities
+// =============================================================================
+
+export {
+  getScrollContainer,
+  resetScrollPosition,
+  scrollToComponent,
+  navigateToComponent,
+  findSidebarIndex,
+  getEnabledSectionsBefore,
+  getEnabledSectionsAfter,
+  hasPreviousSection,
+  hasNextSection,
+} from './navigation';
+
+export type { ScrollConfig, ActiveComponentData } from './navigation';
+
+// =============================================================================
+// Animation Utilities
+// =============================================================================
+
+export {
+  closeModalWithAnimation,
+  closeAllModalsWithAnimation,
+  ModalClasses,
+} from './animations';

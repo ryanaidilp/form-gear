@@ -299,6 +299,8 @@ const FormInput: FormComponentBase = props => {
 
   return (
     <div>
+      {/* Scroll target - placed at top so scrollIntoView shows the full component including label */}
+      <div id={props.component.dataKey + '___scrollView'} />
 
       <Show when={(loading())}>
         <div class="modal-loading fixed z-10 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
@@ -382,8 +384,6 @@ const FormInput: FormComponentBase = props => {
           </div>
         </div>
       </Show>
-
-      <div id={props.component.dataKey + '___scrollView'} />
 
       <Switch>
         <For each={Array.from(controlMap.keys())}>
