@@ -36,7 +36,7 @@ const MaskingInput: FormComponentBase = props => {
         placeholder={props.component.maskingFormat.replace(/[a]/g, '__').replace(/[9]/g, '#')}
         disabled={disableInput()}
         onChange={(e) => handleOnChange(e.currentTarget.value)}
-        onclick={formatMask} oninput={formatMask} onpaste={formatMask}
+        onclick={() => formatMask({ currentTarget: inputMask.ref } as any)} oninput={formatMask} onpaste={() => formatMask({ currentTarget: inputMask.ref } as any)}
       />
     </InputContainer>
   )

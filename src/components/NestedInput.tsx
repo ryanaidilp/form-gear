@@ -1,9 +1,10 @@
 import { FormComponentBase } from "../FormType"
 import { For, createMemo, Switch, Match, Show, createSignal } from 'solid-js'
-import { reference, setReference } from '../stores/ReferenceStore';
+import { useReference } from '../stores/StoreContext';
+import { ComponentType } from '../core/constants';
 
 const NestedInput: FormComponentBase = props => {
-
+    const [reference] = useReference();
     const config = props.config	
     const [btnLabel] = createSignal((config.formMode > 1 ) ? 'VIEW' : 'ENTRY')
 
@@ -12,22 +13,28 @@ const NestedInput: FormComponentBase = props => {
 	})
 
 	let sourceAnswer = createMemo(() => {
-		let answer = [];
+		let answer: any[] = [];
 		if(props.component.sourceQuestion !== ''){
 			const componentAnswerIndex = reference.details.findIndex(obj => obj.dataKey === props.component.sourceQuestion);
-			if(reference.details[componentAnswerIndex]){
-				if(typeof reference.details[componentAnswerIndex].answer === 'object'){
-					answer = reference.details[componentAnswerIndex].answer == '' ? [] : reference.details[componentAnswerIndex].answer;
-					if(reference.details[componentAnswerIndex].type == 21 || reference.details[componentAnswerIndex].type == 22){
+			if(componentAnswerIndex !== -1 && reference.details[componentAnswerIndex]){
+				if(typeof reference.details[componentAnswerIndex].answer === 'object' && reference.details[componentAnswerIndex].answer !== null){
+					const rawAnswer = reference.details[componentAnswerIndex].answer as any[];
+					answer = (rawAnswer == null || (rawAnswer as any) === '') ? [] : rawAnswer;
+					if(reference.details[componentAnswerIndex].type === ComponentType.LIST_TEXT_REPEAT || reference.details[componentAnswerIndex].type === ComponentType.LIST_SELECT_REPEAT){
 						let tmpAnswer = JSON.parse(JSON.stringify(answer));
 						tmpAnswer.splice(0,1);
 						answer = tmpAnswer;
 					}
+					// Ensure each item has a label
+					answer = answer.map((item: any) => ({
+						...item,
+						label: item.label ?? item.value ?? ''
+					}));
 				} else {
-					answer = reference.details[componentAnswerIndex].answer == '' ? 0 : reference.details[componentAnswerIndex].answer;
+					const numAnswer = reference.details[componentAnswerIndex].answer == '' ? 0 : reference.details[componentAnswerIndex].answer;
 					let dummyArrayAnswer = [];
-					for(let i=1; i <= Number(answer); i++){
-						dummyArrayAnswer.push({value:i,label:i});
+					for(let i=1; i <= Number(numAnswer); i++){
+						dummyArrayAnswer.push({value:i,label:String(i)});
 					}
 					answer = dummyArrayAnswer;
 				}
@@ -58,7 +65,7 @@ const NestedInput: FormComponentBase = props => {
 							<div class="grid grid-cols-12 " onClick={e => handleOnClick(item.value)}>
 								<div class="col-span-10 mr-2 ">
 									<Switch>											
-										<Match when={(reference.details[componentAnswerIndex()].type === 28  || (reference.details[componentAnswerIndex()].type === 4 && reference.details[componentAnswerIndex()].renderType === 1) || reference.details[componentAnswerIndex()].type === 25)}>
+										<Match when={(reference.details[componentAnswerIndex()].type === ComponentType.NUMBER  || (reference.details[componentAnswerIndex()].type === ComponentType.VARIABLE && reference.details[componentAnswerIndex()].renderType === 1) || reference.details[componentAnswerIndex()].type === ComponentType.TEXT)}>
 											<input type="text" value={props.component.label + '  ____ # ' + item.label }
 												class="w-full
 													font-light
@@ -103,7 +110,7 @@ const NestedInput: FormComponentBase = props => {
 								<div class="col-span-2 -ml-12 space-x-1 flex justify-evenly -z-0">
 									<button class="bg-blue-800 hover:bg-blue-700 text-white text-justify justify-center text-xs w-full py-2 rounded-tl-none rounded-full focus:outline-none group inline-flex items-center" 
 										onClick={e => handleOnClick(item.value)} id={`nestedButton-${props.component.dataKey}-${index()}`}>
-										&nbsp;&nbsp;{btnLabel}
+										&nbsp;&nbsp;{btnLabel()}
 										<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-5" viewBox="0 0 20 20" fill="currentColor">
 											<path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
 										</svg>

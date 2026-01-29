@@ -38,7 +38,7 @@ const TextInput: FormComponentBase = props => {
           minlength={props.component.lengthInput[0].minlength !== undefined ? props.component.lengthInput[0].minlength : ''}
         />
       </Show>
-      <Show when={props.validationMessage.length > 0}>
+      <Show when={props.validationMessage?.length > 0}>
         <For each={props.validationMessage}>
           {(item: any) => (
             <div

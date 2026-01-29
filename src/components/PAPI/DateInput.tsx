@@ -2,7 +2,8 @@ import { createInputMask } from "@solid-primitives/input-mask"
 import dayjs from "dayjs"
 import CustomParseFormat from "dayjs/plugin/customParseFormat"
 import { createSignal } from "solid-js"
-import { handleInputFocus, handleInputKeyDown } from "../../events"
+import { handleInputFocus } from "../../events/Focus"
+import { handleInputKeyDown } from "../../events/KeyDown"
 import { FormComponentBase } from "../../FormType"
 import { InputContainer } from "./partials"
 
@@ -44,7 +45,7 @@ const DateInput: FormComponentBase = props => {
         onKeyDown={(e) => handleInputKeyDown(e, props)}
         onFocus={(e) => handleInputFocus(e, props)}
         onChange={(e) => handleOnChange(e.currentTarget.value)}
-        onclick={formatMask} oninput={formatMask} onpaste={formatMask}
+        onclick={() => formatMask({ currentTarget: inputMask.ref } as any)} oninput={formatMask} onpaste={() => formatMask({ currentTarget: inputMask.ref } as any)}
       />
     </InputContainer>
   )

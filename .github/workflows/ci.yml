@@ -1,0 +1,186 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop, 'release/**', 'hotfix/**']
+  pull_request:
+    branches: [main, develop]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint-and-typecheck:
+    name: Lint & Type Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npm run type-check
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    needs: lint-and-typecheck
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests with coverage
+        run: npm run test:coverage
+
+      - name: Extract coverage data
+        id: coverage
+        run: |
+          if [ -f coverage/coverage-summary.json ]; then
+            LINES=$(jq -r '.total.lines.pct' coverage/coverage-summary.json)
+            BRANCHES=$(jq -r '.total.branches.pct' coverage/coverage-summary.json)
+            FUNCTIONS=$(jq -r '.total.functions.pct' coverage/coverage-summary.json)
+            STATEMENTS=$(jq -r '.total.statements.pct' coverage/coverage-summary.json)
+          else
+            LINES="N/A"
+            BRANCHES="N/A"
+            FUNCTIONS="N/A"
+            STATEMENTS="N/A"
+          fi
+
+          echo "lines=$LINES" >> $GITHUB_OUTPUT
+          echo "branches=$BRANCHES" >> $GITHUB_OUTPUT
+          echo "functions=$FUNCTIONS" >> $GITHUB_OUTPUT
+          echo "statements=$STATEMENTS" >> $GITHUB_OUTPUT
+
+      - name: Post coverage comment on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const lines = '${{ steps.coverage.outputs.lines }}';
+            const branches = '${{ steps.coverage.outputs.branches }}';
+            const functions = '${{ steps.coverage.outputs.functions }}';
+            const statements = '${{ steps.coverage.outputs.statements }}';
+
+            const getEmoji = (pct) => {
+              const num = parseFloat(pct);
+              if (isNaN(num)) return '❓';
+              if (num >= 80) return '✅';
+              if (num >= 60) return '🟡';
+              return '🔴';
+            };
+
+            const body = `## 📊 Test Coverage Report
+
+            | Metric | Coverage | Status |
+            |--------|----------|--------|
+            | Lines | ${lines}% | ${getEmoji(lines)} |
+            | Branches | ${branches}% | ${getEmoji(branches)} |
+            | Functions | ${functions}% | ${getEmoji(functions)} |
+            | Statements | ${statements}% | ${getEmoji(statements)} |
+
+            > Coverage thresholds: 🔴 < 60% | 🟡 60-79% | ✅ >= 80%
+            `;
+
+            // Find existing comment
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const botComment = comments.find(comment =>
+              comment.user.type === 'Bot' &&
+              comment.body.includes('📊 Test Coverage Report')
+            );
+
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: body,
+              });
+            }
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build library
+        run: npm run build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+          retention-days: 7
+
+  test-matrix:
+    name: Test on Node ${{ matrix.node-version }}
+    runs-on: ubuntu-latest
+    needs: lint-and-typecheck
+
+    strategy:
+      matrix:
+        # Node 18 is not supported - Vite 7 and Vitest 4 require Node 20+
+        node-version: ['20', '22']
+      fail-fast: false
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm run test:run

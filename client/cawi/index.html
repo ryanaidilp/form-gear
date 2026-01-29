@@ -118,231 +118,257 @@
   
   <div id="FormGear-root"></div>
 
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script type="module">
-      // import { FormGear } from 'https://unpkg.com/form-gear/dist/form-gear.es.js'
-      import { FormGear } from './data/form-gear.es.js'
-      let config = {
-        clientMode: 1, // 1 => CAWI ; 2 => CAPI ;
-        token: ``,
-        baseUrl : ``,
-        lookupKey: `keys`,
-        lookupValue: `values`,
-        lookupMode : 1, // 1 => ONLINE ; 2 => OFFLINE
-        username: 'adty',
-        formMode: 1, // 1 => OPEN ; 2 => REVIEW ; 3 => CLOSE ;
-        initialMode: 2 // 1=> INITIAL ; 2 => ASSIGN
-      }
+    /**
+     * FormGear 2.0 CAWI Client Example
+     * Web-based form (Computer-Assisted Web Interviewing)
+     */
+    import {
+      createFormGear,
+      ClientMode,
+      FormMode,
+      InitialMode,
+      LookupMode
+    } from './data/form-gear.es.js'
 
-      var cameraFunction = null;
-      var cameraGPSFunction = null;
+    // Form state variables
+    let formInstance = null;
+    let responseGear = null;
+    let mediaGear = null;
+    let remarkGear = null;
+    let principalGear = null;
+    let referenceGear = null;
 
-      var responseGear = null;
-      var mediaGear = null;
-      var remarkGear = null;
-      var principalGear = null;
-      var referenceGear = null;
+    // =============================================================================
+    // WEB HANDLERS (CAWI Mode)
+    // =============================================================================
 
-      function openCamera() {
-          // window.MyHandler.action("CAMERA", "", "", "");
-          // console.log('open camera');
-      }
+    /**
+     * Upload handler - uses HTML5 file input
+     */
+    const uploadHandler = (setValue) => {
+      console.log('Web upload handler triggered');
 
-      function openCameraGPS(needPhoto) {
-        var isNeedPhoto = false
-        if (needPhoto !== null && needPhoto !== undefined)
-          isNeedPhoto = needPhoto
-        console.log("new-capi: open-camera-gps " + isNeedPhoto.toString())
-        let result = '{"coordinat":{"long":106.8924928,"lat":-6.2488576},"remark":"Akurasi dalam rentang yang tepat","accuracy":17.884000778198242}'
+      // Create hidden file input
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*';
 
-        resultCameraGPS(result);
-
-        // window.MyHandler.action("CAMERA_GPS", "", isNeedPhoto.toString(), "");
-      }
-
-      function result(action, result, customData) {
-        if (action == "GET_LOC") {
-          resultGps(result);
-        } else if (action == "CAMERA") {
-          resultCamera(result);
-        } else if (action == "CAMERA_GPS") {
-          resultCameraGPS(result);
-        } else if (action == "SIGNATURE") {
-          resultSignature(result);
-        } else if (action == "BARCODE") {
-          resultBarcode(result);
-        } else if (action == "AUDIO") {
-          resultAudio(result);
-        } else if (action == "GET_ANSWER") {
-          resultAnswer(result, customData);
-        } else if (action == "LOOKUP") {
-          resultAnswer(result, customData);
+      input.onchange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            setValue(event.target.result);
+          };
+          reader.readAsDataURL(file);
         }
+      };
+
+      input.click();
+    };
+
+    /**
+     * GPS handler - uses HTML5 Geolocation API
+     */
+    const gpsHandler = (setter, needPhoto = false) => {
+      console.log('Web GPS handler triggered');
+
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const result = {
+              coordinat: {
+                lat: position.coords.latitude,
+                long: position.coords.longitude
+              },
+              latitude: position.coords.latitude,
+              longitude: position.coords.longitude,
+              accuracy: position.coords.accuracy,
+              remark: `Accuracy: ${position.coords.accuracy.toFixed(2)}m`
+            };
+            setter(result, result.remark);
+          },
+          (error) => {
+            console.error('Geolocation error:', error);
+            // Mock data for testing
+            const mockResult = {
+              coordinat: { long: 106.8924928, lat: -6.2488576 },
+              latitude: -6.2488576,
+              longitude: 106.8924928,
+              accuracy: 17.88,
+              remark: 'Accuracy within acceptable range (mock data)'
+            };
+            setter(mockResult, mockResult.remark);
+          }
+        );
+      } else {
+        console.error('Geolocation not supported');
       }
+    };
 
-      function resultCamera(result) {
-        // console.log('camera_result : ' + result);
-        if (cameraFunction != null) {
-          console.log('camera_result_funcion : not null');
-          cameraFunction(result);
-        } else {
-          console.log('camera_result_funcion : null');
-        }
-      }
+    /**
+     * Offline search handler - uses fetch API
+     */
+    const offlineSearch = (id, version, dataJson, setter) => {
+      console.log('Offline search:', id, version);
+      const condition = JSON.stringify(dataJson);
 
-      function resultCameraGPS(result) {
-        // console.log('gps-results: ' + result);
-        const obj = JSON.parse(result);
-        var remark = obj.remark;
-        cameraGPSFunction(obj, remark);
-      }
-
-      let uploadHandler = function(setValue) {
-          // console.log('camera handler', setValue  );
-          cameraFunction = setValue;
-          openCamera();
-      }
-
-      let offlineSearch = function (id, version, dataJson, setter) {
-        console.log("coba lookup");
-        // let id = '1174c3bf-9ffa-4a43-9649-75f4cf3b706b';
-        // let version = 'v1';
-        // const dataJson = [
-        //                   {"key" : "kdprov",
-        //                   "value" : "11"},
-        //                   {"key" : "kdprov",
-        //                   "value" : "12"}
-                          
-        let condition = JSON.stringify(dataJson)
-
-        console.log('kondisinnya : ' , condition);
-
-        $.ajax({
-            url: `http://localhost:9090/lookup?id=${id}&v=${version}&c=${condition}`,
-                    type: "GET",
-                    crossDomain: true,
-                    dataType: "json",
-                    data: null,
-                success: function(d) {
-                    console.log(d.hasil)
-                    setter(d)
-
-                },
-                error: function(XMLHttpRequest, textStatus, errorThrown) {
-
-                }
-            });
-
-      }
-
-      let GpsHandler = function(setter, isPhoto) {
-          console.log('camera handler', setter);
-          isPhoto = false,
-          cameraGPSFunction = setter;
-          openCameraGPS(isPhoto);
-      }
-
-      const setBearer = () => {
-        return ({
-            method: 'GET',
-            headers: {
-                "Content-Type": "application/json"
-            }
+      fetch(`http://localhost:9090/lookup?id=${id}&v=${version}&c=${condition}`)
+        .then(res => res.json())
+        .then(data => {
+          console.log('Lookup result:', data);
+          setter(data);
         })
+        .catch(err => console.error('Lookup error:', err));
+    };
+
+    /**
+     * Online search handler
+     */
+    const onlineSearch = async (url) => {
+      try {
+        const res = await fetch(url, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' }
+        });
+
+        if (res.ok) {
+          return await res.json();
+        } else {
+          return { success: false, data: {}, message: res.status };
+        }
+      } catch (error) {
+        return { success: false, data: {}, message: '500' };
       }
+    };
 
-    let getResponseCawi = (fun) => {
-      // fun()
-    }
+    /**
+     * Exit handler - no-op for web
+     */
+    const exitHandler = (callback) => {
+      if (callback) callback();
+    };
 
-    // pencarian online
-    let onlineSearch = async (url) =>
-      (await fetch(url, setBearer())
-        .catch((error) => {
-          return {
-            success: false,
-            data: {},
-            message: '500'
-          }
-        }).then((res) => {
-          /*the return format must in object of 
-            {
-              success: false,
-              data: {}, --> the data property must in format array of object [{key: {key}, value : {value}}, ...]
-              message: status (200, 400 ,500 , etc )
-            }
-          }*/
-          if (res.status === 200) {
-            let temp = res.json();
-            return temp;
-          } else {
-            return {
-              success: false,
-              data: {},
-              message: res.status
-            }
-          }
-          }).then((res) => {
-          return res;
-      }));
+    /**
+     * Open map handler - opens Google Maps in new tab
+     */
+    const openMap = (koordinat) => {
+      const lat = koordinat.lat || koordinat.latitude;
+      const lng = koordinat.long || koordinat.longitude;
+      window.open(`https://www.google.com/maps?q=${lat},${lng}`, '_blank');
+    };
 
-      let setResponseMobile = function (res, med, rem, princ, ref) {
-        responseGear = res
-        mediaGear = med
-        remarkGear = rem
-        principalGear = princ
-        referenceGear = ref
+    /**
+     * Save response handler
+     */
+    const onSave = (res, med, rem, princ, ref) => {
+      responseGear = res;
+      mediaGear = med;
+      remarkGear = rem;
+      principalGear = princ;
+      referenceGear = ref;
 
-        console.log('----------', new Date(), '----------');
+      console.log('----------', new Date(), '----------');
+      console.log('Save - response:', responseGear);
+      console.log('Save - media:', mediaGear);
+      console.log('Save - remark:', remarkGear);
+      console.log('Save - principal:', principalGear);
+      console.log('Save - reference:', referenceGear);
 
-        console.log('response', responseGear)
-        console.log('media', mediaGear)
-        console.log('remark', remarkGear)
-        console.log('principal', principalGear)
-        console.log('reference', referenceGear)
-      }
+      // Save to localStorage for persistence
+      localStorage.setItem('formGear_response', JSON.stringify(responseGear));
+      localStorage.setItem('formGear_media', JSON.stringify(mediaGear));
+    };
 
-      let setSubmitMobile = function (res, med, rem, princ, ref) {
-        responseGear = res
-        mediaGear = med
-        remarkGear = rem
-        principalGear = princ
-        referenceGear = ref
+    /**
+     * Submit response handler
+     */
+    const onSubmit = (res, med, rem, princ, ref) => {
+      responseGear = res;
+      mediaGear = med;
+      remarkGear = rem;
+      principalGear = princ;
+      referenceGear = ref;
 
-        console.log('----------', new Date(), '----------');
+      console.log('----------', new Date(), '----------');
+      console.log('Submit - response:', responseGear);
+      console.log('Submit - media:', mediaGear);
+      console.log('Submit - remark:', remarkGear);
+      console.log('Submit - principal:', principalGear);
+      console.log('Submit - reference:', referenceGear);
 
-        console.log('response', responseGear)
-        console.log('media', mediaGear)
-        console.log('remark', remarkGear)
-        console.log('principal', principalGear)
-        console.log('reference', referenceGear)
-      }
+      // Here you would typically send to your backend API
+      alert('Form submitted! Check console for data.');
+    };
 
-      let openMap = function(koordinat) {
-        koordinat = koordinat
+    // =============================================================================
+    // FORM INITIALIZATION
+    // =============================================================================
 
-        // console.log('hasilny adalah : ', koordinat)
-      }
+    const loadFormData = async () => {
+      const [reference, template, preset, response, validation, media, remark] = await Promise.all([
+        fetch('./data/reference.json').then(res => res.json()).catch(() => ({})),
+        fetch('./data/template.json').then(res => res.json()).catch(() => ({})),
+        fetch('./data/preset.json').then(res => res.json()).catch(() => ({})),
+        fetch('./data/response.json').then(res => res.json()).catch(() => ({})),
+        fetch('./data/validation.json').then(res => res.json()).catch(() => ({})),
+        fetch('./data/media.json').then(res => res.json()).catch(() => ({})),
+        fetch('./data/remark.json').then(res => res.json()).catch(() => ({}))
+      ]);
 
-      const data = Promise.all([
-                      fetch("./data/reference.json").then((res) => res.json()).catch((error) => {return {}}) || [],
-                      fetch("./data/template.json").then((res) => res.json()).catch((error) => {return {}}) || [],
-                      fetch("./data/preset.json").then((res) => res.json()).catch((error) => {return {}}) || [],
-                      fetch("./data/response.json").then((res) => res.json()).catch((error) => {return {}}) || [],
-                      fetch("./data/validation.json").then((res) => res.json()).catch((error) => {return {}}) || [],
-                      fetch("./data/media.json").then((res) => res.json()).catch((error) => {return {}}) || [],
-                      fetch("./data/remark.json").then((res) => res.json()).catch((error) => {return {}}) || []
-                    ]);
+      return { reference, template, preset, response, validation, media, remark };
+    };
 
-      data.then(([reference, template, preset, response, validation, media, remark]) => initForm(reference, template, preset, response, validation, media, remark));
+    const initForm = async () => {
+      const { reference, template, preset, response, validation, media, remark } = await loadFormData();
 
-      function initForm(reference, template, preset, response, validation, media, remark){
+      // Create form using new API
+      formInstance = createFormGear({
+        data: {
+          reference,
+          template,
+          preset,
+          response,
+          validation,
+          media,
+          remark
+        },
+        config: {
+          clientMode: ClientMode.CAWI,
+          formMode: FormMode.OPEN,
+          initialMode: InitialMode.ASSIGN,
+          lookupMode: LookupMode.ONLINE,
+          username: 'adty',
+          token: '',
+          baseUrl: '',
+          lookupKey: 'keys',
+          lookupValue: 'values'
+        },
+        mobileHandlers: {
+          uploadHandler,
+          gpsHandler,
+          offlineSearch,
+          onlineSearch,
+          exitHandler,
+          openMap
+        },
+        callbacks: {
+          onSave,
+          onSubmit
+        }
+      });
 
-        let form = new FormGear(reference, template, preset, response, validation, media, remark, config, uploadHandler, GpsHandler, offlineSearch, onlineSearch, getResponseCawi, setResponseMobile, setSubmitMobile, openMap);
+      console.log('FormGear 2.0 CAWI initialized');
 
-        return form;
-      }
-    </script>
+      // Expose form instance globally for debugging
+      window.formGear = formInstance;
+    };
+
+    // Initialize form
+    initForm();
+
+  </script>
 </body>
 
 </html>

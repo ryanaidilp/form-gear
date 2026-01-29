@@ -126,243 +126,371 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <script type="module">
-  //formgear_js
-  // import { FormGear } from 'https://unpkg.com/form-gear/dist/form-gear.es.js'
-  import { FormGear } from './data/form-gear.es.js'
+  /**
+   * FormGear 2.0 CAPI Client Example
+   * Supports: Android, iOS, Flutter WebViews
+   */
+  import {
+    createFormGear,
+    createBridge,
+    detectPlatform,
+    ClientMode,
+    FormMode,
+    InitialMode,
+    LookupMode
+  } from './data/form-gear.es.js'
 
-  let config = {
-    clientMode : 2,
-    token : ``,
-    baseUrl : ``,
-    lookupKey: `keys`,
-    lookupValue: `values`,  
-    lookupMode : 2, // 1 => ONLINE ; 2 => OFFLINE
-    // username : Android.getUserName(),
-    username : 'styd',
-    formMode: 1, // 1 => OPEN ; 2 => REVIEW ; 3 => CLOSE ;
-    initialMode: 2 // 1=> INITIAL ; 2 => ASSIGN
-  }
+  // Detect platform
+  const platformInfo = detectPlatform();
+  console.log(`Platform: ${platformInfo.platform} (${platformInfo.confidence})`);
 
-  var responseGear = null;
-  var mediaGear = null;
-  var remarkGear = null;
-  var principalGear = null;
-  var referenceGear = null;
+  // Create native bridge for platform communication
+  const bridge = createBridge({ debug: true });
 
-  function openCamera() {
-      window.Android.action("CAMERA", "", "", "");
-      console.log('open camera');
-  }
+  // Form state variables
+  let formInstance = null;
+  let responseGear = null;
+  let mediaGear = null;
+  let remarkGear = null;
+  let principalGear = null;
+  let referenceGear = null;
 
-  function openCameraGPS(needPhoto) {
-    var isNeedPhoto = false
-    if (needPhoto !== null && needPhoto !== undefined)
-      isNeedPhoto = needPhoto
-    console.log("new-capi: open-camera-gps " + isNeedPhoto.toString())
+  // =============================================================================
+  // PLATFORM-AGNOSTIC HANDLERS
+  // =============================================================================
 
-    window.Android.action("CAMERA_GPS", "", isNeedPhoto.toString(), "");
-  }
+  /**
+   * Upload handler - works across Android, iOS, Flutter
+   */
+  const uploadHandler = (setValue) => {
+    console.log('Upload handler triggered');
+    window.cameraFunction = setValue;
 
-  let uploadHandler = function(setValue) {
-        console.log('camera handler', setValue  );
-        cameraFunction = setValue;
-        openCamera();
-  }
+    // Use bridge for platform-agnostic camera access
+    bridge.openCamera()
+      .then(result => {
+        if (result && setValue) {
+          setValue(result);
+        }
+      })
+      .catch(err => console.error('Camera error:', err));
+  };
 
-  let offlineSearch = function (id, version, dataJson, setter) {
-    console.log("coba lookup");
-    // let id = '1174c3bf-9ffa-4a43-9649-75f4cf3b706b';
-    // let version = 'v1';
-    // const dataJson = [
-    //                   {"key" : "kdprov",
-    //                   "value" : "11"},
-    //                   {"key" : "kdprov",
-    //                   "value" : "12"}
-                      
-    let condition = JSON.stringify(dataJson)
+  /**
+   * GPS handler - works across Android, iOS, Flutter
+   */
+  const gpsHandler = (setter, needPhoto = false) => {
+    console.log('GPS handler triggered, needPhoto:', needPhoto);
+    window.cameraGPSFunction = setter;
 
-    console.log('kondisinnya : ' , condition);
+    bridge.openCameraWithGps(needPhoto)
+      .then(result => {
+        if (result && setter) {
+          setter(result, result.remark);
+        }
+      })
+      .catch(err => console.error('GPS error:', err));
+  };
 
-    $.ajax({
-        url: `http://localhost:9090/lookup?id=${id}&v=${version}&c=${condition}`,
-                type: "GET",
-                crossDomain: true,
-                dataType: "json",
-                data: null,
-            success: function(d) {
-                console.log(d.hasil)
-                setter(d)
+  /**
+   * Offline search handler
+   */
+  const offlineSearch = (id, version, dataJson, setter) => {
+    console.log('Offline search:', id, version);
+    const condition = JSON.stringify(dataJson);
 
-            },
-            error: function(XMLHttpRequest, textStatus, errorThrown) {
-
-            }
+    // Try native bridge first (for SQLite lookups on mobile)
+    if (bridge.platform !== 'web') {
+      bridge.searchOffline(id, version, dataJson)
+        .then(result => setter(result))
+        .catch(err => {
+          console.error('Native search failed, falling back to HTTP:', err);
+          // Fallback to HTTP
+          fetchOfflineData(id, version, condition, setter);
         });
-  }
+    } else {
+      fetchOfflineData(id, version, condition, setter);
+    }
+  };
 
-  let GpsHandler = function(setter, isPhoto) {
-    console.log('camera handler', setter);
-    isPhoto = false,
-    cameraGPSFunction = setter;
-    openCameraGPS(isPhoto);
-  }
+  /**
+   * HTTP fallback for offline search
+   */
+  const fetchOfflineData = (id, version, condition, setter) => {
+    fetch(`http://localhost:9090/lookup?id=${id}&v=${version}&c=${condition}`)
+      .then(res => res.json())
+      .then(data => {
+        console.log('Lookup result:', data);
+        setter(data);
+      })
+      .catch(err => console.error('Lookup error:', err));
+  };
 
-  const setBearer = () => {
-    return ({
+  /**
+   * Online search handler
+   */
+  const onlineSearch = async (url) => {
+    try {
+      const res = await fetch(url, {
         method: 'GET',
-        headers: {
-            "Content-Type": "application/json"
-        }
-    })
-  }
+        headers: { 'Content-Type': 'application/json' }
+      });
 
-  let mobileExit = (fun) => {
-    fun()
-  }
-
-  // pencarian online
-  let onlineSearch = async (url) =>
-  (await fetch(url, setBearer())
-    .catch((error) => {
-      return {
-        success: false,
-        data: {},
-        message: '500'
-      }
-    }).then((res) => {
-      if (res.status === 200) {
-        let temp = res.json();
-        return temp;
+      if (res.ok) {
+        return await res.json();
       } else {
-        return {
-          success: false,
-          data: {},
-          message: res.status
-        }
+        return { success: false, data: {}, message: res.status };
       }
-    }).then((res) => {
-      return res;
-  }));
+    } catch (error) {
+      return { success: false, data: {}, message: '500' };
+    }
+  };
 
-  
-  let setResponseMobile = function (res, med, rem, princ, ref) {
-    responseGear = res
-    mediaGear = med
-    remarkGear = rem
-    principalGear = princ
-    referenceGear = ref
+  /**
+   * Exit handler - works across Android, iOS, Flutter
+   */
+  const exitHandler = (callback) => {
+    bridge.exit();
+    if (callback) callback();
+  };
 
-    console.log('----------', new Date(), '----------');
+  /**
+   * Open map handler - works across Android, iOS, Flutter
+   */
+  const openMap = (koordinat) => {
+    bridge.openMap(koordinat);
+  };
 
-    console.log('response', responseGear)
-    console.log('media', mediaGear)
-    console.log('remark', remarkGear)
-    console.log('principal', principalGear)
-    console.log('reference', referenceGear)    
-
-    window.Android.action("SAVE_RESPONSE", "", JSON.stringify(responseGear), "");
-    window.Android.action("SAVE_MEDIA", "", JSON.stringify(mediaGear), "");
-    window.Android.action("SAVE_REMARK", "", JSON.stringify(remarkGear), "");
-    window.Android.action("SAVE_PRINCIPAL", "", JSON.stringify(principalGear), "");
-    window.Android.action("SAVE_REFERENCE", "", JSON.stringify(referenceGear), "");
-  }
-
-  let setSubmitMobile = function (res, med, rem, princ, ref) {
-    responseGear = res
-    mediaGear = med
-    remarkGear = rem
-    principalGear = princ
-    referenceGear = ref
+  /**
+   * Save response handler - works across Android, iOS, Flutter
+   */
+  const onSave = (res, med, rem, princ, ref) => {
+    responseGear = res;
+    mediaGear = med;
+    remarkGear = rem;
+    principalGear = princ;
+    referenceGear = ref;
 
     console.log('----------', new Date(), '----------');
+    console.log('Save - response:', responseGear);
+    console.log('Save - media:', mediaGear);
+    console.log('Save - remark:', remarkGear);
+    console.log('Save - principal:', principalGear);
+    console.log('Save - reference:', referenceGear);
 
-    console.log('response', responseGear)
-    console.log('media', mediaGear)
-    console.log('remark', remarkGear)
-    console.log('principal', principalGear)
-    console.log('reference', referenceGear)
-    
-    window.Android.action("SUBMIT_RESPONSE", "", JSON.stringify(responseGear), "");
-    window.Android.action("SUBMIT_MEDIA", "", JSON.stringify(mediaGear), "");
-    window.Android.action("SUBMIT_REMARK", "", JSON.stringify(remarkGear), "");
-    window.Android.action("SUBMIT_PRINCIPAL", "", JSON.stringify(principalGear), "");
-    window.Android.action("SUBMIT_REFERENCE", "", JSON.stringify(referenceGear), "");
-  }
+    // Use bridge to save (works on all platforms)
+    bridge.saveResponse({
+      response: responseGear,
+      media: mediaGear,
+      remark: remarkGear,
+      principal: principalGear,
+      reference: referenceGear
+    });
+  };
 
-  let openMap = function(koordinat) {
-      window.Android.action("OPEN_MAPS", "", JSON.stringify(koordinat), "");
-  }
+  /**
+   * Submit response handler - works across Android, iOS, Flutter
+   */
+  const onSubmit = (res, med, rem, princ, ref) => {
+    responseGear = res;
+    mediaGear = med;
+    remarkGear = rem;
+    principalGear = princ;
+    referenceGear = ref;
 
-  function saveData() {
-      window.Android.action("SAVE_DATA", "", JSON.stringify(setResponseMobile), "");
-  }
+    console.log('----------', new Date(), '----------');
+    console.log('Submit - response:', responseGear);
+    console.log('Submit - media:', mediaGear);
+    console.log('Submit - remark:', remarkGear);
+    console.log('Submit - principal:', principalGear);
+    console.log('Submit - reference:', referenceGear);
 
-  const data = Promise.all([    
-                  fetch("./data/reference.json").then((res) => res.json()).catch((error) => {return {}}) || [],
-                  fetch("./data/template.json").then((res) => res.json()).catch((error) => {return {}}) || [],
-                  fetch("./data/preset.json").then((res) => res.json()).catch((error) => {return {}}) || [],
-                  fetch("./data/response.json").then((res) => res.json()).catch((error) => {return {}}) || [],
-                  fetch("./data/validation.json").then((res) => res.json()).catch((error) => {return {}}) || [],
-                  fetch("./data/media.json").then((res) => res.json()).catch((error) => {return {}}) || [],
-                  fetch("./data/remark.json").then((res) => res.json()).catch((error) => {return {}}) || []
-                  // JSON.parse(Android.getReference()),
-                  // JSON.parse(Android.getTemplate()),
-                  // JSON.parse(Android.getPreset()),
-                  // JSON.parse(Android.getResponse()),
-                  // JSON.parse(Android.getValidation()),
-                  // JSON.parse(Android.getMedia()),
-                  // JSON.parse(Android.getRemark())
-           ]);
+    // Use bridge to submit (works on all platforms)
+    bridge.submitResponse({
+      response: responseGear,
+      media: mediaGear,
+      remark: remarkGear,
+      principal: principalGear,
+      reference: referenceGear
+    });
+  };
 
-  data.then(([reference, template, preset, response, validation, media, remark]) => initForm(reference, template, preset, response, validation, media, remark));
+  // =============================================================================
+  // FORM INITIALIZATION
+  // =============================================================================
 
-  function initForm(reference, template, preset, response, validation, media, remark){
+  const loadFormData = async () => {
+    const [reference, template, preset, response, validation, media, remark] = await Promise.all([
+      fetch('./data/reference.json').then(res => res.json()).catch(() => ({})),
+      fetch('./data/template.json').then(res => res.json()).catch(() => ({})),
+      fetch('./data/preset.json').then(res => res.json()).catch(() => ({})),
+      fetch('./data/response.json').then(res => res.json()).catch(() => ({})),
+      fetch('./data/validation.json').then(res => res.json()).catch(() => ({})),
+      fetch('./data/media.json').then(res => res.json()).catch(() => ({})),
+      fetch('./data/remark.json').then(res => res.json()).catch(() => ({}))
+    ]);
 
-      let form = new FormGear(reference, template, preset, response, validation, media, remark, config, uploadHandler, GpsHandler, offlineSearch, onlineSearch, mobileExit, setResponseMobile, setSubmitMobile, openMap);
+    return { reference, template, preset, response, validation, media, remark };
+  };
 
-      return form;
-  }
+  const initForm = async () => {
+    const { reference, template, preset, response, validation, media, remark } = await loadFormData();
+
+    // Create form using new API
+    formInstance = createFormGear({
+      data: {
+        reference,
+        template,
+        preset,
+        response,
+        validation,
+        media,
+        remark
+      },
+      config: {
+        clientMode: ClientMode.CAPI,
+        formMode: FormMode.OPEN,
+        initialMode: InitialMode.ASSIGN,
+        lookupMode: LookupMode.OFFLINE,
+        username: 'styd',
+        token: '',
+        baseUrl: '',
+        lookupKey: 'keys',
+        lookupValue: 'values'
+      },
+      mobileHandlers: {
+        uploadHandler,
+        gpsHandler,
+        offlineSearch,
+        onlineSearch,
+        exitHandler,
+        openMap
+      },
+      callbacks: {
+        onSave,
+        onSubmit
+      }
+    });
+
+    console.log('FormGear 2.0 initialized on platform:', bridge.platform);
+
+    // Expose form instance globally for debugging
+    window.formGear = formInstance;
+  };
+
+  // Initialize form
+  initForm();
 
 </script>
 
 <script type="text/javascript">
+  /**
+   * Native callback handlers for all platforms
+   * These functions are called by native code (Android, iOS, Flutter)
+   */
   let cameraFunction = null;
   let cameraGPSFunction = null;
 
+  /**
+   * Universal result handler - called by native platforms
+   * Android: window.result(action, result, customData)
+   * iOS: window.webkit.messageHandlers posts back here
+   * Flutter: window.postMessage or direct call
+   */
   function result(action, result, customData) {
-      if (action == "GET_LOC") {
-          resultGps(result);
-      } else if (action == "CAMERA") {
-          resultCamera(result);
-      } else if (action == "CAMERA_GPS") {
-          resultCameraGPS(result);
-      } else if (action == "SIGNATURE") {
-          resultSignature(result);
-      } else if (action == "BARCODE") {
-          resultBarcode(result);
-      } else if (action == "AUDIO") {
-          resultAudio(result);
-      } else if (action == "GET_ANSWER") {
-          resultAnswer(result, customData);
-      } else if (action == "LOOKUP") {
-          resultAnswer(result, customData);
-      }
+    console.log('Native callback:', action, result);
+
+    switch(action) {
+      case "GET_LOC":
+        resultGps(result);
+        break;
+      case "CAMERA":
+        resultCamera(result);
+        break;
+      case "CAMERA_GPS":
+        resultCameraGPS(result);
+        break;
+      case "SIGNATURE":
+        resultSignature(result);
+        break;
+      case "BARCODE":
+        resultBarcode(result);
+        break;
+      case "AUDIO":
+        resultAudio(result);
+        break;
+      case "GET_ANSWER":
+      case "LOOKUP":
+        resultAnswer(result, customData);
+        break;
+      default:
+        console.log('Unknown action:', action);
+    }
   }
 
   function resultCamera(result) {
-      if (cameraFunction != null) {
-        cameraFunction(result);
-      } else {
-        console.log('camera_result_funcion : null');
-      }
+    if (cameraFunction != null) {
+      cameraFunction(result);
+    } else {
+      console.log('camera_result_function: null');
+    }
   }
 
   function resultCameraGPS(result) {
-      const obj = JSON.parse(result);
-      var remark = obj.remark;
-      cameraGPSFunction(obj, remark);
+    try {
+      const obj = typeof result === 'string' ? JSON.parse(result) : result;
+      const remark = obj.remark || '';
+      if (cameraGPSFunction) {
+        cameraGPSFunction(obj, remark);
+      }
+    } catch (e) {
+      console.error('Error parsing GPS result:', e);
+    }
   }
-  
+
+  function resultGps(result) {
+    console.log('GPS result:', result);
+  }
+
+  function resultSignature(result) {
+    console.log('Signature result:', result);
+  }
+
+  function resultBarcode(result) {
+    console.log('Barcode result:', result);
+  }
+
+  function resultAudio(result) {
+    console.log('Audio result:', result);
+  }
+
+  function resultAnswer(result, customData) {
+    console.log('Answer result:', result, customData);
+  }
+
+  // =============================================================================
+  // iOS WKWebView Message Handler
+  // =============================================================================
+  window.handleIOSMessage = function(message) {
+    if (message && message.action) {
+      result(message.action, message.data, message.customData);
+    }
+  };
+
+  // =============================================================================
+  // Flutter Message Handler
+  // =============================================================================
+  window.addEventListener('message', function(event) {
+    try {
+      const message = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+      if (message && message.action) {
+        result(message.action, message.data, message.customData);
+      }
+    } catch (e) {
+      // Not a FormGear message
+    }
+  });
+
 </script>
 
 </body>

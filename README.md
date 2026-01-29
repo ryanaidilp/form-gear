@@ -35,8 +35,8 @@ FormGear uses a defined JSON object template, thus is easy to build, use, and ef
 - [About](#about)
 - [Features](#features)
 - [Usage](#usage)
-    * [Online examples](#online-examples) 
-    * [Develop on JS Framework examples](#develop-on-js-framework-examples) 
+    * [Online examples](#online-examples)
+    * [Develop on JS Framework examples](#develop-on-js-framework-examples)
     * [Installation](#installation)
     * [Template](#template)
         + [Control Type](#control-type)
@@ -48,8 +48,10 @@ FormGear uses a defined JSON object template, thus is easy to build, use, and ef
     * [Response](#response)
     * [Validation](#validation)
     * [Remark](#remark)
+- [Template Builder](#template-builder)
+- [Migration Guide](#migration-guide)
 - [Contributing](#contributing)
-    * [Further development ideas](#further-development-ideas) 
+    * [Further development ideas](#further-development-ideas)
 - [License](#license)
 - [Our Team](#our-team)
 
@@ -781,12 +783,62 @@ remark.json
 }
 ```
 
+# Template Builder
+
+FormGear now has a visual **Template Builder** - a drag-and-drop interface for creating form templates without writing JSON manually.
+
+**The builder is available in a separate repository:** [formgear-builder](https://github.com/AdityyaX/formgear-builder)
+
+## Builder Features
+
+- **Drag-and-drop** component palette with all 38 component types
+- **Visual form canvas** with nested component support (Section, Nested)
+- **Properties panel** for editing component attributes
+- **Expression builder** for `enableCondition` and validation `test` expressions
+- **Live preview** using the actual FormGear engine
+- **Import/Export** existing JSON templates
+
+## Builder Output
+
+The builder exports two JSON files:
+
+| Output File | Description |
+|-------------|-------------|
+| `template.json` | Form structure, components, metadata |
+| `validation.json` | Validation rules and test functions |
+
+These files are **fully backward compatible** with FormGear 1.x and 2.x.
+
+## Form Metadata
+
+The builder supports all form metadata fields:
+
+| Field | Description |
+|-------|-------------|
+| `title` | Form title displayed at the top |
+| `description` | Form description/subtitle |
+| `dataKey` | Unique form identifier |
+| `acronym` | Short form acronym |
+| `version` | Semantic version (e.g., "1.0.0") |
+
+# Migration Guide
+
+If you're upgrading from FormGear 1.x to 2.0, please refer to the [Migration Guide](./MIGRATION.md) for detailed instructions on:
+
+- API changes (positional parameters → options object)
+- New TypeScript enums (`ClientMode`, `FormMode`, etc.)
+- Instance methods for programmatic control
+- Platform bridge abstraction
+- Using the new Template Builder
+
 # Contributing
 
 Your assistance is greatly appreciated if you want to contribute and make it better.
+
 ### Further development ideas:
-- FormGear templates design platform
-- FormGear validation creator platform
+
+- ~~FormGear templates design platform~~ ✅ (Now available as Template Builder!)
+- ~~FormGear validation creator platform~~ ✅ (Included in Template Builder!)
 
 # License
 

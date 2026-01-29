@@ -1,31 +1,49 @@
 # Changelog
 
-## FormGear | Ver. 2.0.0 - FormGear is now running independently. 🎉
+## FormGear | Ver. 2.0.0 - Major Architecture Refactoring
+
+> December 31, 2025
+
+### Breaking Changes
+
+- **New Factory API**: Use `createFormGear()` instead of direct `FormGear` component
+- **Store Isolation**: Each form instance now has its own isolated store context
+- **TypeScript Strict Mode**: Full TypeScript strict mode enabled with proper types
+
+### Added
+
+- `createFormGear()` factory function for creating isolated form instances
+- `FormGearProvider` component for store context management
+- Native bridge abstraction layer supporting Android, iOS, Flutter, and Web platforms
+- TypeScript declaration files (`.d.ts`) included in package
+- Modular event handlers (`Focus`, `KeyDown`) with proper exports
+- Platform-specific bridge implementations with type-safe interfaces
+
+### Changed
+
+- Migrated from single global store to per-instance isolated stores
+- Updated all dependencies to latest versions (Vite 7.3, TypeScript 5.9, SolidJS 1.9)
+- Build target changed to ES2015 for better mobile WebView compatibility
+- Utilities refactored into modular structure (`/utils` directory)
+- SolidJS components now use proper `class` attribute instead of `className`
+- Improved type safety across all components with strict TypeScript
+
+### Removed
+
+- Legacy global `FormGear` component export (use `createFormGear()` instead)
+- Deprecated utility functions replaced with modern implementations
+
+### Migration
+
+See [MIGRATION.md](./MIGRATION.md) for detailed upgrade instructions.
+
+---
+
+## FormGear | Ver. 1.1.2 - Legacy Release
 
 > September 02, 2022
 
-### Changed
 - Reformat `sourceSelect` to `sourceAPI` for select option from API
-	```json	
-	{
-		"label": "User",
-		"dataKey": "user_jsonplaceholder",
-		"typeOption": 2,
-		"type": 27,
-		"sourceAPI": [
-			{
-				"baseUrl": "https://jsonplaceholder.typicode.com/users",
-				"headers": {
-					"Content-Type": "application/json"
-				},
-				"data": "",
-				"value": "id",
-				"label": "name"
-			}
-		]
-	}
-	```
-### Fixed
 - Fix summary calculation filtration for undefined answer component
 
 

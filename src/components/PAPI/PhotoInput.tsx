@@ -1,10 +1,11 @@
 import { createEffect, createSignal, Show } from "solid-js";
-import Toastify from 'toastify-js';
 import { FormComponentBase } from "../../FormType";
-import { locale } from "../../stores/LocaleStore";
+import { useLocale } from "../../stores/StoreContext";
+import { toastSuccess, toastError } from "../../utils/toast";
 import { InputContainer } from "./partials";
 
 const PhotoInput: FormComponentBase = props => {
+  const [locale] = useLocale();
   const [label, setLabel] = createSignal('');
   const [fileSource, setFileSource] = createSignal('');
   const [disableInput] = createSignal((props.config.formMode > 1) ? true : props.component.disableInput)
@@ -29,7 +30,7 @@ const PhotoInput: FormComponentBase = props => {
       let doc = data.target.files[0];
       let ext = doc.name.split('.').pop().toLowerCase()
       if (!allowedExtension.includes(ext)) {
-        toastInfo('Please submit the appropriate format!', 'bg-pink-600/70')
+        toastError('Please submit the appropriate format!')
       } else {
         reader.readAsDataURL(doc)
 
@@ -45,26 +46,11 @@ const PhotoInput: FormComponentBase = props => {
 
           // console.log('hasilny adalah : ', updatedAnswer)
           props.onValueChange(updatedAnswer)
-          toastInfo('Image uploaded successfully!', '')
+          toastSuccess('Image uploaded successfully!')
         }
       }
     }
 
-  }
-
-  const toastInfo = (text: string, color: string) => {
-    Toastify({
-      text: (text == '') ? "" : text,
-      duration: 3000,
-      gravity: "top",
-      position: "right",
-      stopOnFocus: true,
-      className: (color == '') ? "bg-blue-600/80" : color,
-      style: {
-        background: "rgba(8, 145, 178, 0.7)",
-        width: "400px"
-      }
-    }).showToast();
   }
 
   return (
@@ -87,7 +73,7 @@ const PhotoInput: FormComponentBase = props => {
       </button>
 
       <Show when={fileSource() != ''}>
-        <div className="font-light text-sm space-x-2 py-2.5 px-2 col-span-12 space-y-4">
+        <div class="font-light text-sm space-x-2 py-2.5 px-2 col-span-12 space-y-4">
           <div class="preview-class">
             <div class="container mx-auto">
               <img class="rounded-md" src={fileSource()} style={"width:100%;height:100%"} id={"img-preview" + props.component.dataKey} />

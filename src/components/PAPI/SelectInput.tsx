@@ -1,10 +1,12 @@
 import { createMemo, createSignal, Show } from "solid-js";
-import { handleInputFocus, handleInputKeyDown } from "../../events";
+import { handleInputFocus } from "../../events/Focus";
+import { handleInputKeyDown } from "../../events/KeyDown";
 import { FormComponentBase, Option } from "../../FormType";
-import { reference } from '../../stores/ReferenceStore';
+import { useReference } from '../../stores/StoreContext';
 import { InputContainer, OptionSection } from "./partials";
 
 const SelectInput: FormComponentBase = props => {
+	const [reference] = useReference();
 	const config = props.config
 	const [disableInput] = createSignal((config.formMode > 1) ? true : props.component.disableInput)
 
@@ -31,7 +33,7 @@ const SelectInput: FormComponentBase = props => {
 		return []
 	})
 
-	const [options] = createSignal<Option[]>(props.component.sourceOption !== undefined ? getOptions() : props.component.options);
+	const [options] = createSignal<Option[]>(props.component.sourceOption !== undefined ? getOptions() as Option[] : props.component.options as Option[]);
 
 	const optionSection = () => {
 		return (

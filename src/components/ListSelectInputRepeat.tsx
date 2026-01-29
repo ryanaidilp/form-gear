@@ -1,13 +1,13 @@
 import { FormComponentBase, returnAPI } from "../FormType"
 import { For, Switch, createResource, Match, Show, createMemo, createSignal, createEffect } from 'solid-js'
-import { reference, setReference } from '../stores/ReferenceStore'
+import { useReference, useLocale } from '../stores/StoreContext'
 import { Select, createOptions } from "@thisbeyond/solid-select"
 import "@thisbeyond/solid-select/style.css"
-import Toastify from 'toastify-js'
-import { locale, setLocale } from '../stores/LocaleStore'
-import LogoImg from "../assets/loading.png"
+import { toastInfo, toastError } from "../utils/toast"
 
 const ListSelectInputRepeat: FormComponentBase = props => {
+	const [reference] = useReference();
+	const [locale] = useLocale();
 	const [flag, setFlag] = createSignal(0); //untuk flag open textinput
 	const [edited, setEdited] = createSignal(0); //untuk flag id yg akan diedit / hapus
 	const [localAnswer, setLocalAnswer] = createSignal(JSON.parse(JSON.stringify(props.value)));
@@ -29,20 +29,6 @@ const ListSelectInputRepeat: FormComponentBase = props => {
 		type: string
 	}
 
-	const toastInfo = (text: string, color: string) => {
-		Toastify({
-			text: (text == '') ? "" : text,
-			duration: 3000,
-			gravity: "top",
-			position: "right",
-			stopOnFocus: true,
-			className: (color == '') ? "bg-blue-600/80" : color,
-			style: {
-				background: "rgba(8, 145, 178, 0.7)",
-				width: "400px"
-			}
-		}).showToast();
-	}
 
 	switch (props.component.typeOption) {
 		case 1: {
@@ -69,7 +55,7 @@ const ListSelectInputRepeat: FormComponentBase = props => {
 				})
 			} catch (e) {
 				setisError(true)
-				toastInfo(locale.details.language[0].fetchFailed, 'bg-pink-700/80')
+				toastError(locale.details.language[0].fetchFailed)
 			}
 
 			break
@@ -91,8 +77,9 @@ const ListSelectInputRepeat: FormComponentBase = props => {
                             let dataKey = item.sourceAnswer.split('@');
                             let sourceAnswer = reference.details.find(obj => obj.dataKey == dataKey[0])
                             if (sourceAnswer.answer) {
-                                if (sourceAnswer.answer.length > 0) {
-                                    let parentValue = encodeURI(sourceAnswer.answer[sourceAnswer.answer.length - 1].value)
+                                const answerArr = sourceAnswer.answer as any[];
+                                if (answerArr.length > 0) {
+                                    let parentValue = encodeURI(answerArr[answerArr.length - 1].value)
                                     urlParamsDummy = `${item.params}=${parentValue}`
                                 }
                             } else {
@@ -112,8 +99,9 @@ const ListSelectInputRepeat: FormComponentBase = props => {
                             let dataKey = item.sourceAnswer.split('@');
                             let sourceAnswer = reference.details.find(obj => obj.dataKey == dataKey[0])
                             if (sourceAnswer.answer) {
-                                if (sourceAnswer.answer.length > 0) {
-                                    let parentValue = encodeURI(sourceAnswer.answer[sourceAnswer.answer.length - 1].value)
+                                const answerArr = sourceAnswer.answer as any[];
+                                if (answerArr.length > 0) {
+                                    let parentValue = encodeURI(answerArr[answerArr.length - 1].value)
                                     urlParamsDummy = `${parentValue}/${item.params}`
                                 }
                             } else {
@@ -125,13 +113,13 @@ const ListSelectInputRepeat: FormComponentBase = props => {
                         url = `${urlHead}/${urlParams}` 
                     }
                     
-                    let head: RequestInit = {
-                        headers: JSON.stringify(sourceAPI.headers),
+                    const fetchOptions: RequestInit = {
+                        headers: sourceAPI.headers as HeadersInit,
                         method: "GET",
                       }
 
                     const onlineSearch = async (url:string) =>
-                        (await fetch(url, {head})
+                        (await fetch(url, fetchOptions)
                         .catch((error: any) => {
                             return {
                                 success: false,
@@ -172,7 +160,7 @@ const ListSelectInputRepeat: FormComponentBase = props => {
                         if (fetched()) {
                             if (!fetched().success) {
 								setisError(true)
-                                toastInfo(locale.details.language[0].fetchFailed, 'bg-pink-700/80')
+                                toastError(locale.details.language[0].fetchFailed)
                             } else {
                                 let arr = []
                                 fetched().data.map((item, value) => {
@@ -217,8 +205,9 @@ const ListSelectInputRepeat: FormComponentBase = props => {
 
                             let tobeLookup = reference.details.find(obj => obj.dataKey == newParams[0])
                             if (tobeLookup.answer) {
-                                if (tobeLookup.answer.length > 0) {
-                                    let parentValue = tobeLookup.answer[tobeLookup.answer.length - 1].value.toString()
+                                const answerArr = tobeLookup.answer as any[];
+                                if (answerArr.length > 0) {
+                                    let parentValue = answerArr[answerArr.length - 1].value.toString()
                                     tempArr.push({ "key": item.key, "value": parentValue })
                                 }
 							}
@@ -232,7 +221,7 @@ const ListSelectInputRepeat: FormComponentBase = props => {
 						getOptions = createMemo(() => {
 							if(!result.success){
 								setisError(true)
-								toastInfo(locale.details.language[0].fetchFailed, 'bg-pink-700/80')
+								toastError(locale.details.language[0].fetchFailed)
 							} else {
 								let arr = []
 								if (result.data.length > 0) {
@@ -275,7 +264,7 @@ const ListSelectInputRepeat: FormComponentBase = props => {
 
 			} catch (e) {
 				setisError(true)
-				toastInfo(locale.details.language[0].fetchFailed, 'bg-pink-700/80')
+				toastError(locale.details.language[0].fetchFailed)
 			}
 
 			break;
@@ -316,7 +305,7 @@ const ListSelectInputRepeat: FormComponentBase = props => {
 				})
 			} catch (e) {
 				setisError(true)
-				toastInfo(locale.details.language[0].fetchFailed, 'bg-pink-700/80')
+				toastError(locale.details.language[0].fetchFailed)
 			}
 
 			break
@@ -354,7 +343,7 @@ const ListSelectInputRepeat: FormComponentBase = props => {
 				})
 			} catch (e) {
 				setisError(true)
-				toastInfo(locale.details.language[0].fetchFailed, 'bg-pink-700/80')
+				toastError(locale.details.language[0].fetchFailed)
 			}
 
 			break;
@@ -367,7 +356,7 @@ const ListSelectInputRepeat: FormComponentBase = props => {
 			setFlag(1);//plus / edit
 			setEdited(0);
 		} else {
-			toastInfo(locale.details.language[0].componentNotAllowed, '');
+			toastInfo(locale.details.language[0].componentNotAllowed);
 		}
 	}
 
@@ -376,7 +365,7 @@ const ListSelectInputRepeat: FormComponentBase = props => {
 			setFlag(1);//plus / edit
 			setEdited(id);
 		} else {
-			toastInfo(locale.details.language[0].componentNotAllowed, '');
+			toastInfo(locale.details.language[0].componentNotAllowed);
 		}
 	}
 
@@ -392,14 +381,14 @@ const ListSelectInputRepeat: FormComponentBase = props => {
 			setEdited(id);
 			modalDelete();
 		} else if (flag() === 1) {//tidak bisa buka modal karena isian lain terbuka
-			toastInfo(locale.details.language[0].componentNotAllowed, '');
+			toastInfo(locale.details.language[0].componentNotAllowed);
 		} else if (flag() === 2) {
 			let updatedAnswer = JSON.parse(JSON.stringify(localAnswer()));
 			let answerIndex = updatedAnswer.findIndex((item) => item.value == id);
 			updatedAnswer.splice(answerIndex, 1);
 
 			props.onValueChange(updatedAnswer);
-			toastInfo(locale.details.language[0].componentDeleted, '');
+			toastInfo(locale.details.language[0].componentDeleted);
 			setFlag(0);
 			setEdited(0);
 		}
@@ -424,15 +413,15 @@ const ListSelectInputRepeat: FormComponentBase = props => {
 			props.onValueChange(updatedAnswer);
 
 			if (edited() === 0) {
-				toastInfo(locale.details.language[0].componentAdded, '');
+				toastInfo(locale.details.language[0].componentAdded);
 			} else {
-				toastInfo(locale.details.language[0].componentEdited, '');
+				toastInfo(locale.details.language[0].componentEdited);
 			}
 			setFlag(0);
 			setEdited(0);
 		} else {
 			if (edited() === 0) {
-				toastInfo(locale.details.language[0].componentEmpty, '');
+				toastInfo(locale.details.language[0].componentEmpty);
 			} else {
 				setFlag(0);
 				setEdited(0);
@@ -462,7 +451,7 @@ const ListSelectInputRepeat: FormComponentBase = props => {
 			<Show when={(flag() == 2)}>
 				<div class="modal-delete fixed z-10 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
 					<div class="flex items-center justify-center min-h-screen pt-4 px-4 text-center sm:block sm:p-0">
-						<div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+						<div class="fixed inset-0 bg-gray-500/75 transition-opacity" aria-hidden="true"></div>
 
 						<span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
@@ -641,7 +630,7 @@ const ListSelectInputRepeat: FormComponentBase = props => {
 					}}>
 				</div>
 				<div class="col-span-12 pb-4">
-					<Show when={props.validationMessage.length > 0}>
+					<Show when={props.validationMessage?.length > 0}>
 						<For each={props.validationMessage}>
 							{(item: any) => (
 								<div

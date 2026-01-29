@@ -1,11 +1,11 @@
 import { FormComponentBase } from "../FormType"
 import { For, Switch, Match, Show, createMemo, createSignal } from 'solid-js'
-import Toastify from 'toastify-js'
-import { locale, setLocale } from '../stores/LocaleStore'
-import LogoImg from "../assets/loading.png"
+import { toastInfo } from "../utils/toast"
+import { useLocale } from '../stores/StoreContext'
 
 
 const ListTextInputRepeat: FormComponentBase = props => {
+	const [locale] = useLocale();
 	const [flag, setFlag] = createSignal(0); //untuk flag open textinput
 	const [edited, setEdited] = createSignal(0); //untuk flag id yg akan diedit
 	const [localAnswer, setLocalAnswer] = createSignal(JSON.parse(JSON.stringify(props.value)))
@@ -119,20 +119,6 @@ const ListTextInputRepeat: FormComponentBase = props => {
 		contentModal.innerHTML = props.component.contentModalDelete !== undefined ? props.component.contentModalDelete : 'Deletion will also delete related components, including child components from this parent.';
 	}
 
-	const toastInfo = (text: string) => {
-		Toastify({
-			text: (text == '') ? locale.details.language[0].componentDeleted : text,
-			duration: 3000,
-			gravity: "top",
-			position: "right",
-			stopOnFocus: true,
-			className: "bg-blue-600/80",
-			style: {
-				background: "rgba(8, 145, 178, 0.7)",
-				width: "400px"
-			}
-		}).showToast();
-	}
 
 	const [instruction, setInstruction] = createSignal(false);
 	const showInstruction = () => {
@@ -144,7 +130,7 @@ const ListTextInputRepeat: FormComponentBase = props => {
 			<Show when={(flag() == 2)}>
 				<div class="modal-delete fixed z-10 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
 					<div class="flex items-center justify-center min-h-screen pt-4 px-4 text-center sm:block sm:p-0">
-						<div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+						<div class="fixed inset-0 bg-gray-500/75 transition-opacity" aria-hidden="true"></div>
 
 						<span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
@@ -340,7 +326,7 @@ const ListTextInputRepeat: FormComponentBase = props => {
 					}}>
 				</div>
 				<div class="col-span-12 pb-4">
-					<Show when={props.validationMessage.length > 0}>
+					<Show when={props.validationMessage?.length > 0}>
 						<For each={props.validationMessage}>
 							{(item: any) => (
 								<div

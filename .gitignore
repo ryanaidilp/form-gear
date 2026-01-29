@@ -1,5 +1,6 @@
 node_modules
 dist
+coverage
 client/capi/data
 client/cawi/data
 src/data/*

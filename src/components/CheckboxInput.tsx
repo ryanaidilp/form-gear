@@ -1,8 +1,9 @@
 import { For, Switch, Match, createMemo, createSignal, Show } from "solid-js"
 import { FormComponentBase, Option } from "../FormType"
-import { reference, setReference } from '../stores/ReferenceStore'
+import { useReference } from '../stores/StoreContext'
 
 const CheckboxInput: FormComponentBase = props => {
+    const [reference] = useReference();
     const config = props.config
     const [disableInput] = createSignal((config.formMode > 1 ) ? true : props.component.disableInput)
     let handleOnChange = (value: any, label: any, open: any) => {
@@ -52,7 +53,7 @@ const CheckboxInput: FormComponentBase = props => {
 		return []
 	})
 	
-	const [options] = createSignal<Option[]>(props.component.sourceOption !== undefined ? getOptions() : props.component.options );
+	const [options] = createSignal<Option[]>(props.component.sourceOption !== undefined ? getOptions() as Option[] : props.component.options as Option[] );
 	
     const [instruction, setInstruction] = createSignal(false);
 	const showInstruction = () => {
@@ -86,12 +87,8 @@ const CheckboxInput: FormComponentBase = props => {
                     </Show>
                 </div>
             </div>
-			<div class="font-light text-sm space-x-2 py-2.5 px-2 md:col-span-2 grid grid-cols-12">
-				<div class=""
-					classList={{
-						'col-span-11 lg:-mr-4' : enableRemark(),
-						'col-span-12' : !(enableRemark()),
-					}}  >
+			<div class="font-light text-sm py-2.5 px-2 md:col-span-2 flex items-start gap-2">
+				<div class="flex-1">
 					<div class="cursor-pointer"					
 						classList={{
 							' border-b border-orange-500 pb-3 ' : props.classValidation === 1,
@@ -111,57 +108,47 @@ const CheckboxInput: FormComponentBase = props => {
                                 {(item, index) => (
                                     <Switch>
                                         <Match when={(item.open) && (tick(item.value)) }>
-                                            <div class="font-light text-sm space-x-2 py-2.5 px-4 grid grid-cols-12">
-                                                <div class="col-span-1">
-                                                    <label class="cursor-pointer text-sm" for={"chexbox" + index()}>
-                                                    <input class="appearance-none h-4 w-4 border 
-                                                            border-gray-300 rounded-sm bg-white 
-                                                            checked:bg-blue-600 checked:border-blue-600 
-                                                            focus:outline-none transition duration-200 align-top 
-                                                            bg-no-repeat bg-center bg-contain float-left mr-2 cursor-pointer" 
-                                                            type="checkbox" 
-                                                            onChange={e => handleOnChange(e.currentTarget.value, item.label, item.open)} value={item.value} 
-                                                            checked={ (item.value) ? tick(item.value) : false} id={"checkbox-"+props.component.dataKey+"-"+index()}/>
-                                                    </label>
-                                                </div>
-                                                <div class="col-span-11">
-                                                    <input type="text" value={ optionLabel(item.value)  }  
-                                                        class="w-full
-                                                            font-light
-                                                            px-4
-                                                            py-2.5
-                                                            text-sm
-                                                            text-gray-700
-                                                            bg-white bg-clip-padding
-                                                            border border-solid border-gray-300
-                                                            rounded
-                                                            transition
-                                                            ease-in-out
-                                                            m-0
-                                                            focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
-                                                        onChange={e => handleOnChange(item.value, e.currentTarget.value, item.open)}
-                                                        />
-                                                </div>
+                                            <div class="font-light text-sm py-2.5 px-4 flex items-start gap-3">
+                                                <input class="appearance-none h-4 w-4 min-w-4 min-h-4 border
+                                                        border-gray-300 rounded bg-white mt-2.5
+                                                        checked:bg-blue-600 checked:border-blue-600
+                                                        focus:outline-none transition duration-200
+                                                        bg-no-repeat bg-center bg-contain cursor-pointer"
+                                                        type="checkbox"
+                                                        onChange={e => handleOnChange(e.currentTarget.value, item.label, item.open)} value={item.value}
+                                                        checked={ (item.value) ? tick(item.value) : false} id={"checkbox-"+props.component.dataKey+"-"+index()}/>
+                                                <input type="text" value={ optionLabel(item.value)  }
+                                                    class="flex-1
+                                                        font-light
+                                                        px-4
+                                                        py-2.5
+                                                        text-sm
+                                                        text-gray-700
+                                                        bg-white bg-clip-padding
+                                                        border border-solid border-gray-300
+                                                        rounded
+                                                        transition
+                                                        ease-in-out
+                                                        m-0
+                                                        focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
+                                                    onChange={e => handleOnChange(item.value, e.currentTarget.value, item.open)}
+                                                    />
                                             </div>
                                         </Match>
                                         <Match when={!(item.open) || !(tick(item.value)) }>
-                                            <div class="font-light text-sm space-x-2 py-2.5 px-4 grid grid-cols-12" onClick={e => handleLabelClick(index())}>
-                                                <div class="col-span-1">
-                                                    <label class="cursor-pointer text-sm">
-                                                        <input class=" appearance-none h-4 w-4 border 
-                                                                border-gray-300 rounded-sm bg-white 
-                                                                checked:bg-blue-600 checked:border-blue-600 
-                                                                focus:outline-none transition duration-200 mt-1 align-top 
-                                                                bg-no-repeat bg-center bg-contain float-left mr-2 cursor-pointer
-                                                                checked:disabled:bg-gray-500 checked:dark:disabled:bg-gray-300 
-                                                                disabled:bg-gray-200 dark:disabled:bg-gray-700 dark:disabled:text-gray-400" 
-                                                                type="checkbox" 
-                                                                disabled = { disableInput() }
-                                                                onChange={e => handleOnChange(e.currentTarget.value, item.label, item.open)} value={item.value} 
-                                                                checked={ (item.value) ? tick(item.value) : false} id={"checkbox-"+props.component.dataKey+"-"+index()}/>
-                                                    </label>
-                                                </div>
-                                                <div class="col-span-11" innerHTML={item.label}></div>
+                                            <div class="font-light text-sm py-2.5 px-4 flex items-start gap-3 cursor-pointer" onClick={() => handleLabelClick(index())}>
+                                                <input class="appearance-none h-4 w-4 min-w-4 min-h-4 border
+                                                        border-gray-300 rounded bg-white mt-0.5
+                                                        checked:bg-blue-600 checked:border-blue-600
+                                                        focus:outline-none transition duration-200
+                                                        bg-no-repeat bg-center bg-contain cursor-pointer
+                                                        checked:disabled:bg-gray-500 checked:dark:disabled:bg-gray-300
+                                                        disabled:bg-gray-200 dark:disabled:bg-gray-700 dark:disabled:text-gray-400"
+                                                        type="checkbox"
+                                                        disabled = { disableInput() }
+                                                        onChange={e => handleOnChange(e.currentTarget.value, item.label, item.open)} value={item.value}
+                                                        checked={ (item.value) ? tick(item.value) : false} id={"checkbox-"+props.component.dataKey+"-"+index()}/>
+                                                <span class="flex-1" innerHTML={item.label}></span>
                                             </div>
                                         </Match>
                                     </Switch>
@@ -169,55 +156,54 @@ const CheckboxInput: FormComponentBase = props => {
                             </For>
                         </div>
                     </div>
-					<Show when={props.validationMessage.length > 0}>
+					<Show when={props.validationMessage?.length > 0}>
 						<For each={props.validationMessage}>
 						{(item:any) => (
-							<div 
-							class="text-xs font-light mt-1"> 
-							<div class="grid grid-cols-12"                  
+							<div
+							class="text-xs font-light mt-1">
+							<div class="flex gap-2"
 								classList={{
 								' text-orange-500 dark:text-orange-200 ' : props.classValidation === 1,
 								' text-pink-600 dark:text-pink-200 ' : props.classValidation === 2,
 								}} >
 								<Switch>
 								<Match when={props.classValidation === 1}>
-									<div class="col-span-1 flex justify-center items-start">
+									<div class="flex justify-center items-start shrink-0">
 									<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
 										<path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
 									</svg>
 									</div>
 								</Match>
 								<Match when={props.classValidation === 2}>
-									<div class="col-span-1 flex justify-center items-start">
+									<div class="flex justify-center items-start shrink-0">
 									<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
 										<path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
 									</svg>
 									</div>
 								</Match>
 								</Switch>
-								<div class="col-span-11 text-justify mr-1" innerHTML={item}/>
+								<div class="flex-1 text-justify" innerHTML={item}/>
 							</div>
 							</div>
 						)}
 						</For>
 					</Show>
                 </div>
-                
+
 				<Show when={enableRemark()}>
-				<div class=" flex justify-end "> 
+				<div class="shrink-0"> 
                     <button class="relative inline-block bg-white p-2 h-10 w-10 text-gray-500 rounded-full  hover:bg-yellow-100 hover:text-yellow-400 hover:border-yellow-100 border-2 border-gray-300 disabled:bg-gray-200 dark:disabled:bg-gray-700 dark:disabled:text-gray-400"
                         disabled = { disableClickRemark() }
                         onClick={e => props.openRemark(props.component.dataKey)}>
 						<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
 						<path stroke-linecap="round" stroke-linejoin="round" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
 						</svg>
-						<span class="absolute top-0 right-0 inline-flex items-center justify-center h-6 w-6
-									text-xs font-semibold text-white transform translate-x-1/2 -translate-y-1/4 bg-pink-600/80 rounded-full"
-							classList={{
-								'hidden': props.comments === 0
-							}}>
-							{props.comments}
-						</span>
+						<Show when={props.comments && props.comments > 0}>
+                  <span class="absolute top-0 right-0 inline-flex items-center justify-center h-6 w-6
+                              text-xs font-semibold text-white transform translate-x-1/2 -translate-y-1/4 bg-pink-600/80 rounded-full">
+                      {props.comments}
+                  </span>
+                </Show>
 					</button>
 				</div>
 				</Show>

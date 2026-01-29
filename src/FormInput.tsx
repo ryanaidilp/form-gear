@@ -1,56 +1,72 @@
 import { createMemo, createSignal, For, Match, Show, Switch } from 'solid-js';
-import { gearVersion, templateVersion, validationVersion } from "./FormGear";
+import { gearVersion, templateVersion, validationVersion } from "./createFormGear";
 import { useForm } from "./FormProvider";
 import { CONTROL_MAP, CONTROL_MAP_PAPI, FormComponentBase } from "./FormType";
 
 import { useLoaderDispatch } from "./loader/FormLoaderProvider";
-import { locale } from './stores/LocaleStore';
-import { note, setNote } from './stores/NoteStore';
-import { principal, setPrincipal } from './stores/PrincipalStore';
-import { reference, referenceEnableFalse, setReference } from './stores/ReferenceStore';
-import { remark, setRemark } from './stores/RemarkStore';
-import { media } from './stores/MediaStore';
-import { response, setResponse } from './stores/ResponseStore';
-import { sidebar } from './stores/SidebarStore';
-import { summary } from './stores/SummaryStore';
-import { template } from './stores/TemplateStore';
-import { counter } from './stores/CounterStore';
+import {
+  useLocale,
+  useNote,
+  usePrincipal,
+  useReference,
+  useRemark,
+  useMedia,
+  useResponse,
+  useSidebar,
+  useSummary,
+  useTemplate,
+  useCounter,
+  useReferenceEnableFalse,
+} from './stores/StoreContext';
 
 import dayjs from 'dayjs';
-import Toastify from 'toastify-js';
 
-import { getValue, reloadDataFromHistory, saveAnswer } from './GlobalFunction';
+import { useServices } from './services';
+import { toastInfo as toastInfoUtil, toastError, toastSuccess } from './utils/toast';
 
-import { setReferenceHistory, setSidebarHistory } from './stores/ReferenceStore';
-import { ClientMode } from './constants';
+import { ClientMode, ComponentType } from './core/constants';
+import { locale as globalLocale } from './stores/LocaleStore';
+import { reference as globalReference } from './stores/ReferenceStore';
 
+// Exported utility functions use global stores for backward compatibility
 export const getEnable = (dataKey: string) => {
-  const componentIndex = reference.details.findIndex(obj => obj.dataKey === dataKey);
+  const componentIndex = globalReference.details.findIndex(obj => obj.dataKey === dataKey);
   let enable = true;
   if (componentIndex !== -1) {
-    enable = reference.details[componentIndex].enable;
+    enable = globalReference.details[componentIndex].enable;
   }
 
   return enable;
 }
+
+/**
+ * @deprecated Use `toastInfo`, `toastError`, `toastSuccess`, or `toastWarning` from 'utils/toast' instead
+ */
 export const toastInfo = (text: string, duration: number, position: string, bgColor: string) => {
-  Toastify({
-    text: (text == '') ? locale.details.language[0].componentDeleted : text,
-    duration: (duration >= 0) ? duration : 500,
-    gravity: "top",
-    position: (position == '') ? "right" : position,
-    stopOnFocus: true,
-    className: (bgColor == '') ? "bg-blue-600/80" : bgColor,
-    style: {
-      background: "rgba(8, 145, 178, 0.7)",
-      width: "400px"
-    }
-  }).showToast();
+  const message = (text == '') ? globalLocale.details.language[0].componentDeleted : text;
+  toastInfoUtil(message, (duration >= 0) ? duration : 500, '', bgColor || 'bg-blue-600/80');
 }
 
 const FormInput: FormComponentBase = props => {
+  // Get services
+  const services = useServices();
+
   const [form, { setActiveComponent }] = useForm();
   const { setLoader, removeLoader } = useLoaderDispatch();
+
+  // Store hooks
+  const [locale] = useLocale();
+  const [note, setNote] = useNote();
+  const [principal, setPrincipal] = usePrincipal();
+  const [reference, setReference] = useReference();
+  const [remark, setRemark] = useRemark();
+  const [media] = useMedia();
+  const [response, setResponse] = useResponse();
+  const [sidebar] = useSidebar();
+  const [summary] = useSummary();
+  const [template] = useTemplate();
+  const [counter] = useCounter();
+  const [referenceEnableFalse] = useReferenceEnableFalse();
 
   const [flagRemark, setFlagRemark] = createSignal(''); //dataKey Remark
   const [comments, setComments] = createSignal([]); //temp Comments
@@ -59,6 +75,16 @@ const FormInput: FormComponentBase = props => {
 
   const [loading, setLoading] = createSignal(false); //temp Comment
 
+  // Local getEnable function that uses the context reference (not global store)
+  // This ensures enable state changes from services are reflected in rendering
+  const getLocalEnable = (dataKey: string): boolean => {
+    const componentIndex = reference.details.findIndex(obj => obj.dataKey === dataKey);
+    if (componentIndex !== -1) {
+      return reference.details[componentIndex].enable ?? true;
+    }
+    return true;
+  };
+
   const setData = () => {
     const dataForm = [];
     const dataMedia = [];
@@ -66,7 +92,7 @@ const FormInput: FormComponentBase = props => {
 
     reference.details.forEach((element) => {
       if (
-        (element.type > 3)
+        (element.type > ComponentType.INNER_HTML)
         && (element.enable)
         && (element.answer !== undefined)
         && (element.answer !== '')
@@ -74,7 +100,7 @@ const FormInput: FormComponentBase = props => {
       ) {
         let enableFalse = referenceEnableFalse().findIndex(obj => obj.parentIndex.toString() === element.index.slice(0, -2).toString());
         if (enableFalse == -1) {
-          (element.type == 32 || element.type == 36) && dataMedia.push({ dataKey: element.dataKey, name: element.name, answer: element.answer });
+          (element.type === ComponentType.PHOTO || element.type === ComponentType.SIGNATURE) && dataMedia.push({ dataKey: element.dataKey, name: element.name, answer: element.answer });
 
           dataForm.push({ dataKey: element.dataKey, name: element.name, answer: element.answer })
 
@@ -142,7 +168,7 @@ const FormInput: FormComponentBase = props => {
 
 
   const onUserClick = (dataKey: string) => {
-    setData();    
+    setData();
     props.setResponseMobile(response.details, media.details, remark.details, principal.details, reference);
     if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
       var component = document.querySelector(".mobile-component-div");
@@ -150,6 +176,10 @@ const FormInput: FormComponentBase = props => {
       var component = document.querySelector(".component-div");
     }
     const position = sidebar.details.findIndex(obj => obj.dataKey === dataKey);
+    if (position === -1 || !sidebar.details[position]) {
+      console.warn('onUserClick: Could not find sidebar entry for dataKey:', dataKey);
+      return;
+    }
     setActiveComponent({ dataKey: dataKey, label: sidebar.details[position].label, index: JSON.parse(JSON.stringify(sidebar.details[position].index)), position: position });
     window.scrollTo({ top: 0, behavior: "smooth" });
     component.scrollTo({ top: 0, behavior: "smooth" });
@@ -159,16 +189,13 @@ const FormInput: FormComponentBase = props => {
     setLoader({});
     setTimeout(() => {
       try {
-        setReferenceHistory([])
-        setSidebarHistory([])
-        saveAnswer(props.component.dataKey, 'answer', value, form.activeComponent.position, { 'clientMode': props.config.clientMode, 'baseUrl': props.config.baseUrl }, 0)
+        services.history.clear();
+        services.answer.saveAnswer(props.component.dataKey, value, { activePosition: form.activeComponent.position });
       } catch (e) {
-        console.log(e)
-        toastInfo(locale.details.language[0].errorSaving + props.component.dataKey, 3000, "", "bg-pink-600/80");
-        reloadDataFromHistory()
+        toastError(locale.details.language[0].errorSaving + props.component.dataKey, 3000);
+        services.history.reloadFromHistory();
       } finally {
-        setReferenceHistory([])
-        setSidebarHistory([])
+        services.history.clear();
       }
     }, 50);
   }
@@ -212,14 +239,24 @@ const FormInput: FormComponentBase = props => {
       setNote('details', 'notes', updatedNote);
 
       setTmpComment('');
-      setFlagRemark('');
 
-      toastInfo(locale.details.language[0].remarkAdded, 500, "", "bg-teal-600/80");
+      // Close modal with animation
+      const modal = document.querySelector('.modal-remark');
+      if (modal) {
+        modal.classList.add('closing');
+        setTimeout(() => {
+          setFlagRemark('');
+          toastSuccess(locale.details.language[0].remarkAdded, 500);
+        }, 200);
+      } else {
+        setFlagRemark('');
+        toastSuccess(locale.details.language[0].remarkAdded, 500);
+      }
 
       setData();
       props.setResponseMobile(response.details, remark.details, principal.details, reference);
     } else {
-      toastInfo(locale.details.language[0].remarkEmpty, 500, "", "bg-red-700/80");
+      toastError(locale.details.language[0].remarkEmpty, 500);
     }
   }
 
@@ -239,6 +276,19 @@ const FormInput: FormComponentBase = props => {
     }
   }
 
+  // Helper to close modal with animation
+  const closeRemarkModal = () => {
+    const modal = document.querySelector('.modal-remark');
+    if (modal) {
+      modal.classList.add('closing');
+      setTimeout(() => {
+        setFlagRemark('');
+      }, 200);
+    } else {
+      setFlagRemark('');
+    }
+  }
+
   const getComments = (dataKey: string) => {
     let updatedNote = JSON.parse(JSON.stringify(note.details.notes))
     let noteIndex = updatedNote.findIndex((item) => item.dataKey == dataKey)
@@ -249,12 +299,14 @@ const FormInput: FormComponentBase = props => {
 
   return (
     <div>
+      {/* Scroll target - placed at top so scrollIntoView shows the full component including label */}
+      <div id={props.component.dataKey + '___scrollView'} />
 
       <Show when={(loading())}>
         <div class="modal-loading fixed z-10 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
           <div class="flex items-center justify-center min-h-screen pt-4 px-4 text-center sm:block sm:p-0">
 
-            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+            <div class="fixed inset-0 bg-gray-500/75 transition-opacity" aria-hidden="true"></div>
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
             <div class="relative inline-block overflow-hidden  transform transition-all items-center">
@@ -271,7 +323,7 @@ const FormInput: FormComponentBase = props => {
       <Show when={(flagRemark() !== '')}>
         <div class="modal-remark fixed z-10 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
           <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+            <div class="fixed inset-0 bg-gray-500/75 transition-opacity" aria-hidden="true" onClick={closeRemarkModal}></div>
 
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
             <div class="relative inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
@@ -317,14 +369,14 @@ const FormInput: FormComponentBase = props => {
                     onClick={e => saveRemark()}>&nbsp;&nbsp;Save&nbsp;&nbsp;</button>
                   <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base 
                           font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-                    onClick={e => modalRemark('')}>Cancel</button>
+                    onClick={closeRemarkModal}>Cancel</button>
                 </div>
               </Show>
               <Show when={(props.config.formMode == 3)}>
                 <div class="bg-white px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
                   <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base 
                           font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-                    onClick={e => modalRemark('')}>Close</button>
+                    onClick={closeRemarkModal}>Close</button>
                 </div>
               </Show>
 
@@ -333,12 +385,10 @@ const FormInput: FormComponentBase = props => {
         </div>
       </Show>
 
-      <div id={props.component.dataKey + '___scrollView'} />
-
       <Switch>
         <For each={Array.from(controlMap.keys())}>
           {type =>
-            <Match when={props.component.type === type && getEnable(props.component.dataKey)}
+            <Match when={props.component.type === type && getLocalEnable(props.component.dataKey)}
               children={
                 controlMap.get(type)({
                   onMobile: props.onMobile,
@@ -346,7 +396,7 @@ const FormInput: FormComponentBase = props => {
                   index: props.index,
                   onValueChange,
                   onUserClick,
-                  value: getValue(props.component.dataKey),
+                  value: services.reference.getValue(props.component.dataKey),
                   config: props.config,
                   classValidation: handleValidation(),
                   comments: getComments(props.component.dataKey),

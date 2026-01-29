@@ -1,13 +1,14 @@
 import { createOptions, Select } from "@thisbeyond/solid-select"
 import { FiChevronDown } from 'solid-icons/fi'
 import { createEffect, createResource, createSignal, Show } from "solid-js"
-import Toastify from 'toastify-js'
 import { FormComponentBase } from "../../FormType"
-import { locale } from '../../stores/LocaleStore'
-import { reference } from '../../stores/ReferenceStore'
+import { useLocale, useReference } from '../../stores/StoreContext'
+import { toastError } from "../../utils/toast"
 import { InputContainer } from "./partials"
 
 const UnitInput: FormComponentBase = props => {
+    const [reference] = useReference();
+    const [locale] = useLocale();
     const config = props.config
     const [disableInput] = createSignal((config.formMode > 1) ? true : props.component.disableInput)
     const [label, setLabel] = createSignal('');
@@ -15,21 +16,6 @@ const UnitInput: FormComponentBase = props => {
     const [options, setOptions] = createSignal([]);
     const [selectedOption, setSelectedOption] = createSignal('');
     const isPublic = false;
-
-    const toastInfo = (text: string) => {
-        Toastify({
-            text: (text == '') ? "" : text,
-            duration: 3000,
-            gravity: "top",
-            position: "right",
-            stopOnFocus: true,
-            className: "bg-pink-700/80",
-            style: {
-                background: "rgba(8, 145, 178, 0.7)",
-                width: "400px"
-            }
-        }).showToast();
-    }
 
     let handleOnChange = (value: any, unit: any, isChange: any) => {
         if (isChange == 2 && unit.value != '' && unit.value != undefined) {
@@ -78,7 +64,7 @@ const UnitInput: FormComponentBase = props => {
                     setLoading(true)
                 })
             } catch (e) {
-                toastInfo(locale.details.language[0].fetchFailed)
+                toastError(locale.details.language[0].fetchFailed)
             }
 
             break;
@@ -104,8 +90,9 @@ const UnitInput: FormComponentBase = props => {
 
                                 let tobeLookup = reference.details.find(obj => obj.dataKey == newParams[0])
                                 if (tobeLookup.answer) {
-                                    if (tobeLookup.answer.length > 0) {
-                                        let parentValue = encodeURI(tobeLookup.answer[tobeLookup.answer.length - 1].value)
+                                    const answerArr = tobeLookup.answer as any[];
+                                    if (answerArr.length > 0) {
+                                        let parentValue = encodeURI(answerArr[answerArr.length - 1].value)
                                         url = `${config.lookupKey}=${item.key}&${config.lookupValue}=${parentValue}`
                                     }
                                 } else {
@@ -122,7 +109,7 @@ const UnitInput: FormComponentBase = props => {
                     }
                     // console.log('Lookup URL ', url)
 
-                    const [fetched] = createResource<optionSelect>(url, props.MobileOnlineSearch);
+                    const [fetched] = createResource<optionSelect>(() => url, props.MobileOnlineSearch as any);
                     let checker = props.value ? props.value != '' ? props.value[0].unit ? props.value[0].unit.value ? props.value[0].unit.value != '' ? props.value[0].unit.value : '' : '' : '' : '' : ''
 
                     createEffect(() => {
@@ -130,7 +117,7 @@ const UnitInput: FormComponentBase = props => {
 
                         if (fetched()) {
                             if (!fetched().success) {
-                                toastInfo(locale.details.language[0].fetchFailed)
+                                toastError(locale.details.language[0].fetchFailed)
                             } else {
                                 let arr
 
@@ -187,8 +174,9 @@ const UnitInput: FormComponentBase = props => {
 
                             let tobeLookup = reference.details.find(obj => obj.dataKey == newParams[0])
                             if (tobeLookup.answer) {
-                                if (tobeLookup.answer.length > 0) {
-                                    let parentValue = tobeLookup.answer[tobeLookup.answer.length - 1].value.toString()
+                                const answerArr = tobeLookup.answer as any[];
+                                if (answerArr.length > 0) {
+                                    let parentValue = answerArr[answerArr.length - 1].value.toString()
                                     tempArr.push({ "key": item.key, "value": parentValue })
                                 }
                             }
@@ -226,7 +214,7 @@ const UnitInput: FormComponentBase = props => {
                     const fetched = props.MobileOfflineSearch(id, version, tempArr, getResult);
                 }
             } catch (e) {
-                toastInfo(locale.details.language[0].fetchFailed)
+                toastError(locale.details.language[0].fetchFailed)
             }
 
             break;
@@ -268,7 +256,7 @@ const UnitInput: FormComponentBase = props => {
                 })
 
             } catch (e) {
-                toastInfo(locale.details.language[0].fetchFailed)
+                toastError(locale.details.language[0].fetchFailed)
             }
 
             break;
@@ -301,7 +289,7 @@ const UnitInput: FormComponentBase = props => {
 
                 })
             } catch (e) {
-                toastInfo(locale.details.language[0].fetchFailed)
+                toastError(locale.details.language[0].fetchFailed)
             }
 
             break;
@@ -337,7 +325,7 @@ const UnitInput: FormComponentBase = props => {
                         onChange={(e) => {
                             handleOnChange(e ? e.currentTarget.value : '', props.value != undefined && props.value != '' ? props.value[0].unit ? props.value[0].unit : { value: '', label: '' } : { value: '', label: '' }, 1)
                         }}
-                        oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"
+                        oninput={(e: InputEvent) => { const t = e.currentTarget as HTMLInputElement; if (t.value.length > t.maxLength) t.value = t.value.slice(0, t.maxLength); }}
                         maxlength={props.component.lengthInput[0].maxlength !== undefined ? props.component.lengthInput[0].maxlength : ''}
                         minlength={props.component.lengthInput[0].minlength !== undefined ? props.component.lengthInput[0].minlength : ''}
                         max={props.component.rangeInput ? props.component.rangeInput[0].max !== undefined ? props.component.rangeInput[0].max : '' : ''}

@@ -1,15 +1,19 @@
 import { createEffect, createSignal, createResource, Show, Switch, Match, For } from "solid-js"
 import { FormComponentBase, returnAPI } from "../FormType"
 import { Select, createOptions } from "@thisbeyond/solid-select"
-import { reference, setReference } from '../stores/ReferenceStore'
+import { useReference, useLocale, useSidebar } from '../stores/StoreContext'
 import "@thisbeyond/solid-select/style.css"
-import Toastify from 'toastify-js'
-import { locale, setLocale } from '../stores/LocaleStore'
-import { sidebar, setSidebar } from '../stores/SidebarStore';
-import { saveAnswer } from "../GlobalFunction";
+import { toastError } from "../utils/toast"
+import { useServices } from "../services";
 
 
 const SelectInput: FormComponentBase = props => {
+    // Get services
+    const services = useServices();
+
+    const [reference] = useReference();
+    const [locale] = useLocale();
+    const [sidebar] = useSidebar();
     const [label, setLabel] = createSignal('');
     const [isLoading, setLoading] = createSignal(false);
     const [options, setOptions] = createSignal([]);
@@ -24,20 +28,6 @@ const SelectInput: FormComponentBase = props => {
         type: string
     }
 
-    const toastInfo = (text: string) => {
-        Toastify({
-            text: (text == '') ? "" : text,
-            duration: 3000,
-            gravity: "top",
-            position: "right",
-            stopOnFocus: true,
-            className: "bg-pink-700/80",
-            style: {
-                background: "rgba(8, 145, 178, 0.7)",
-                width: "400px"
-            }
-        }).showToast();
-    }
 
     switch (props.component.typeOption) {
         case 1: {
@@ -59,7 +49,7 @@ const SelectInput: FormComponentBase = props => {
                     setLoading(true)
                 })
             } catch (e) {
-                toastInfo(locale.details.language[0].fetchFailed)
+                toastError(locale.details.language[0].fetchFailed)
             }
 
             break;
@@ -80,8 +70,9 @@ const SelectInput: FormComponentBase = props => {
                             let dataKey = item.sourceAnswer.split('@');
                             let sourceAnswer = reference.details.find(obj => obj.dataKey == dataKey[0])
                             if (sourceAnswer.answer) {
-                                if (sourceAnswer.answer.length > 0) {
-                                    let parentValue = encodeURI(sourceAnswer.answer[sourceAnswer.answer.length - 1].value)
+                                const answerArr = sourceAnswer.answer as any[];
+                                if (answerArr.length > 0) {
+                                    let parentValue = encodeURI(answerArr[answerArr.length - 1].value)
                                     urlParamsDummy = `${item.params}=${parentValue}`
                                 }
                             } else {
@@ -101,8 +92,9 @@ const SelectInput: FormComponentBase = props => {
                             let dataKey = item.sourceAnswer.split('@');
                             let sourceAnswer = reference.details.find(obj => obj.dataKey == dataKey[0])
                             if (sourceAnswer.answer) {
-                                if (sourceAnswer.answer.length > 0) {
-                                    let parentValue = encodeURI(sourceAnswer.answer[sourceAnswer.answer.length - 1].value)
+                                const answerArr = sourceAnswer.answer as any[];
+                                if (answerArr.length > 0) {
+                                    let parentValue = encodeURI(answerArr[answerArr.length - 1].value)
                                     urlParamsDummy = `${parentValue}/${item.params}`
                                 }
                             } else {
@@ -114,13 +106,13 @@ const SelectInput: FormComponentBase = props => {
                         url = `${urlHead}/${urlParams}` 
                     }
                     
-                    let head: RequestInit = {
-                        headers: JSON.stringify(sourceAPI.headers),
+                    const fetchOptions: RequestInit = {
+                        headers: sourceAPI.headers as HeadersInit,
                         method: "GET",
                       }
 
                     const onlineSearch = async (url:string) =>
-                        (await fetch(url, {head})
+                        (await fetch(url, fetchOptions)
                         .catch((error: any) => {
                             return {
                                 success: false,
@@ -162,7 +154,7 @@ const SelectInput: FormComponentBase = props => {
 
                         if (fetched()) {
                             if (!fetched().success) {
-                                toastInfo(locale.details.language[0].fetchFailed)
+                                toastError(locale.details.language[0].fetchFailed)
                             } else {
                                 let arr = []
                                 fetched().data.map((item, value) => {
@@ -193,8 +185,9 @@ const SelectInput: FormComponentBase = props => {
 
                             let tobeLookup = reference.details.find(obj => obj.dataKey == newParams[0])
                             if (tobeLookup.answer) {
-                                if (tobeLookup.answer.length > 0) {
-                                    let parentValue = tobeLookup.answer[tobeLookup.answer.length - 1].value.toString()
+                                const answerArr = tobeLookup.answer as any[];
+                                if (answerArr.length > 0) {
+                                    let parentValue = answerArr[answerArr.length - 1].value.toString()
                                     tempArr.push({ "key": item.key, "value": parentValue })
                                 }
                             }
@@ -278,7 +271,7 @@ const SelectInput: FormComponentBase = props => {
                     // })
                 }
             } catch (e) {
-                toastInfo(locale.details.language[0].fetchFailed)
+                toastError(locale.details.language[0].fetchFailed)
             }
 
             break;
@@ -320,7 +313,7 @@ const SelectInput: FormComponentBase = props => {
                 })
 
             } catch (e) {
-                toastInfo(locale.details.language[0].fetchFailed)
+                toastError(locale.details.language[0].fetchFailed)
             }
 
             break;
@@ -353,7 +346,7 @@ const SelectInput: FormComponentBase = props => {
 
                 })
             } catch (e) {
-                toastInfo(locale.details.language[0].fetchFailed)
+                toastError(locale.details.language[0].fetchFailed)
             }
 
             break;
@@ -369,13 +362,13 @@ const SelectInput: FormComponentBase = props => {
                         check.map((child: any) => {
                             if (child.sourceAnswer == parentKey && ref.answer != null) {
                                 let sidePosition = sidebar.details.findIndex((obj, index) => {
-                                    const cekInsideIndex = obj.components[0].findIndex((objChild, index) => {
+                                    const cekInsideIndex = obj.components[0].findIndex((objChild: any, index) => {
                                         objChild.dataKey === ref.dataKey;
                                         return index;
                                     });
                                     return (cekInsideIndex == -1) ? 0 : index;
                                 });
-                                saveAnswer(ref.dataKey, 'answer', null, sidePosition, { 'clientMode': config.clientMode, 'baseUrl': config.baseUrl }, 0)
+                                services.answer.saveAnswer(ref.dataKey, null, { activePosition: sidePosition })
                                 checkDependent(ref.dataKey)
                             } else {
                                 return
@@ -387,13 +380,13 @@ const SelectInput: FormComponentBase = props => {
                         check.map((child: any) => {
                             if (child.sourceAnswer == parentKey && ref.answer != null) {
                                 let sidePosition = sidebar.details.findIndex((obj, index) => {
-                                    const cekInsideIndex = obj.components[0].findIndex((objChild, index) => {
+                                    const cekInsideIndex = obj.components[0].findIndex((objChild: any, index) => {
                                         objChild.dataKey === ref.dataKey;
                                         return index;
                                     });
                                     return (cekInsideIndex == -1) ? 0 : index;
                                 });
-                                saveAnswer(ref.dataKey, 'answer', null, sidePosition, { 'clientMode': config.clientMode, 'baseUrl': config.baseUrl }, 0)
+                                services.answer.saveAnswer(ref.dataKey, null, { activePosition: sidePosition })
                                 checkDependent(ref.dataKey)
                             } else {
                                 return
@@ -451,9 +444,9 @@ const SelectInput: FormComponentBase = props => {
                     </Show>
                 </div>
             </div>
-            <div class="font-light text-sm space-x-2 py-2.5 px-2 md:col-span-2 grid grid-cols-12">
+            <div class="font-light text-sm py-2.5 px-2 md:col-span-2 flex items-start gap-2">
                 <Show when={isLoading()} fallback={
-                    <div class=" w-full mx-auto col-span-12">
+                    <div class="w-full mx-auto flex-1">
                         <div class="animate-pulse flex space-x-4">
                             <div class="flex-1 space-y-3 py-1">
                                 <div class="h-3 bg-gray-100 rounded-full"></div>
@@ -463,11 +456,7 @@ const SelectInput: FormComponentBase = props => {
                         </div>
                     </div>
                 }>
-                    <div class=""
-                        classList={{
-                            'col-span-11 lg:-mr-4': enableRemark(),
-                            'col-span-12': !(enableRemark()),
-                        }}>
+                    <div class="flex-1">
                         <div
                             classList={{
                                 ' border rounded border-orange-500 dark:bg-orange-100 ': props.classValidation === 1,
@@ -482,58 +471,57 @@ const SelectInput: FormComponentBase = props => {
                                 onChange={(e) => handleOnChange(e ? e.value : '', e ? e.label : '')}
                                 initialValue={{ value: props.value ? props.value != '' ? props.value[0].value : '' : '', label: selectedOption }} />
                         </div>
-                        <Show when={props.validationMessage.length > 0}>
+                        <Show when={props.validationMessage?.length > 0}>
                             <For each={props.validationMessage}>
                                 {(item: any) => (
                                     <div
                                         class="text-xs font-light mt-1">
-                                        <div class="grid grid-cols-12"
+                                        <div class="flex gap-2"
                                             classList={{
                                                 ' text-orange-500 dark:text-orange-200 ': props.classValidation === 1,
                                                 ' text-pink-600 dark:text-pink-200 ': props.classValidation === 2,
                                             }} >
                                             <Switch>
                                                 <Match when={props.classValidation === 1}>
-                                                    <div class="col-span-1 flex justify-center items-start">
+                                                    <div class="flex justify-center items-start shrink-0">
                                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                                                         </svg>
                                                     </div>
                                                 </Match>
                                                 <Match when={props.classValidation === 2}>
-                                                    <div class="col-span-1 flex justify-center items-start">
+                                                    <div class="flex justify-center items-start shrink-0">
                                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                         </svg>
                                                     </div>
                                                 </Match>
                                             </Switch>
-                                            <div class="col-span-11 text-justify mr-1" innerHTML={item} />
+                                            <div class="flex-1 text-justify" innerHTML={item} />
                                         </div>
                                     </div>
                                 )}
                             </For>
                         </Show>
                     </div>
+                </Show>
 
-                    <Show when={enableRemark()}>
-                        <div class=" flex justify-end ">
-                            <button class="relative inline-block bg-white p-2 h-10 w-10 text-gray-500 rounded-full  hover:bg-yellow-100 hover:text-yellow-400 hover:border-yellow-100 border-2 border-gray-300 disabled:bg-gray-200 dark:disabled:bg-gray-700 dark:disabled:text-gray-400"
-                                disabled = { disableClickRemark() }
-                                onClick={e => props.openRemark(props.component.dataKey)}>
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
-                                </svg>
-                                <span class="absolute top-0 right-0 inline-flex items-center justify-center h-6 w-6
-                                    text-xs font-semibold text-white transform translate-x-1/2 -translate-y-1/4 bg-pink-600/80 rounded-full"
-                                    classList={{
-                                        'hidden': props.comments === 0
-                                    }}>
-                                    {props.comments}
-                                </span>
-                            </button>
-                        </div>
-                    </Show>
+                <Show when={enableRemark()}>
+                    <div class="shrink-0">
+                        <button class="relative inline-block bg-white p-2 h-10 w-10 text-gray-500 rounded-full  hover:bg-yellow-100 hover:text-yellow-400 hover:border-yellow-100 border-2 border-gray-300 disabled:bg-gray-200 dark:disabled:bg-gray-700 dark:disabled:text-gray-400"
+                            disabled = { disableClickRemark() }
+                            onClick={e => props.openRemark(props.component.dataKey)}>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                            </svg>
+                            <Show when={props.comments && props.comments > 0}>
+                  <span class="absolute top-0 right-0 inline-flex items-center justify-center h-6 w-6
+                              text-xs font-semibold text-white transform translate-x-1/2 -translate-y-1/4 bg-pink-600/80 rounded-full">
+                      {props.comments}
+                  </span>
+                </Show>
+                        </button>
+                    </div>
                 </Show>
 
             </div>
