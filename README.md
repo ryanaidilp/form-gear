@@ -401,9 +401,17 @@ FormGear uses numbers as code to define each control type. Below is a table of c
 | `CheckboxInput` | 29 | Checkbox input field, lets user choose one or more options of limited choices. |
 | `TextAreaInput` | 30 | Adjustable text area input field. |
 | `EmailInput` | 31 | Email address input field. |
-| `PhotoInput` | 32 | Photo input, lets user add picture with .`jpg`, `.jpeg`, `.png`, and `.gif` format. |
-| `GpsInput` | 33 | GPS input. |
-| `CsvInput` | 34 | CSV input, lets user upload `.csv` file to be stored as `.json` format in the Response. The `.csv` file can later be downloaded again in the same format. |
+| `PhotoInput` | 32 | Photo input, lets user add picture with `.jpg`, `.jpeg`, `.png`, and `.gif` format. |
+| `GpsInput` | 33 | GPS input, captures device coordinates with optional map view. |
+| `CsvInput` | 34 | CSV input, lets user upload `.csv` file stored as `.json` in the Response. The file can be downloaded again later. |
+| `NowInput` | 35 | Captures the current date and time at the moment the field is filled. |
+| `SignatureInput` | 36 | Signature pad input, lets user draw a signature that is stored as an image. |
+| `UnitInput` | 37 | Numeric input with a selectable unit label (e.g. kg, cm). |
+| `DecimalInput` | 38 | Decimal number input field. |
+| `AudioInput` | 39 | Audio recording input, lets user record audio directly from the device microphone. |
+| `BarcodeInput` | 40 | Barcode / QR code scanner input via device camera with manual fallback. |
+| `VideoInput` | 41 | Video recording input, lets user record or upload a video file. |
+| `FileInput` | 42 | General file picker with configurable allowed extensions and size limits. |
 
 ### Component Type
 
@@ -791,7 +799,7 @@ FormGear now has a visual **Template Builder** - a drag-and-drop interface for c
 
 ## Builder Features
 
-- **Drag-and-drop** component palette with all 38 component types
+- **Drag-and-drop** component palette with all 42 component types
 - **Visual form canvas** with nested component support (Section, Nested)
 - **Properties panel** for editing component attributes
 - **Expression builder** for `enableCondition` and validation `test` expressions
