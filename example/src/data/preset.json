@@ -1,5 +1,14 @@
 {
-  "description": "",
-  "dataKey": "",
-  "predata": []
+  "description": "sample template",
+  "dataKey": "sample_tpl1",
+  "predata": [
+    {
+      "dataKey": "nama_lengkap",
+      "answer": "Setyadi"
+    },
+    {
+      "dataKey": "luas_lahan#1",
+      "answer": "10"
+    }
+  ]
 }
