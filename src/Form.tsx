@@ -1,4 +1,4 @@
-import { Component, createEffect, createSignal, Show } from "solid-js";
+import { Component, createEffect, createSignal, onCleanup, onMount, Show } from "solid-js";
 import FormComponent from './FormComponent';
 import { gearVersion } from "./createFormGear";
 import { useForm } from "./FormProvider";
@@ -42,6 +42,7 @@ import {
   closeModalWithAnimation,
   ModalClasses,
 } from './utils';
+import type { ActiveComponentData } from './utils';
 
 // Extracted components
 import {
@@ -193,12 +194,14 @@ const Form: Component<FormProps> = props => {
   }
 
   // Initialize active component
-  setActiveComponent({
+  const initialComponent = {
     dataKey: sidebar.details[0].dataKey,
     label: sidebar.details[0].label,
     index: JSON.parse(JSON.stringify(sidebar.details[0].index)),
     position: 0
-  });
+  };
+  setActiveComponent(initialComponent);
+  history.replaceState(initialComponent, '');
   setComponents(getComponents(sidebar.details[0].dataKey));
 
   // Initialize form data using extracted function
@@ -428,6 +431,62 @@ const Form: Component<FormProps> = props => {
   props.mobileExit(writeResponse);
 
   // =============================================================================
+  // Browser History Navigation
+  // =============================================================================
+
+  const isSectionState = (state: unknown): state is ActiveComponentData =>
+    typeof state === 'object' &&
+    state !== null &&
+    typeof (state as ActiveComponentData).dataKey === 'string' &&
+    typeof (state as ActiveComponentData).label === 'string' &&
+    Array.isArray((state as ActiveComponentData).index) &&
+    typeof (state as ActiveComponentData).position === 'number';
+
+  /**
+   * Navigates to a section and records a browser history entry.
+   * Do NOT call this from within a popstate handler — use setActiveComponent
+   * directly to avoid creating duplicate history entries during back/forward navigation.
+   */
+  const navigateToSection = (component: ActiveComponentData) => {
+    setActiveComponent(component);
+    history.pushState(component, '' /* title param: deprecated, ignored by browsers */);
+  };
+
+  const handlePopState = (event: PopStateEvent) => {
+    if (isSectionState(event.state)) {
+      writeResponse();
+      setLoader({});
+      setTimeout(() => {
+        setActiveComponent(event.state);
+        resetScrollPosition();
+      }, 50);
+    }
+  };
+
+  onMount(() => {
+    // Expose mobileBack for Flutter/native WebView back-button interception.
+    // The Flutter SDK calls window.mobileBack() and expects:
+    //   true  → navigation handled (more sections to go back through)
+    //   false → at first section, let the native layer handle (show exit dialog)
+    (window as any).mobileBack = (): boolean => {
+      const hasPrev = sidebar.details.filter(
+        (obj: any, i: number) => obj.enable && i < form.activeComponent.position
+      ).length > 0;
+      if (hasPrev) {
+        history.back(); // triggers popstate → handlePopState
+        return true;
+      }
+      return false;
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    onCleanup(() => {
+      delete (window as any).mobileBack;
+      window.removeEventListener('popstate', handlePopState);
+    });
+  });
+
+  // =============================================================================
   // Navigation
   // =============================================================================
 
@@ -444,7 +503,7 @@ const Form: Component<FormProps> = props => {
 
     setLoader({});
     setTimeout(() => {
-      setActiveComponent({
+      navigateToSection({
         dataKey: prevSection.dataKey,
         label: prevSection.label,
         index: JSON.parse(JSON.stringify(prevSection.index)),
@@ -464,7 +523,7 @@ const Form: Component<FormProps> = props => {
 
     setLoader({});
     setTimeout(() => {
-      setActiveComponent({
+      navigateToSection({
         dataKey: nextSection.dataKey,
         label: nextSection.label,
         index: JSON.parse(JSON.stringify(nextSection.index)),
@@ -480,7 +539,7 @@ const Form: Component<FormProps> = props => {
     component?.scrollTo({ top: 0, behavior: "smooth" });
     writeResponse();
     setLoader({});
-    setTimeout(() => setActiveComponent({ dataKey, label, index: JSON.parse(JSON.stringify(index)), position }), 50);
+    setTimeout(() => navigateToSection({ dataKey, label, index: JSON.parse(JSON.stringify(index)), position }), 50);
   };
 
   // =============================================================================
@@ -505,7 +564,7 @@ const Form: Component<FormProps> = props => {
 
     setLoader({});
     setTimeout(() => {
-      setActiveComponent({
+      navigateToSection({
         dataKey: sidebarInto.dataKey,
         label: sidebarInto.label,
         index: JSON.parse(JSON.stringify(sidebarInto.index)),
@@ -777,7 +836,7 @@ const Form: Component<FormProps> = props => {
                     resetScrollPosition();
                     getConfig().clientMode === ClientMode.CAPI && writeResponse();
                     setLoader({});
-                    setTimeout(() => setActiveComponent({ dataKey, label, index: JSON.parse(JSON.stringify(index)), position }), 50);
+                    setTimeout(() => navigateToSection({ dataKey, label, index: JSON.parse(JSON.stringify(index)), position }), 50);
                   }}
                 />
 
