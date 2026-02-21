@@ -82,6 +82,10 @@ interface FormProps {
   setResponseMobile: any;
   setSubmitMobile: any;
   openMap: any;
+  audioHandler?: any;
+  barcodeHandler?: any;
+  videoHandler?: any;
+  fileHandler?: any;
 }
 
 // =============================================================================
@@ -853,6 +857,10 @@ const Form: Component<FormProps> = props => {
                   onlineSearch={props.onlineSearch}
                   openMap={props.openMap}
                   setResponseMobile={props.setResponseMobile}
+                  audioHandler={props.audioHandler}
+                  barcodeHandler={props.barcodeHandler}
+                  videoHandler={props.videoHandler}
+                  fileHandler={props.fileHandler}
                 />
 
                 {/* Desktop Navigation */}

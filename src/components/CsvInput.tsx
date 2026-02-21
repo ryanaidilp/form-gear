@@ -3,6 +3,8 @@ import { FormComponentBase } from "../FormType"
 import Papa from 'papaparse'
 import { useLocale } from '../stores/StoreContext'
 import { toastInfo, toastError } from "../utils/toast"
+import RemarkButton from './ui/RemarkButton'
+import ActionButton from './ui/ActionButton'
 
 const CsvInput: FormComponentBase = props => {
     const [locale] = useLocale();
@@ -196,35 +198,30 @@ const CsvInput: FormComponentBase = props => {
                         name={props.component.dataKey} />
 
                     <Show when={props.value}>
-                        <button class="bg-white text-gray-500 p-2 rounded-full focus:outline-none h-10 w-10 hover:bg-teal-200 hover:text-teal-400 hover:border-teal-200 border-2 border-gray-300 "
+                        <ActionButton
+                            color="teal"
                             onClick={e => downloadCsv(e)}>
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                             </svg>
-                        </button>
+                        </ActionButton>
                     </Show>
 
-                    <button class="bg-white text-gray-500 p-2 mr-2 rounded-full focus:outline-none h-10 w-10 hover:bg-fuchsia-200 hover:text-fuchsia-400 hover:border-fuchsia-200 border-2 border-gray-300  disabled:bg-gray-200 dark:disabled:bg-gray-700 dark:disabled:text-gray-400"
+                    <ActionButton
+                        color="fuchsia"
                         disabled={disableInput()}
-                        onClick={e => { (document.getElementById("inputFile_" + props.component.dataKey) as HTMLInputElement).click() }} title={locale.details.language[0].uploadCsv}>
+                        onClick={e => { (document.getElementById("inputFile_" + props.component.dataKey) as HTMLInputElement).click() }}
+                        title={locale.details.language[0].uploadCsv}>
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
-                    </button>
+                    </ActionButton>
                     <Show when={enableRemark()}>
-                        <button class="relative inline-block bg-white p-2 h-10 w-10 text-gray-500 rounded-full  hover:bg-yellow-100 hover:text-yellow-400 hover:border-yellow-100 border-2 border-gray-300 disabled:bg-gray-200 dark:disabled:bg-gray-700 dark:disabled:text-gray-400"
+                        <RemarkButton
                             disabled={disableClickRemark()}
-                            onClick={e => props.openRemark(props.component.dataKey)}>
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
-                            </svg>
-                            <Show when={props.comments && props.comments > 0}>
-                  <span class="absolute top-0 right-0 inline-flex items-center justify-center h-6 w-6
-                              text-xs font-semibold text-white transform translate-x-1/2 -translate-y-1/4 bg-pink-600/80 rounded-full">
-                      {props.comments}
-                  </span>
-                </Show>
-                        </button>
+                            onClick={() => props.openRemark(props.component.dataKey)}
+                            comments={props.comments}
+                        />
                     </Show>
                 </div>
 

@@ -574,6 +574,10 @@ export interface MobileHandlers {
   onlineSearch?: (url: string) => Promise<unknown>;
   exitHandler?: (callback?: () => void) => void;
   openMap?: (koordinat: { lat?: number; long?: number; latitude?: number; longitude?: number }) => void;
+  audioHandler?: (setter: (value: any) => void) => void;
+  barcodeHandler?: (setter: (value: any) => void) => void;
+  videoHandler?: (setter: (value: any) => void) => void;
+  fileHandler?: (setter: (value: any) => void) => void;
 }
 
 /**

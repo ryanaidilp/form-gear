@@ -30,6 +30,10 @@ import NowInput from "./components/NowInput"
 import SignatureInput from "./components/SignatureInput"
 import UnitInput from "./components/UnitInput"
 import DecimalInput from "./components/DecimalInput"
+import AudioInput from "./components/AudioInput"
+import BarcodeInput from "./components/BarcodeInput"
+import VideoInput from "./components/VideoInput"
+import FileInput from "./components/FileInput"
 
 import PAPITextInput from "./components/PAPI/TextInput"
 import PAPISelectInput from "./components/PAPI/SelectInput"
@@ -76,7 +80,11 @@ export enum ControlType {
   NowInput = 35,
   SignatureInput = 36,
   UnitInput = 37,
-  DecimalInput = 38
+  DecimalInput = 38,
+  AudioInput = 39,
+  BarcodeInput = 40,
+  VideoInput = 41,
+  FileInput = 42,
 }
 
 export type Option = {
@@ -205,6 +213,10 @@ export interface FormComponentBase extends Component<{
   MobileOfflineSearch?: (id: any, version: any, conditions: any, setter: any) => void
   MobileOnlineSearch?: (value: any) => void
   MobileOpenMap?: (value: any) => void
+  MobileAudioHandler?: (setter: (value: any) => void) => void
+  MobileBarcodeHandler?: (setter: (value: any) => void) => void
+  MobileVideoHandler?: (setter: (value: any) => void) => void
+  MobileFileHandler?: (setter: (value: any) => void) => void
   openRemark?: (dataKey: string) => void
   setResponseMobile?: any
 }> { }
@@ -240,7 +252,11 @@ export const CONTROL_MAP = new Map<ControlType, FormComponentBase>([
   [ControlType.NowInput, NowInput],
   [ControlType.SignatureInput, SignatureInput],
   [ControlType.UnitInput, UnitInput],
-  [ControlType.DecimalInput, DecimalInput]
+  [ControlType.DecimalInput, DecimalInput],
+  [ControlType.AudioInput, AudioInput],
+  [ControlType.BarcodeInput, BarcodeInput],
+  [ControlType.VideoInput, VideoInput],
+  [ControlType.FileInput, FileInput],
 ]);
 
 // const CONTROL_MAP_PAPI = CONTROL_MAP
@@ -288,5 +304,9 @@ export const CONTROL_MAP_PAPI = new Map<ControlType, FormComponentBase>([
   [ControlType.NowInput, NowInput],
   [ControlType.SignatureInput, SignatureInput],
   [ControlType.UnitInput, PAPIUnitInput],
-  [ControlType.DecimalInput, DecimalInput]
+  [ControlType.DecimalInput, DecimalInput],
+  [ControlType.AudioInput, AudioInput],
+  [ControlType.BarcodeInput, BarcodeInput],
+  [ControlType.VideoInput, VideoInput],
+  [ControlType.FileInput, FileInput],
 ]);

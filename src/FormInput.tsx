@@ -406,7 +406,11 @@ const FormInput: FormComponentBase = props => {
                   MobileGpsHandler: props.MobileGpsHandler,
                   MobileOfflineSearch: props.MobileOfflineSearch,
                   MobileOnlineSearch: props.MobileOnlineSearch,
-                  MobileOpenMap: props.MobileOpenMap
+                  MobileOpenMap: props.MobileOpenMap,
+                  MobileAudioHandler: props.MobileAudioHandler,
+                  MobileBarcodeHandler: props.MobileBarcodeHandler,
+                  MobileVideoHandler: props.MobileVideoHandler,
+                  MobileFileHandler: props.MobileFileHandler,
                 })
               }
             />
