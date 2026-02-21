@@ -383,6 +383,10 @@ export function createFormGear(options: FormGearOptions): FormGearInstance {
   const onlineSearch = mobileHandlers.onlineSearch || (async () => ({}));
   const exitHandler = mobileHandlers.exitHandler || ((cb?: () => void) => cb && cb());
   const openMap = mobileHandlers.openMap || (() => {});
+  const audioHandler = mobileHandlers.audioHandler || (() => {});
+  const barcodeHandler = mobileHandlers.barcodeHandler || (() => {});
+  const videoHandler = mobileHandlers.videoHandler || (() => {});
+  const fileHandler = mobileHandlers.fileHandler || (() => {});
 
   // Create response callbacks
   const onSaveCallback = callbacks.onSave || (() => {});
@@ -502,6 +506,10 @@ export function createFormGear(options: FormGearOptions): FormGearInstance {
                 setResponseMobile={onSaveCallback}
                 setSubmitMobile={onSubmitCallback}
                 openMap={openMap}
+                audioHandler={audioHandler}
+                barcodeHandler={barcodeHandler}
+                videoHandler={videoHandler}
+                fileHandler={fileHandler}
               />
               <Loader />
             </FormLoaderProvider>

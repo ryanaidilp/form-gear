@@ -14,23 +14,31 @@ const FormComponent: Component<{
   onlineSearch : any
   openMap : any
   setResponseMobile: any
+  audioHandler?: any
+  barcodeHandler?: any
+  videoHandler?: any
+  fileHandler?: any
 }> = props => {
 
   return (
     <div class="flex-grow bg-white dark:bg-gray-900 overflow-y-auto mb-20">
       <div class="space-y-3 sm:p-7 p-3">
         <For each={props.components}
-          children={(component:any, index) => 
-            FormInput({ 
+          children={(component:any, index) =>
+            FormInput({
                 onMobile: props.onMobile,
-                component, 
-                index: index(), 
-                config: props.config, 
+                component,
+                index: index(),
+                config: props.config,
                 MobileUploadHandler: props.uploadHandler,
                 MobileGpsHandler: props.GpsHandler,
                 MobileOfflineSearch : props.offlineSearch,
                 MobileOnlineSearch : props.onlineSearch,
                 MobileOpenMap : props.openMap,
+                MobileAudioHandler: props.audioHandler,
+                MobileBarcodeHandler: props.barcodeHandler,
+                MobileVideoHandler: props.videoHandler,
+                MobileFileHandler: props.fileHandler,
                 setResponseMobile: props.setResponseMobile})} />
       </div>
     </div>

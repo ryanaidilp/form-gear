@@ -243,6 +243,14 @@ export interface MobileHandlers {
   exitHandler?: ExitHandler;
   /** Map visualization handler */
   openMap?: OpenMapHandler;
+  /** Audio recording handler */
+  audioHandler?: (setter: (value: any) => void) => void;
+  /** Barcode/QR scan handler */
+  barcodeHandler?: (setter: (value: any) => void) => void;
+  /** Video recording handler */
+  videoHandler?: (setter: (value: any) => void) => void;
+  /** File picker handler */
+  fileHandler?: (setter: (value: any) => void) => void;
 }
 
 /**

@@ -90,6 +90,18 @@ export enum ComponentType {
 
   // Decimal (38)
   DECIMAL = 38,
+
+  // Audio Recording (39)
+  AUDIO = 39,
+
+  // Barcode/QR Scanner (40)
+  BARCODE = 40,
+
+  // Video Recording (41)
+  VIDEO = 41,
+
+  // File Picker (42)
+  FILE = 42,
 }
 
 /**
