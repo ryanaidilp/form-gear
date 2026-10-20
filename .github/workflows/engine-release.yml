@@ -1,0 +1,53 @@
+name: Engine release
+
+# Tag v* builds and tests the engine and packages it for the Fasih engine channel.
+# Publishing needs the signing key: add the secret ENGINE_SIGNING_KEY (PEM text of the Ed25519
+# private key) and this workflow signs and uploads the assets to the GitHub Release of the tag.
+# Without the secret it only builds, tests and keeps the unsigned package as a workflow artifact,
+# and the release is signed and published locally (docs/RELEASING.md).
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  engine:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run type-check
+      - run: npm run test:run
+      - run: npm run build
+      - name: Tag matches package.json
+        run: test "v$(node -p "require('./package.json').version")" = "${GITHUB_REF_NAME}"
+      - run: npm run engine:package
+      - name: Sign
+        id: sign
+        env:
+          ENGINE_SIGNING_KEY: ${{ secrets.ENGINE_SIGNING_KEY }}
+        run: |
+          if [ -n "$ENGINE_SIGNING_KEY" ]; then
+            npm run engine:sign && npm run engine:verify
+            echo "signed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "No ENGINE_SIGNING_KEY secret: package left unsigned."
+          fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: engine-package
+          path: release-out/
+      - name: Publish to the GitHub Release
+        if: steps.sign.outputs.signed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1 || gh release create "$GITHUB_REF_NAME" --title "$GITHUB_REF_NAME" --notes "Engine channel release"
+          gh release upload "$GITHUB_REF_NAME" release-out/* --clobber

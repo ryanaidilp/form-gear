@@ -6,3 +6,4 @@ client/cawi/data
 src/data/*
 !src/data/default/*
 !src/data/*.json
+release-out/
