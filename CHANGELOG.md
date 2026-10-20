@@ -1,5 +1,20 @@
 # Changelog
 
+## FormGear | Ver. 2.1.0 - Engine channel release
+
+> October 20, 2026
+
+### Added
+
+- Engine package for the Fasih engine channel: `fg2-<version>.zip` (host shell `engine/index.html`, UMD bundle, stylesheet, `version.json`), a feed manifest `engines.json` with SHA-256 and size per file, `SHA256SUMS`, and an Ed25519 detached signature `engines.json.sig`.
+- `npm run engine:package`, `engine:sign`, `engine:verify` and a tag-triggered `Engine release` workflow. See [docs/RELEASING.md](./docs/RELEASING.md).
+
+### Changed
+
+- No change to the form engine code. 2.1.0 is the first release published as a GitHub Release.
+
+---
+
 ## FormGear | Ver. 2.0.0 - Major Architecture Refactoring
 
 > December 31, 2025

@@ -1,6 +1,6 @@
 {
   "name": "form-gear",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "FormGear is a framework engine for dynamic form creation and complex form processing and validation for data collection.",
   "info": "It is easy to use and efficiently handle nested inquiries to capture everything down to the last detail. Unlike other similar framework, validation is handled in a FALSE condition in which each field is validated against a test equation. This leads to a more efficient and effective way to validate each component.",
   "homepage": "https://solid-form-gear.vercel.app/",
@@ -67,7 +67,10 @@
     "test:run": "vitest run",
     "test:watch": "vitest watch",
     "test:coverage": "vitest run --coverage",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "engine:package": "node scripts/engine/package.mjs",
+    "engine:sign": "node scripts/engine/sign.mjs",
+    "engine:verify": "node scripts/engine/verify.mjs"
   },
   "devDependencies": {
     "@solidjs/testing-library": "^0.8.10",
